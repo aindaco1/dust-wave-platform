@@ -1,0 +1,12 @@
+{
+  "name": "@dustwave/worker-core",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./turnstile": "./src/turnstile.js"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "license": "MIT"
+}

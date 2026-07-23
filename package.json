@@ -1,0 +1,17 @@
+{
+  "name": "@dustwave/platform-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "check": "npm test",
+    "test": "node --test packages/*/test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "license": "MIT"
+}
