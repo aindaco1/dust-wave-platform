@@ -5,7 +5,7 @@
 
 ## Decision
 
-Use one public `aindaco1/dust-wave-platform` monorepo for framework-neutral packages. Pool, Store, Dust Wave, and Podcast pin it as a Git submodule at `vendor/dust-wave-platform`.
+Use one public `aindaco1/dust-wave-platform` monorepo for framework-neutral packages. Pool, Store, Dust Wave, and Podcast pin it as a Git submodule at `shared/dust-wave-platform`.
 
 The first extraction is the byte-identical Turnstile module in Pool and Store. The original source hashes match before extraction. Each consumer migrates independently on its own release branch and can revert its submodule pointer without changing another product.
 

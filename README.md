@@ -14,7 +14,7 @@ Planned packages are added only when consumer characterization tests prove a sta
 
 ## Consumer model
 
-Each consumer pins this repository as `vendor/dust-wave-platform` and imports an exact package version. Submodule pointers are updated independently on consumer release branches. A consumer must never import another consumer's application code or storage.
+Each consumer pins this repository as `shared/dust-wave-platform` and imports an exact package version. Submodule pointers are updated independently on consumer release branches. A consumer must never import another consumer's application code or storage.
 
 ## Development
 
