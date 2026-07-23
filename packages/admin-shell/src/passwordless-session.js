@@ -35,7 +35,9 @@ export class PasswordlessAdminSession {
   }
 
   async restore() {
-    return this.#client.request(this.#endpoints.session, { csrf: false });
+    const result = await this.#client.request(this.#endpoints.session, { csrf: false });
+    this.#client.setCsrfToken(result.csrfToken);
+    return result;
   }
 
   async logout() {
