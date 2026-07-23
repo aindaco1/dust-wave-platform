@@ -40,6 +40,21 @@ test("does not attach CSRF to public reads", async () => {
   assert.equal(headers.has("x-podcast-csrf"), false);
 });
 
+test("binds the fetch implementation for browser-native invocation", async () => {
+  let receiver;
+  const client = new AdminApiClient({
+    baseUrl: "https://podcast.test",
+    fetchImpl: function fetchWithBrowserReceiver() {
+      receiver = this;
+      return Response.json({ ok: true });
+    }
+  });
+
+  await client.request("/health");
+
+  assert.equal(receiver, globalThis);
+});
+
 test("returns bounded provider errors", async () => {
   const client = new AdminApiClient({
     baseUrl: "https://podcast.test",

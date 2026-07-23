@@ -17,13 +17,14 @@ export class AdminApiClient {
   constructor({
     baseUrl,
     csrfHeader = "x-dustwave-csrf",
-    fetchImpl = globalThis.fetch
+    fetchImpl
   } = {}) {
     if (!baseUrl) throw new TypeError("baseUrl is required");
-    if (typeof fetchImpl !== "function") throw new TypeError("fetchImpl is required");
+    const resolvedFetch = fetchImpl || globalThis.fetch;
+    if (typeof resolvedFetch !== "function") throw new TypeError("fetchImpl is required");
     this.#baseUrl = String(baseUrl).replace(/\/+$/, "");
     this.#csrfHeader = String(csrfHeader);
-    this.#fetch = fetchImpl;
+    this.#fetch = resolvedFetch.bind(globalThis);
   }
 
   setCsrfToken(value) {
