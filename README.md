@@ -8,7 +8,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
-| `@dustwave/worker-core` | Runtime-neutral Worker security and request primitives | `0.1.0`; first exact-duplicate extraction |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, signed-identity, Stripe, and request primitives | `0.2.0`; exact and policy-injected duplicate extraction |
 
 Planned packages are added only when consumer characterization tests prove a stable boundary: admin shell primitives, content editor codecs, player controls, timed text, media manifests, tax calculation, and alignment job contracts.
 
