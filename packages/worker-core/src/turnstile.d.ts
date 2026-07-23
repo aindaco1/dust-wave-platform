@@ -13,20 +13,20 @@ export interface TurnstileFailure {
 }
 
 export function shouldBypassTurnstile(
-  env: Record<string, unknown>,
+  env: object,
   bypassEnvName: string
 ): boolean;
 export function getTurnstileSecret(
-  env: Record<string, unknown>,
+  env: object,
   secretEnvNames?: string[]
 ): string;
 export function isTurnstileRequired(
-  env: Record<string, unknown>,
+  env: object,
   options?: TurnstileOptions
 ): boolean;
 export function verifyTurnstile(
   request: Request,
-  env: Record<string, unknown>,
+  env: object,
   token: string,
   options?: TurnstileOptions
 ): Promise<{ ok: true } | TurnstileFailure>;
