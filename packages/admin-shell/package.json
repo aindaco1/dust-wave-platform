@@ -1,0 +1,16 @@
+{
+  "name": "@dustwave/admin-shell",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./api-client": "./src/api-client.js",
+    "./editor": "./src/editor.js",
+    "./editor-codec": "./src/editor-codec.js",
+    "./passwordless-session": "./src/passwordless-session.js",
+    "./tabs": "./src/tabs.js"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "license": "MIT"
+}
