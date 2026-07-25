@@ -152,11 +152,11 @@ export function shareCardSvgMarkup({
   language = "en"
 }) {
   const normalized = {
-    brand: normalizeShareCardText(brand, "brand", 48),
-    eyebrow: normalizeShareCardText(eyebrow, "eyebrow", 64),
+    brand: normalizeShareCardText(brand, "brand", 32),
+    eyebrow: normalizeShareCardText(eyebrow, "eyebrow", 56),
     title: normalizeShareCardText(title, "title", 160),
     summary: normalizeShareCardText(summary, "summary", 320, true),
-    footer: normalizeShareCardText(footer, "footer", 80, true)
+    footer: normalizeShareCardText(footer, "footer", 32, true)
   };
   if (!normalized.brand || !normalized.eyebrow || !normalized.title) {
     throw new TypeError("brand, eyebrow, and title are required");
@@ -166,12 +166,17 @@ export function shareCardSvgMarkup({
     ? "es"
     : "en";
   const artwork = normalizeShareCardArtwork(artworkDataUrl);
+  const eyebrowLines = wrapShareCardText(
+    normalized.eyebrow.toLocaleUpperCase(locale),
+    28,
+    2
+  );
   const titleLines = wrapShareCardText(
     normalized.title.toLocaleUpperCase(locale),
-    18,
+    13,
     3
   );
-  const summaryLines = wrapShareCardText(normalized.summary, 40, 3);
+  const summaryLines = wrapShareCardText(normalized.summary, 32, 3);
   const titleFontSize = titleLines.length >= 3 ? 46 : titleLines.length === 2 ? 56 : 68;
   const titleLineHeight = titleFontSize + 4;
   const titleY = 255;
@@ -195,7 +200,7 @@ export function shareCardSvgMarkup({
   ${artwork ? `<image href="${escapeAttribute(artwork)}" x="52" y="52" width="526" height="526" preserveAspectRatio="xMidYMid slice" clip-path="url(#share-artwork-clip)"/>` : ""}
   <rect x="52" y="52" width="526" height="526" rx="28" ry="28" fill="none" stroke="${normalizedAccent}" stroke-width="4"/>
   <text x="628" y="94" fill="${normalizedAccent}" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" letter-spacing="3">${escapeAttribute(normalized.brand.toLocaleUpperCase(locale))}</text>
-  <text x="628" y="155" fill="#d8d8d8" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" letter-spacing="1.5">${escapeAttribute(normalized.eyebrow.toLocaleUpperCase(locale))}</text>
+  <text x="628" y="155" fill="#d8d8d8" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" letter-spacing="1.5">${eyebrowLines.map((line, index) => `<tspan x="628" dy="${index === 0 ? 0 : 28}">${escapeAttribute(line)}</tspan>`).join("")}</text>
   <text x="628" y="${titleY}" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="${titleFontSize}" font-weight="800">${titleLines.map((line, index) => `<tspan x="628" dy="${index === 0 ? 0 : titleLineHeight}">${escapeAttribute(line)}</tspan>`).join("")}</text>
   ${summaryLines.length ? `<text x="628" y="${summaryY}" fill="#d0d0d0" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400">${summaryLines.map((line, index) => `<tspan x="628" dy="${index === 0 ? 0 : summaryLineHeight}">${escapeAttribute(line)}</tspan>`).join("")}</text>` : ""}
   <rect x="628" y="548" width="84" height="5" rx="2.5" fill="${normalizedAccent}"/>

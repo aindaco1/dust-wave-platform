@@ -131,12 +131,13 @@ test("renders a bounded, escaped, localized share-card SVG", () => {
   });
   assert.match(svg, /width="1200" height="630"/);
   assert.match(svg, /NUEVO EPISODIO/);
-  assert.match(svg, /UNA CHARLA SOBRE/);
+  assert.match(svg, /UNA CHARLA/);
+  assert.match(svg, />SOBRE</);
   assert.match(svg, /&lt;CÓDIGO&gt; &amp;/);
   assert.match(svg, /data:image\/png;base64,iVBORw0KGgo=/);
   assert.match(svg, /stroke="#ffd54d"/);
   assert.doesNotMatch(svg, /<script|<código>/i);
-  assert((svg.match(/<tspan/g) || []).length <= 6);
+  assert((svg.match(/<tspan/g) || []).length <= 8);
 });
 
 test("rejects unsafe or oversized share-card inputs", () => {
