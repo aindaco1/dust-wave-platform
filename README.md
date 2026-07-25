@@ -11,9 +11,12 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | `@dustwave/worker-core` | Runtime-neutral Worker security, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.0`; exact and policy-injected duplicate extraction |
 | `@dustwave/admin-shell` | Credentialed admin API client, passwordless session coordinator, accessible tabs, Pool-characterized rich-text codecs, and shared tagged-link/QR/share-card assets | `0.2.0`; QR and bounded SVG composition are shared while canonical-path, rasterization, and product-content policies remain consumer adapters |
 | `@dustwave/tax-core` | Store-characterized destination normalization and deterministic integer-cent manual-rate calculation | `0.1.0`; provider lookup and product taxability remain consumer-owned |
+| `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.1.0`; processing placement, storage, approval, and publication remain consumer-owned |
 
 Planned packages are added only when consumer characterization tests prove a
-stable boundary: player controls, media manifests, and alignment job contracts.
+stable boundary: player controls and alignment job contracts. The first media
+contract is intentionally limited to deterministic source-audio QC structures
+shared by the Podcast Worker and its owner-controlled FFmpeg processor.
 
 ## Consumer model
 

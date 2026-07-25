@@ -1,0 +1,15 @@
+{
+  "name": "@dustwave/media-core",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./audio-qc": {
+      "types": "./src/audio-qc.d.ts",
+      "default": "./src/audio-qc.js"
+    }
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "license": "MIT"
+}
