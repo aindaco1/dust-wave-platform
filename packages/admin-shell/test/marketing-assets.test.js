@@ -165,4 +165,11 @@ test("rejects unsafe or oversized share-card inputs", () => {
     () => shareCardSvgMarkup({ ...base, summary: "unsafe\u0000text" }),
     /control characters/
   );
+  assert.throws(
+    () => shareCardSvgMarkup({
+      ...base,
+      artworkDataUrl: `data:image/png;base64,${"a".repeat(4_000_004)}`
+    }),
+    /too long/
+  );
 });

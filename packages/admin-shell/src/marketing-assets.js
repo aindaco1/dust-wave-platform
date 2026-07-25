@@ -1,6 +1,6 @@
 const MARKETING_URL_MAX_LENGTH = 2048;
 const MARKETING_VALUE_MAX_LENGTH = 160;
-const MARKETING_SHARE_CARD_IMAGE_MAX_LENGTH = 4_000_000;
+const MARKETING_SHARE_CARD_IMAGE_MAX_LENGTH = 4_000_024;
 
 export function normalizeMarketingReferralCode(value) {
   return String(value ?? "")
