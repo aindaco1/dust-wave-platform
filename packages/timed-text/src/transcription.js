@@ -34,7 +34,6 @@ export function normalizeSegmentTranscription(value, {
     throw new TypeError("Transcription response has no bounded segments");
   }
 
-  let previousEndMs = 0;
   const cues = segments.map((segment, index) => {
     if (!segment || typeof segment !== "object" || Array.isArray(segment)) {
       throw new TypeError(`Transcription segment ${index + 1} is invalid`);
@@ -47,8 +46,47 @@ export function normalizeSegmentTranscription(value, {
       segment.end,
       `segment ${index + 1} end`
     );
+    return {
+      startsAtMs,
+      endsAtMs,
+      textMarkdown: segment.text
+    };
+  });
+  return normalizeTimedTextCues(cues, { language, durationMs });
+}
+
+export function normalizeTimedTextCues(value, {
+  language,
+  durationMs
+}) {
+  if (!LANGUAGES.has(language)) {
+    throw new TypeError("Transcription language must be en or es");
+  }
+  if (
+    !Number.isSafeInteger(durationMs)
+    || durationMs < 1
+    || durationMs > MAXIMUM_DURATION_MS
+  ) {
+    throw new TypeError("Transcription duration is invalid");
+  }
+  if (
+    !Array.isArray(value)
+    || value.length < 1
+    || value.length > MAXIMUM_CUES
+  ) {
+    throw new TypeError("Transcription response has no bounded segments");
+  }
+  let previousEndMs = 0;
+  const cues = value.map((cue, index) => {
+    if (!cue || typeof cue !== "object" || Array.isArray(cue)) {
+      throw new TypeError(`Transcription segment ${index + 1} is invalid`);
+    }
+    const startsAtMs = cue.startsAtMs;
+    const endsAtMs = cue.endsAtMs;
     if (
-      startsAtMs < previousEndMs
+      !Number.isSafeInteger(startsAtMs)
+      || !Number.isSafeInteger(endsAtMs)
+      || startsAtMs < previousEndMs
       || endsAtMs <= startsAtMs
       || endsAtMs > durationMs
       || endsAtMs - startsAtMs > MAXIMUM_CUE_DURATION_MS
@@ -65,12 +103,11 @@ export function normalizeSegmentTranscription(value, {
       speakerLabel: "",
       speakerConfirmed: false,
       textMarkdown: providerPlainText(
-        segment.text,
+        cue.textMarkdown,
         `segment ${index + 1} text`
       )
     };
   });
-
   const plainText = cues.map(({ textMarkdown }) => textMarkdown).join("\n");
   return {
     schemaVersion: TIMED_TEXT_SCHEMA,

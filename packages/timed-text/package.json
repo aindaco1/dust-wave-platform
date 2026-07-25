@@ -1,8 +1,12 @@
 {
   "name": "@dustwave/timed-text",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "exports": {
+    "./chunking": {
+      "types": "./src/chunking.d.ts",
+      "default": "./src/chunking.js"
+    },
     "./transcription": {
       "types": "./src/transcription.d.ts",
       "default": "./src/transcription.js"

@@ -21,6 +21,18 @@ export interface NormalizedSegmentTranscription {
 
 export const TIMED_TEXT_SCHEMA: "timed-text-v1";
 
+export function normalizeTimedTextCues(
+  value: Array<{
+    startsAtMs: number;
+    endsAtMs: number;
+    textMarkdown: unknown;
+  }>,
+  options: {
+    language: TimedTextLanguage;
+    durationMs: number;
+  }
+): NormalizedSegmentTranscription;
+
 export function normalizeSegmentTranscription(
   value: unknown,
   options: {
