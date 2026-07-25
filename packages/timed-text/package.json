@@ -1,0 +1,15 @@
+{
+  "name": "@dustwave/timed-text",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./transcription": {
+      "types": "./src/transcription.d.ts",
+      "default": "./src/transcription.js"
+    }
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "license": "MIT"
+}
