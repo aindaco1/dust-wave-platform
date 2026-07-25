@@ -6,6 +6,10 @@
     "./audio-qc": {
       "types": "./src/audio-qc.d.ts",
       "default": "./src/audio-qc.js"
+    },
+    "./audio-enhancement": {
+      "types": "./src/audio-enhancement.d.ts",
+      "default": "./src/audio-enhancement.js"
     }
   },
   "engines": {
