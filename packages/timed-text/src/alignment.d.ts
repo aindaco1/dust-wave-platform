@@ -42,6 +42,10 @@ export interface AlignmentCandidateWord {
 }
 
 export const ALIGNMENT_RUNNER_SCHEMA: "2";
+export const ALIGNMENT_PROCESSOR_SCHEMA: "alignment-processor-v1";
+export const ALIGNMENT_PROCESSOR_VERSION:
+  "dustwave-alignment-workflow-v1";
+export const MAXIMUM_ALIGNMENT_RESULT_BYTES: 16777216;
 export const ALIGNMENT_MINIMUM_ALIGNED_WORD_RATIO: 0.98;
 
 export function buildAlignmentTranscriptProjection(input: {
@@ -98,6 +102,56 @@ export function validateAlignmentRunnerResult(
     structurallyEligible: boolean;
   };
 }>;
+
+export interface AlignmentProcessorManifest {
+  schemaVersion: "alignment-processor-v1";
+  processorVersion: "dustwave-alignment-workflow-v1";
+  jobId: string;
+  alignmentRevisionId: string;
+  episodeId: string;
+  showId: string;
+  transcriptId: string;
+  workingMasterId: string;
+  language: AlignmentLanguage;
+  source: {
+    objectKey: string;
+    objectBytes: number;
+    etag: string;
+    mimeType:
+      | "audio/mpeg"
+      | "audio/mp4"
+      | "audio/wav"
+      | "audio/x-wav"
+      | "audio/flac"
+      | "audio/x-flac";
+    sha256: string;
+    durationMs: number;
+  };
+  transcript: AlignmentTranscriptProjection;
+  adapter: AlignmentRunnerAdapterIdentity;
+  runner: {
+    repository: "aindaco1/dust-wave-alignment-runner";
+    revision: string;
+  };
+  output: {
+    maximumResultBytes: 16777216;
+  };
+  sourceUrl: string;
+  callbackUrl: string;
+  manifestSha256: string;
+}
+
+export function buildAlignmentProcessorManifest(
+  value: Omit<AlignmentProcessorManifest, "manifestSha256">
+): Promise<AlignmentProcessorManifest>;
+
+export function validateAlignmentProcessorManifest(
+  value: unknown,
+  options?: {
+    expectedHost?: string;
+    expectedRunnerRevision?: string;
+  }
+): Promise<AlignmentProcessorManifest>;
 
 export function canonicalAlignmentJson(value: unknown): string;
 export function canonicalAlignmentSha256(value: unknown): Promise<string>;

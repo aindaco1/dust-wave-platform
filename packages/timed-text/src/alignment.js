@@ -17,6 +17,10 @@ const MAXIMUM_WORDS = 25_000;
 const MAXIMUM_DURATION_MS = 24 * 60 * 60 * 1_000;
 
 export const ALIGNMENT_RUNNER_SCHEMA = "2";
+export const ALIGNMENT_PROCESSOR_SCHEMA = "alignment-processor-v1";
+export const ALIGNMENT_PROCESSOR_VERSION =
+  "dustwave-alignment-workflow-v1";
+export const MAXIMUM_ALIGNMENT_RESULT_BYTES = 16 * 1024 * 1024;
 export const ALIGNMENT_MINIMUM_ALIGNED_WORD_RATIO = 0.98;
 
 export async function buildAlignmentTranscriptProjection({
@@ -316,6 +320,122 @@ export async function validateAlignmentRunnerResult(
   };
 }
 
+export async function buildAlignmentProcessorManifest(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("Alignment processor manifest must be an object");
+  }
+  const projection = await validateAlignmentProjection(value.transcript);
+  const source = value.source;
+  if (!source || typeof source !== "object" || Array.isArray(source)) {
+    throw new TypeError("Alignment processor source is invalid");
+  }
+  const adapter = value.adapter;
+  validateAdapterManifest(adapter);
+  const runner = value.runner;
+  if (
+    !runner
+    || typeof runner !== "object"
+    || Array.isArray(runner)
+    || !exactKeys(runner, ["repository", "revision"])
+    || runner.repository !== "aindaco1/dust-wave-alignment-runner"
+    || !/^[a-f0-9]{40}$/.test(String(runner.revision))
+  ) {
+    throw new TypeError("Alignment processor runner is invalid");
+  }
+  const base = {
+    schemaVersion: ALIGNMENT_PROCESSOR_SCHEMA,
+    processorVersion: ALIGNMENT_PROCESSOR_VERSION,
+    jobId: identifier(value.jobId, "alignment job ID", 128),
+    alignmentRevisionId: identifier(
+      value.alignmentRevisionId,
+      "alignment revision ID",
+      128
+    ),
+    episodeId: identifier(value.episodeId, "episode ID", 180),
+    showId: identifier(value.showId, "show ID", 180),
+    transcriptId: identifier(value.transcriptId, "transcript ID", 180),
+    workingMasterId: identifier(
+      value.workingMasterId,
+      "working master ID",
+      180
+    ),
+    language: alignmentLanguage(value.language),
+    source: {
+      objectKey: alignmentObjectKey(source.objectKey),
+      objectBytes: boundedInteger(
+        source.objectBytes,
+        1,
+        10 * 1024 * 1024 * 1024,
+        "alignment source bytes"
+      ),
+      etag: boundedText(source.etag, 1, 240, "alignment source ETag"),
+      mimeType: alignmentSourceMimeType(source.mimeType),
+      sha256: digest(source.sha256, "alignment source SHA-256"),
+      durationMs: boundedInteger(
+        source.durationMs,
+        1,
+        MAXIMUM_DURATION_MS,
+        "alignment source duration"
+      )
+    },
+    transcript: projection,
+    adapter: {
+      name: adapter.name,
+      version: adapter.version,
+      model: adapter.model,
+      modelVersion: adapter.modelVersion,
+      settingsVersion: adapter.settingsVersion,
+      runnerDigest: adapter.runnerDigest
+    },
+    runner: {
+      repository: runner.repository,
+      revision: runner.revision
+    },
+    output: {
+      maximumResultBytes: value.output?.maximumResultBytes
+    },
+    sourceUrl: secureAlignmentUrl(value.sourceUrl, "alignment source URL"),
+    callbackUrl: secureAlignmentUrl(
+      value.callbackUrl,
+      "alignment callback URL"
+    )
+  };
+  if (
+    base.language !== projection.language
+    || base.output.maximumResultBytes !== MAXIMUM_ALIGNMENT_RESULT_BYTES
+  ) {
+    throw new TypeError("Alignment processor output contract is invalid");
+  }
+  return {
+    ...base,
+    manifestSha256: await canonicalAlignmentSha256(base)
+  };
+}
+
+export async function validateAlignmentProcessorManifest(
+  value,
+  { expectedHost, expectedRunnerRevision } = {}
+) {
+  const rebuilt = await buildAlignmentProcessorManifest(value);
+  if (value.manifestSha256 !== rebuilt.manifestSha256) {
+    throw new TypeError("Alignment processor manifest digest is invalid");
+  }
+  if (
+    expectedRunnerRevision
+    && rebuilt.runner.revision !== expectedRunnerRevision
+  ) {
+    throw new TypeError("Alignment processor runner revision is invalid");
+  }
+  if (expectedHost) {
+    for (const urlValue of [rebuilt.sourceUrl, rebuilt.callbackUrl]) {
+      if (new URL(urlValue).host !== expectedHost) {
+        throw new TypeError("Alignment processor manifest host is invalid");
+      }
+    }
+  }
+  return rebuilt;
+}
+
 export function canonicalAlignmentJson(value) {
   return JSON.stringify(sortCanonicalValue(value));
 }
@@ -358,6 +478,151 @@ function validateResultAdapter(value, expected) {
     || !RUNNER_DIGEST.test(String(value.runnerDigest))
   ) {
     throw new TypeError("Alignment result adapter identity is invalid");
+  }
+}
+
+async function validateAlignmentProjection(value) {
+  if (
+    !value
+    || typeof value !== "object"
+    || Array.isArray(value)
+    || !exactKeys(value, [
+      "language",
+      "contentSha256",
+      "projectionSha256",
+      "cues",
+      "wordCount"
+    ])
+    || !Array.isArray(value.cues)
+    || value.cues.length < 1
+    || value.cues.length > MAXIMUM_CUES
+  ) {
+    throw new TypeError("Alignment transcript projection is invalid");
+  }
+  const language = alignmentLanguage(value.language);
+  const contentSha256 = digest(
+    value.contentSha256,
+    "alignment transcript content SHA-256"
+  );
+  let wordCount = 0;
+  let priorEndMs = 0;
+  const cues = value.cues.map((candidate, cueIndex) => {
+    if (
+      !candidate
+      || typeof candidate !== "object"
+      || Array.isArray(candidate)
+      || !exactKeys(candidate, [
+        "cueId",
+        "startsAtMs",
+        "endsAtMs",
+        "words"
+      ])
+      || !Array.isArray(candidate.words)
+      || candidate.words.length < 1
+    ) {
+      throw new TypeError(
+        `Alignment transcript projection cue ${cueIndex + 1} is invalid`
+      );
+    }
+    const cueId = identifier(
+      candidate.cueId,
+      `alignment projection cue ${cueIndex + 1} ID`,
+      128
+    );
+    const startsAtMs = boundedInteger(
+      candidate.startsAtMs,
+      0,
+      MAXIMUM_DURATION_MS - 1,
+      `alignment projection cue ${cueIndex + 1} start`
+    );
+    const endsAtMs = boundedInteger(
+      candidate.endsAtMs,
+      1,
+      MAXIMUM_DURATION_MS,
+      `alignment projection cue ${cueIndex + 1} end`
+    );
+    if (startsAtMs < priorEndMs || endsAtMs <= startsAtMs) {
+      throw new TypeError(
+        `Alignment transcript projection cue ${cueIndex + 1} timing is invalid`
+      );
+    }
+    priorEndMs = endsAtMs;
+    const words = candidate.words.map((word, wordIndex) => {
+      if (
+        !word
+        || typeof word !== "object"
+        || Array.isArray(word)
+        || !exactKeys(word, ["wordId", "text"])
+      ) {
+        throw new TypeError(
+          `Alignment projection word ${wordIndex + 1} is invalid`
+        );
+      }
+      wordCount += 1;
+      if (wordCount > MAXIMUM_WORDS) {
+        throw new TypeError("Alignment transcript has too many words");
+      }
+      const text = String(word.text ?? "");
+      if (
+        !normalizeAlignmentLexicalWord(text)
+        || text.length > 500
+        || /[\u0000-\u001f\u007f]/u.test(text)
+      ) {
+        throw new TypeError(
+          `Alignment projection word ${wordIndex + 1} text is invalid`
+        );
+      }
+      return {
+        wordId: identifier(
+          word.wordId,
+          `alignment projection word ${wordIndex + 1} ID`,
+          128
+        ),
+        text
+      };
+    });
+    return { cueId, startsAtMs, endsAtMs, words };
+  });
+  if (value.wordCount !== wordCount) {
+    throw new TypeError("Alignment projection word count is invalid");
+  }
+  const projectionSha256 = digest(
+    value.projectionSha256,
+    "alignment transcript projection SHA-256"
+  );
+  if (await canonicalAlignmentSha256(cues) !== projectionSha256) {
+    throw new TypeError("Alignment transcript projection digest is invalid");
+  }
+  return {
+    language,
+    contentSha256,
+    projectionSha256,
+    cues,
+    wordCount
+  };
+}
+
+function validateAdapterManifest(value) {
+  if (
+    !value
+    || typeof value !== "object"
+    || Array.isArray(value)
+    || !exactKeys(value, [
+      "name",
+      "version",
+      "model",
+      "modelVersion",
+      "settingsVersion",
+      "runnerDigest"
+    ])
+    || !["stable-ts", "whisperx"].includes(value.name)
+    || !boundedAdapterText(value.version)
+    || !boundedAdapterText(value.model)
+    || !boundedAdapterText(value.modelVersion)
+    || !boundedAdapterText(value.settingsVersion)
+    || !RUNNER_DIGEST.test(String(value.runnerDigest))
+  ) {
+    throw new TypeError("Alignment processor adapter is invalid");
   }
 }
 
@@ -446,6 +711,71 @@ function visibleTimedText(value, field) {
     throw new TypeError(`${field} is invalid`);
   }
   return text;
+}
+
+function alignmentObjectKey(value) {
+  const text = String(value ?? "");
+  if (
+    !text.startsWith("podcasts/")
+    || text.length > 900
+    || text.includes("..")
+    || /[\u0000-\u001f\u007f\\]/u.test(text)
+  ) {
+    throw new TypeError("Alignment source object key is invalid");
+  }
+  return text;
+}
+
+function alignmentSourceMimeType(value) {
+  if (![
+    "audio/mpeg",
+    "audio/mp4",
+    "audio/wav",
+    "audio/x-wav",
+    "audio/flac",
+    "audio/x-flac"
+  ].includes(value)) {
+    throw new TypeError("Alignment source MIME type is invalid");
+  }
+  return value;
+}
+
+function secureAlignmentUrl(value, field) {
+  const raw = boundedText(value, 12, 2_000, field);
+  let url;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new TypeError(`${field} is invalid`);
+  }
+  if (
+    url.protocol !== "https:"
+    || url.username
+    || url.password
+    || url.hash
+  ) {
+    throw new TypeError(`${field} is invalid`);
+  }
+  return raw;
+}
+
+function boundedText(value, minimum, maximum, field) {
+  const text = String(value ?? "").trim();
+  if (
+    text.length < minimum
+    || text.length > maximum
+    || /[\u0000-\u001f\u007f]/u.test(text)
+  ) {
+    throw new TypeError(`${field} is invalid`);
+  }
+  return text;
+}
+
+function boundedAdapterText(value) {
+  return typeof value === "string"
+    && value.length >= 1
+    && value.length <= 200
+    && !/[\u0000-\u001f\u007f]/u.test(value);
 }
 
 function alignmentLanguage(value) {

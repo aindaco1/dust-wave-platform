@@ -3,7 +3,10 @@ import test from "node:test";
 
 import {
   buildAlignmentTranscriptProjection,
+  buildAlignmentProcessorManifest,
   canonicalAlignmentSha256,
+  MAXIMUM_ALIGNMENT_RESULT_BYTES,
+  validateAlignmentProcessorManifest,
   validateAlignmentRunnerResult
 } from "../src/alignment.js";
 
@@ -146,6 +149,58 @@ test("retains explained omissions but never passes interpolated timing", async (
   assert.equal(result.quality.interpolatedWordCount, 1);
   assert.equal(result.quality.unalignedWordCount, 1);
   assert.equal(result.quality.structurallyEligible, false);
+});
+
+test("binds staging processor URLs, source, projection, and runner revision", async () => {
+  const projection = await buildProjection();
+  const manifest = await buildAlignmentProcessorManifest({
+    schemaVersion: "alignment-processor-v1",
+    processorVersion: "dustwave-alignment-workflow-v1",
+    jobId: "alignment_job_fixture",
+    alignmentRevisionId: "alignment_revision_fixture",
+    episodeId: "episode_fixture",
+    showId: "show_fixture",
+    transcriptId: "transcript_fixture",
+    workingMasterId: "master_fixture",
+    language: "es",
+    source: {
+      objectKey: "podcasts/show_fixture/episode_fixture/source.wav",
+      objectBytes: 20_000_000,
+      etag: "source-etag",
+      mimeType: "audio/wav",
+      sha256: "b".repeat(64),
+      durationMs: 3_000
+    },
+    transcript: projection,
+    adapter,
+    runner: {
+      repository: "aindaco1/dust-wave-alignment-runner",
+      revision: "c".repeat(40)
+    },
+    output: {
+      maximumResultBytes: MAXIMUM_ALIGNMENT_RESULT_BYTES
+    },
+    sourceUrl:
+      "https://podcast-staging.example/v1/processor/alignments/job/source",
+    callbackUrl:
+      "https://podcast-staging.example/v1/processor/alignments/job/complete"
+  });
+  assert.deepEqual(
+    await validateAlignmentProcessorManifest(manifest, {
+      expectedHost: "podcast-staging.example",
+      expectedRunnerRevision: "c".repeat(40)
+    }),
+    manifest
+  );
+  await assert.rejects(
+    validateAlignmentProcessorManifest({
+      ...manifest,
+      sourceUrl: "https://attacker.example/source"
+    }, {
+      expectedHost: "podcast-staging.example"
+    }),
+    /digest|host/
+  );
 });
 
 function buildProjection() {
