@@ -7,7 +7,8 @@ import {
   drawQrCanvas,
   normalizeMarketingReferralCode,
   qrSvgMarkup,
-  safeMarketingFilename
+  safeMarketingFilename,
+  shareCardSvgMarkup
 } from "../src/marketing-assets.js";
 
 test("preserves the Pool and Store referral-code contract", () => {
@@ -114,4 +115,53 @@ test("renders deterministic accessible SVG and canvas matrices", () => {
     ["#000", 2, 2, 2, 2],
     ["#000", 4, 4, 2, 2]
   ]);
+});
+
+test("renders a bounded, escaped, localized share-card SVG", () => {
+  const artwork = "data:image/png;base64,iVBORw0KGgo=";
+  const svg = shareCardSvgMarkup({
+    brand: "Dust Wave",
+    eyebrow: "Nuevo episodio",
+    title: 'Una charla sobre <código> & "arte"',
+    summary: "Belleza y alegría para escuchar en cualquier lugar.",
+    footer: "dustwave.xyz",
+    artworkDataUrl: artwork,
+    accent: "#FFD54D",
+    language: "es"
+  });
+  assert.match(svg, /width="1200" height="630"/);
+  assert.match(svg, /NUEVO EPISODIO/);
+  assert.match(svg, /UNA CHARLA SOBRE/);
+  assert.match(svg, /&lt;CÓDIGO&gt; &amp;/);
+  assert.match(svg, /data:image\/png;base64,iVBORw0KGgo=/);
+  assert.match(svg, /stroke="#ffd54d"/);
+  assert.doesNotMatch(svg, /<script|<código>/i);
+  assert((svg.match(/<tspan/g) || []).length <= 6);
+});
+
+test("rejects unsafe or oversized share-card inputs", () => {
+  const base = {
+    brand: "Dust Wave",
+    eyebrow: "New episode",
+    title: "A title"
+  };
+  assert.throws(
+    () => shareCardSvgMarkup({ ...base, accent: "red" }),
+    /six-digit hex/
+  );
+  assert.throws(
+    () => shareCardSvgMarkup({
+      ...base,
+      artworkDataUrl: "https://attacker.example/image.png"
+    }),
+    /base64 PNG/
+  );
+  assert.throws(
+    () => shareCardSvgMarkup({ ...base, title: "a".repeat(161) }),
+    /title is too long/
+  );
+  assert.throws(
+    () => shareCardSvgMarkup({ ...base, summary: "unsafe\u0000text" }),
+    /control characters/
+  );
 });
