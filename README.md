@@ -9,7 +9,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | Package | Purpose | Status |
 |---|---|---|
 | `@dustwave/worker-core` | Runtime-neutral Worker security, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.0`; exact and policy-injected duplicate extraction |
-| `@dustwave/admin-shell` | Credentialed admin API client, passwordless session coordinator, accessible tabs, Pool-characterized rich-text codecs, and shared tagged-link/QR/share-card assets | `0.2.0`; QR and bounded SVG composition are shared while canonical-path, rasterization, and product-content policies remain consumer adapters |
+| `@dustwave/admin-shell` | Credentialed admin API/download clients, passwordless session coordinator, accessible tabs, Pool-characterized rich-text codecs, and shared tagged-link/QR/share-card assets | `0.3.0`; bounded CSV downloads, QR, and SVG composition are shared while routes, roles, canonical paths, rasterization, and product-content policies remain consumer adapters |
 | `@dustwave/tax-core` | Store-characterized destination normalization and deterministic integer-cent manual-rate calculation | `0.1.0`; provider lookup and product taxability remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.1.0`; processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.3.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
@@ -54,3 +54,11 @@ byte-derived MIT QR engine. Consumers supply trusted product text and an
 already-bounded image data URL, then choose their own rasterizer, storage, and
 publication policy; email audiences, attribution storage, and send authority
 remain consumer-owned.
+
+The credentialed-download module is the characterized overlap between Pool,
+Store, and Podcast accountant/report exports. It always uses credentialed GET,
+accepts only caller-allowlisted content types, bounds declared and streamed
+bytes, retains only bounded structured JSON errors, rejects path-shaped
+filenames, and revokes its temporary object URL. Consumers still own the API
+origin, session cookie, authorization, response schema, export columns,
+fallback filename, UI messages, and audit policy.
