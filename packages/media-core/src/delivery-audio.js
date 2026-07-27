@@ -266,6 +266,15 @@ function validateAudioOutput(value, manifest) {
     || value.sampleRateHz !== 44_100
     || value.channels !== 2
     || value.bitrateKbps !== 128
+    || !positiveInteger(value.frameBytes, MAXIMUM_OUTPUT_BYTES)
+    || value.frameBytes !== value.objectBytes
+    || !positiveInteger(value.frameCount, 2_000_000)
+    || Math.abs(
+      Math.round((value.frameCount * 1_152 * 1_000) / 44_100)
+      - value.durationMs
+    ) > 1
+    || value.id3v2Bytes !== 0
+    || value.id3v1Bytes !== 0
     || value.fullyDecoded !== true
   ) {
     throw new TypeError("Delivery-audio output is invalid");
@@ -281,6 +290,10 @@ function validateAudioOutput(value, manifest) {
     sampleRateHz: 44_100,
     channels: 2,
     bitrateKbps: 128,
+    frameBytes: value.frameBytes,
+    frameCount: value.frameCount,
+    id3v2Bytes: 0,
+    id3v1Bytes: 0,
     fullyDecoded: true
   };
 }

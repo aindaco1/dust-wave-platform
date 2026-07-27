@@ -69,6 +69,10 @@ export interface DeliveryAudioReport {
     sampleRateHz: 44100;
     channels: 2;
     bitrateKbps: 128;
+    frameBytes: number;
+    frameCount: number;
+    id3v2Bytes: 0;
+    id3v1Bytes: 0;
     fullyDecoded: true;
   };
   peaks: {

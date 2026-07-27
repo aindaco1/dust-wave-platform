@@ -124,12 +124,16 @@ test("validates exact render and reusable peaks evidence", async () => {
       objectBytes: 960_000,
       sha256: "b".repeat(64),
       mimeType: "audio/mpeg",
-      durationMs: 60_000,
+      durationMs: 60_003,
       streamProfile: DELIVERY_AUDIO_PROFILE,
       audioCodec: "mp3",
       sampleRateHz: 44_100,
       channels: 2,
       bitrateKbps: 128,
+      frameBytes: 960_000,
+      frameCount: 2_297,
+      id3v2Bytes: 0,
+      id3v1Bytes: 0,
       fullyDecoded: true
     },
     peaks: {
