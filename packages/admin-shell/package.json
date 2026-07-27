@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "exports": {
     "./api-client": "./src/api-client.js",
@@ -9,6 +9,7 @@
     "./editor-codec": "./src/editor-codec.js",
     "./marketing-assets": "./src/marketing-assets.js",
     "./passwordless-session": "./src/passwordless-session.js",
+    "./tabs-browser": "./src/tabs-browser.js",
     "./tabs": "./src/tabs.js"
   },
   "engines": {
