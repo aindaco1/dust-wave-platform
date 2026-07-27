@@ -10,6 +10,10 @@
     "./audio-enhancement": {
       "types": "./src/audio-enhancement.d.ts",
       "default": "./src/audio-enhancement.js"
+    },
+    "./audio-enhancement-derivative": {
+      "types": "./src/audio-enhancement-derivative.d.ts",
+      "default": "./src/audio-enhancement-derivative.js"
     }
   },
   "engines": {
