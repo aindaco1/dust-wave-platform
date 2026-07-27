@@ -95,6 +95,37 @@ test("builds and validates an exact isolated-staging manifest", async () => {
   );
 });
 
+test("accepts only the exact immutable enhancement derivative path", async () => {
+  const value = await manifest();
+  const derivativeId = "derivative_123";
+  const derivativeKey =
+    "podcasts/show_123/episode_123/audio_enhancement_derivatives/"
+    + `${derivativeId}/${derivativeId}.mp3`;
+  const derivative = await buildAudioQcManifest({
+    ...value,
+    source: {
+      ...value.source,
+      objectKey: derivativeKey,
+      mimeType: "audio/mpeg"
+    }
+  });
+
+  assert.equal(derivative.source.objectKey, derivativeKey);
+  await assert.rejects(
+    buildAudioQcManifest({
+      ...value,
+      source: {
+        ...value.source,
+        objectKey:
+          "podcasts/show_123/episode_123/"
+          + "audio_enhancement_derivatives/derivative_123/other.mp3",
+        mimeType: "audio/mpeg"
+      }
+    }),
+    /source snapshot/
+  );
+});
+
 test("rejects unsafe source paths, callbacks, and policy values", async () => {
   const value = await manifest();
   await assert.rejects(
