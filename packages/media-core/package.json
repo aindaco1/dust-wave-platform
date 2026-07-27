@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/media-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "exports": {
     "./audio-qc": {
@@ -14,6 +14,10 @@
     "./audio-enhancement-derivative": {
       "types": "./src/audio-enhancement-derivative.d.ts",
       "default": "./src/audio-enhancement-derivative.js"
+    },
+    "./delivery-audio": {
+      "types": "./src/delivery-audio.d.ts",
+      "default": "./src/delivery-audio.js"
     }
   },
   "engines": {
