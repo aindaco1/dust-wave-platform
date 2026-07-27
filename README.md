@@ -38,10 +38,13 @@ Each consumer pins this repository as `shared/dust-wave-platform` and imports an
 
 ```bash
 npm install
-npm test
+npm run check
 ```
 
-No secrets are required for the shared unit suite.
+The check runs the shared unit suite, the locked dependency audit, and a
+high-confidence scan of tracked text files. Findings report only the file,
+line, and credential type; suspected secret values are never echoed. No
+secrets are required for the shared checks.
 
 `@dustwave/admin-shell` is intentionally unstyled. Each product retains its
 templates, visual system, localization, roles, routes, and state. Its editor
