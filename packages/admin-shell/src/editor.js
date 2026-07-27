@@ -11,6 +11,7 @@ export function mountRichTextEditor(root, {
   value = "",
   mode = "rich",
   label = "Rich text editor",
+  labels = {},
   onChange
 } = {}) {
   if (!root?.ownerDocument) throw new TypeError("An editor root is required");
@@ -19,7 +20,10 @@ export function mountRichTextEditor(root, {
   const toolbar = document.createElement("div");
   toolbar.className = "dw-editor__toolbar";
   toolbar.setAttribute("role", "toolbar");
-  toolbar.setAttribute("aria-label", `${label} formatting`);
+  toolbar.setAttribute(
+    "aria-label",
+    labels.formatting?.replace("%{label}", label) || `${label} formatting`
+  );
   const editor = document.createElement("div");
   editor.className = "dw-editor__surface";
   editor.contentEditable = "true";
@@ -30,10 +34,14 @@ export function mountRichTextEditor(root, {
   editor.innerHTML = markdownToEditorHtml(value, policy);
 
   const actions = [
-    ["bold", "Bold"],
-    ["italic", "Italic"],
+    ["bold", labels.bold || "Bold"],
+    ["italic", labels.italic || "Italic"],
     ...(mode === "rich"
-      ? [["formatBlock:h2", "Heading"], ["insertUnorderedList", "List"], ["createLink", "Link"]]
+      ? [
+        ["formatBlock:h2", labels.heading || "Heading"],
+        ["insertUnorderedList", labels.list || "List"],
+        ["createLink", labels.link || "Link"]
+      ]
       : [])
   ];
   for (const [action, actionLabel] of actions) {
@@ -45,7 +53,9 @@ export function mountRichTextEditor(root, {
       editor.focus();
       const [command, fixedValue] = action.split(":");
       const commandValue = command === "createLink"
-        ? globalThis.prompt?.("Link URL (https://, mailto:, /path, or #anchor)") || ""
+        ? globalThis.prompt?.(
+          labels.linkPrompt || "Link URL (https://, mailto:, /path, or #anchor)"
+        ) || ""
         : fixedValue || null;
       if (
         command === "createLink"
