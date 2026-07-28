@@ -1,5 +1,6 @@
 import {
   editorElementToMarkdown,
+  isSafeEditorHref,
   markdownToEditorHtml,
   RICH_TEXT_POLICY,
   sanitizeClipboardPayload,
@@ -46,7 +47,10 @@ export function mountRichTextEditor(root, {
       const commandValue = command === "createLink"
         ? globalThis.prompt?.("Link URL (https://, mailto:, /path, or #anchor)") || ""
         : fixedValue || null;
-      if (command === "createLink" && !commandValue) return;
+      if (
+        command === "createLink"
+        && (!commandValue || !isSafeEditorHref(commandValue))
+      ) return;
       document.execCommand(command, false, commandValue);
       emitChange();
     });
