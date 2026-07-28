@@ -9,7 +9,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | Package | Purpose | Status |
 |---|---|---|
 | `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.1`; exact and policy-injected duplicate extraction |
-| `@dustwave/admin-shell` | Credentialed admin API/download clients, passwordless session coordinator, accessible and responsive tab controls, Pool-characterized rich-text codecs, and shared tagged-link/QR/share-card assets | `0.6.1`; dynamically refreshed native-select navigation now supports the existing Pool and Store classic-script shells, alongside bounded CSV downloads, consumer-localized editor controls, QR, SVG composition, and its restored public TypeScript contract, while routes, roles, canonical paths, styling, rasterization, and product-content policies remain consumer adapters |
+| `@dustwave/admin-shell` | Credentialed admin API/download clients, passwordless session coordinator, accessible and responsive tab and Turnstile controls, Pool-characterized rich-text codecs, and shared tagged-link/QR/share-card assets | `0.7.0`; container-aware Turnstile sizing now keeps the documented 300px flexible widget where it fits and selects Cloudflare's compact widget for narrower forms, with module and classic-script consumers sharing one characterized policy |
 | `@dustwave/tax-core` | Store-characterized destination normalization and deterministic integer-cent manual-rate calculation | `0.1.0`; provider lookup and product taxability remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.1.0`; processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.3.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
@@ -63,7 +63,12 @@ native select without owning consumer breakpoints, labels, or CSS. Its
 `tabs-browser` entry is a namespaced, dependency-free classic-script bridge for
 Pool and Store; the module entry uses that same implementation, so dynamic tab
 visibility and option rebuilding stay behavior-equivalent without a second
-runtime copy. The shared
+runtime copy. The Turnstile browser entry follows the same bridge pattern and
+owns only the provider-documented responsive size choice: a consumer with at
+least 300 CSS pixels uses the flexible widget, while a narrower or unmeasurable
+container fails small to the compact widget. Consumers still own script
+loading, site keys, actions, callbacks, tokens, server-side validation, and
+visual styling. The shared
 marketing asset module owns only normalization, canonical tagged-URL assembly,
 QR matrix rendering, bounded escaped social-card SVG composition, and the
 byte-derived MIT QR engine. Consumers supply trusted product text and an

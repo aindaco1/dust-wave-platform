@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "type": "module",
   "exports": {
     "./api-client": "./src/api-client.js",
@@ -10,7 +10,9 @@
     "./marketing-assets": "./src/marketing-assets.js",
     "./passwordless-session": "./src/passwordless-session.js",
     "./tabs-browser": "./src/tabs-browser.js",
-    "./tabs": "./src/tabs.js"
+    "./tabs": "./src/tabs.js",
+    "./turnstile-browser": "./src/turnstile-browser.js",
+    "./turnstile": "./src/turnstile.js"
   },
   "engines": {
     "node": ">=20.9"
