@@ -11,9 +11,24 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | `@dustwave/worker-core` | Runtime-neutral Worker security, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.0`; exact and policy-injected duplicate extraction |
 | `@dustwave/admin-shell` | Credentialed admin API client, passwordless session coordinator, accessible tabs, Pool-characterized rich-text codecs, and shared tagged-link/QR/share-card assets | `0.2.0`; QR and bounded SVG composition are shared while canonical-path, rasterization, and product-content policies remain consumer adapters |
 | `@dustwave/tax-core` | Store-characterized destination normalization and deterministic integer-cent manual-rate calculation | `0.1.0`; provider lookup and product taxability remain consumer-owned |
+| `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.1.0`; processing placement, storage, approval, and publication remain consumer-owned |
+| `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.3.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
 
 Planned packages are added only when consumer characterization tests prove a
-stable boundary: player controls, media manifests, and alignment job contracts.
+stable boundary: player controls and alignment job contracts. The first media
+contract is intentionally limited to deterministic source-audio QC structures
+shared by the Podcast Worker and its owner-controlled FFmpeg processor.
+The first timed-text contract accepts only bounded monotonic provider segments,
+normalizes generated text as untrusted plain text, and never manufactures word
+timing or speaker identity. Its large-source extension deterministically chooses
+safe silence boundaries (or duration fallbacks), binds processor manifests to
+immutable source/output evidence, and merges source-relative segment timing with
+conservative overlap removal. It still never manufactures word timing or
+speaker identity. The alignment extension deterministically projects reviewed
+cues to stable lexical word IDs and verifies exact runner identity, canonical
+result digests, explained omissions, cue/source timing, provenance, and
+resource evidence. It validates candidate evidence but cannot declare an
+adapter launch-ready; Podcast retains the bilingual human benchmark gate.
 
 ## Consumer model
 
