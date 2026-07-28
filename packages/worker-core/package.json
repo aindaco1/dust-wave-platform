@@ -1,9 +1,10 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "exports": {
     "./crypto": "./src/crypto.js",
+    "./podcast-benefits": "./src/podcast-benefits.js",
     "./stripe": "./src/stripe.js",
     "./turnstile": "./src/turnstile.js"
   },

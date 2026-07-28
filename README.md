@@ -8,7 +8,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
-| `@dustwave/worker-core` | Runtime-neutral Worker security, signed-identity, Stripe, and request primitives | `0.2.0`; exact and policy-injected duplicate extraction |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.0`; exact and policy-injected duplicate extraction |
 | `@dustwave/admin-shell` | Credentialed admin API client, passwordless session coordinator, accessible tabs, and Pool-characterized rich-text codecs | `0.1.0`; staged first for Podcast, with consumer adapters required before Pool/Store adoption |
 | `@dustwave/tax-core` | Store-characterized destination normalization and deterministic integer-cent manual-rate calculation | `0.1.0`; provider lookup and product taxability remain consumer-owned |
 
