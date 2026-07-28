@@ -30,8 +30,18 @@ test("allows documented placeholders and short test fixtures", () => {
 test("reports high-confidence provider credentials without returning values", () => {
   const stripe = ["sk", "live", "A".repeat(24)].join("_");
   const resend = `re_${"B".repeat(32)}`;
+  const cloudflareGlobalKey = `cfk_${"C".repeat(44)}`;
+  const cloudflareUserToken = `cfut_${"D".repeat(44)}`;
+  const cloudflareAccountToken = `cfat_${"E".repeat(44)}`;
   const findings = scanTextForTrackedSecrets(
-    `safe=true\nSTRIPE=${stripe}\nRESEND=${resend}`,
+    [
+      "safe=true",
+      `STRIPE=${stripe}`,
+      `RESEND=${resend}`,
+      `CLOUDFLARE_GLOBAL=${cloudflareGlobalKey}`,
+      `CLOUDFLARE_USER=${cloudflareUserToken}`,
+      `CLOUDFLARE_ACCOUNT=${cloudflareAccountToken}`
+    ].join("\n"),
     "unsafe.env"
   );
 
@@ -45,10 +55,28 @@ test("reports high-confidence provider credentials without returning values", ()
       file: "unsafe.env",
       line: 3,
       label: "Resend API key"
+    },
+    {
+      file: "unsafe.env",
+      line: 4,
+      label: "Cloudflare global API key"
+    },
+    {
+      file: "unsafe.env",
+      line: 5,
+      label: "Cloudflare user API token"
+    },
+    {
+      file: "unsafe.env",
+      line: 6,
+      label: "Cloudflare account API token"
     }
   ]);
   assert.equal(JSON.stringify(findings).includes(stripe), false);
   assert.equal(JSON.stringify(findings).includes(resend), false);
+  assert.equal(JSON.stringify(findings).includes(cloudflareGlobalKey), false);
+  assert.equal(JSON.stringify(findings).includes(cloudflareUserToken), false);
+  assert.equal(JSON.stringify(findings).includes(cloudflareAccountToken), false);
 });
 
 test("detects private key material", () => {

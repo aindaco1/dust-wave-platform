@@ -28,6 +28,18 @@ const RULES = Object.freeze([
     pattern: /\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b/g
   },
   {
+    label: "Cloudflare global API key",
+    pattern: /\bcfk_[A-Za-z0-9_-]{40,}\b/g
+  },
+  {
+    label: "Cloudflare user API token",
+    pattern: /\bcfut_[A-Za-z0-9_-]{40,}\b/g
+  },
+  {
+    label: "Cloudflare account API token",
+    pattern: /\bcfat_[A-Za-z0-9_-]{40,}\b/g
+  },
+  {
     label: "Google OAuth client secret",
     pattern: /\bGOCSPX-[A-Za-z0-9_-]{20,}\b/g
   },

@@ -42,9 +42,10 @@ npm run check
 ```
 
 The check runs the shared unit suite, the locked dependency audit, and a
-high-confidence scan of tracked text files. Findings report only the file,
-line, and credential type; suspected secret values are never echoed. No
-secrets are required for the shared checks.
+high-confidence scan of tracked text files, including the current prefixed
+Cloudflare global-key, user-token, and account-token formats. Findings report
+only the file, line, and credential type; suspected secret values are never
+echoed. No secrets are required for the shared checks.
 
 Consumers with local `.dev.vars` files may inject those paths and their
 test-only allowlist through `runSecretAudit`. The same primitive then verifies
