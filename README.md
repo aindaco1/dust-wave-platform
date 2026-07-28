@@ -46,6 +46,12 @@ high-confidence scan of tracked text files. Findings report only the file,
 line, and credential type; suspected secret values are never echoed. No
 secrets are required for the shared checks.
 
+Consumers with local `.dev.vars` files may inject those paths and their
+test-only allowlist through `runSecretAudit`. The same primitive then verifies
+ignore/tracking posture and searches exact local values in the worktree and
+history without returning or partially masking the values. Consumer-specific
+secret filenames and fixture policy remain in thin local adapters.
+
 `@dustwave/admin-shell` is intentionally unstyled. Each product retains its
 templates, visual system, localization, roles, routes, and state. Its editor
 codec is derived from the Pool behavior that preserves emphasis boundary spaces
