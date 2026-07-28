@@ -8,8 +8,8 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
-| `@dustwave/worker-core` | Runtime-neutral Worker security, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.0`; exact and policy-injected duplicate extraction |
-| `@dustwave/admin-shell` | Credentialed admin API client, passwordless session coordinator, accessible tabs, Pool-characterized rich-text codecs, and shared tagged-link/QR/share-card assets | `0.2.1`; typed QR and bounded SVG composition are shared while canonical-path, rasterization, and product-content policies remain consumer adapters |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.1`; exact and policy-injected duplicate extraction |
+| `@dustwave/admin-shell` | Credentialed admin API/download clients, passwordless session coordinator, accessible and responsive tab and Turnstile controls, Pool-characterized rich-text codecs, and shared tagged-link/QR/share-card assets | `0.7.0`; container-aware Turnstile sizing now keeps the documented 300px flexible widget where it fits and selects Cloudflare's compact widget for narrower forms, with module and classic-script consumers sharing one characterized policy |
 | `@dustwave/tax-core` | Store-characterized destination normalization and deterministic integer-cent manual-rate calculation | `0.1.0`; provider lookup and product taxability remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.1.0`; processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.3.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
@@ -38,19 +38,48 @@ Each consumer pins this repository as `shared/dust-wave-platform` and imports an
 
 ```bash
 npm install
-npm test
+npm run check
 ```
 
-No secrets are required for the shared unit suite.
+The check runs the shared unit suite, the locked dependency audit, and a
+high-confidence scan of tracked text files, including the current prefixed
+Cloudflare global-key, user-token, and account-token formats. Findings report
+only the file, line, and credential type; suspected secret values are never
+echoed. No secrets are required for the shared checks.
+
+Consumers with local `.dev.vars` files may inject those paths and their
+test-only allowlist through `runSecretAudit`. The same primitive then verifies
+ignore/tracking posture and searches exact local values in the worktree and
+history without returning or partially masking the values. Consumer-specific
+secret filenames and fixture policy remain in thin local adapters.
 
 `@dustwave/admin-shell` is intentionally unstyled. Each product retains its
 templates, visual system, localization, roles, routes, and state. Its editor
 codec is derived from the Pool behavior that preserves emphasis boundary spaces
 and sanitizes rich pasted content. Podcast consumes the new package first;
 Pool and Store keep their domain-specific URL and dashboard adapters. The shared
+responsive-tab control mirrors the accessible tab controller into a labeled
+native select without owning consumer breakpoints, labels, or CSS. Its
+`tabs-browser` entry is a namespaced, dependency-free classic-script bridge for
+Pool and Store; the module entry uses that same implementation, so dynamic tab
+visibility and option rebuilding stay behavior-equivalent without a second
+runtime copy. The Turnstile browser entry follows the same bridge pattern and
+owns only the provider-documented responsive size choice: a consumer with at
+least 300 CSS pixels uses the flexible widget, while a narrower or unmeasurable
+container fails small to the compact widget. Consumers still own script
+loading, site keys, actions, callbacks, tokens, server-side validation, and
+visual styling. The shared
 marketing asset module owns only normalization, canonical tagged-URL assembly,
 QR matrix rendering, bounded escaped social-card SVG composition, and the
 byte-derived MIT QR engine. Consumers supply trusted product text and an
 already-bounded image data URL, then choose their own rasterizer, storage, and
 publication policy; email audiences, attribution storage, and send authority
 remain consumer-owned.
+
+The credentialed-download module is the characterized overlap between Pool,
+Store, and Podcast accountant/report exports. It always uses credentialed GET,
+accepts only caller-allowlisted content types, bounds declared and streamed
+bytes, retains only bounded structured JSON errors, rejects path-shaped
+filenames, and revokes its temporary object URL. Consumers still own the API
+origin, session cookie, authorization, response schema, export columns,
+fallback filename, UI messages, and audit policy.

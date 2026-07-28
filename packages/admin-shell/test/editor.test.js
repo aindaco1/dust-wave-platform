@@ -27,3 +27,30 @@ test("the rich-editor link toolbar rejects unsafe URL schemes", () => {
     globalThis.prompt = previousPrompt;
   }
 });
+
+test("the rich editor accepts consumer-owned interface translations", () => {
+  const { document } = parseHTML('<div id="root"></div>');
+  const root = document.getElementById("root");
+  mountRichTextEditor(root, {
+    label: "Contenido",
+    labels: {
+      formatting: "Formato de %{label}",
+      bold: "Negrita",
+      italic: "Cursiva",
+      heading: "Encabezado",
+      list: "Lista",
+      link: "Enlace"
+    }
+  });
+
+  assert.equal(
+    root.querySelector('[role="toolbar"]').getAttribute("aria-label"),
+    "Formato de Contenido"
+  );
+  assert.deepEqual(
+    [...root.querySelectorAll("[data-editor-action]")].map(
+      (button) => button.textContent
+    ),
+    ["Negrita", "Cursiva", "Encabezado", "Lista", "Enlace"]
+  );
+});

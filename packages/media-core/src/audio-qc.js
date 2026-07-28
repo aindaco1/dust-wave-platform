@@ -319,13 +319,27 @@ function validateAudioQcManifestBody(value, {
     throw new TypeError("Audio QC manifest identity is invalid");
   }
   assertObject(value.source, "Audio QC source");
-  const expectedPrefix =
+  const sourcePrefix =
     `podcasts/${value.showId}/${value.episodeId}/source_audio/`;
+  const derivativePrefix =
+    `podcasts/${value.showId}/${value.episodeId}/`
+    + "audio_enhancement_derivatives/";
+  const derivativePath = String(value.source.objectKey || "")
+    .slice(derivativePrefix.length)
+    .split("/");
+  const approvedSourcePath =
+    String(value.source.objectKey || "").startsWith(sourcePrefix)
+    || (
+      String(value.source.objectKey || "").startsWith(derivativePrefix)
+      && derivativePath.length === 2
+      && validIdentifier(derivativePath[0])
+      && derivativePath[1] === `${derivativePath[0]}.mp3`
+    );
   if (
     (expectedBucket && value.source.bucketName !== expectedBucket)
     || !boundedText(value.source.bucketName, 120)
     || !safeObjectKey(value.source.objectKey)
-    || !value.source.objectKey.startsWith(expectedPrefix)
+    || !approvedSourcePath
     || !positiveInteger(value.source.objectBytes, MAXIMUM_SOURCE_BYTES)
     || !boundedText(value.source.etag, 240)
     || !SOURCE_MIME_TYPES.has(value.source.mimeType)

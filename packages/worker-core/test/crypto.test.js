@@ -6,6 +6,7 @@ import {
   hmacSha256,
   normalizeEmail,
   randomToken,
+  sha256BytesHex,
   sha256Hex,
   timingSafeEqual
 } from '../src/crypto.js';
@@ -15,6 +16,14 @@ test('normalizes identities and hashes without retaining raw values', async () =
   assert.equal(
     await sha256Hex('fixture'),
     'f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d'
+  );
+  assert.equal(
+    await sha256BytesHex(new TextEncoder().encode('fixture')),
+    'f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d'
+  );
+  assert.equal(
+    await sha256BytesHex(new Uint8Array([0, 255, 128]).buffer),
+    'f742b965f156c10374bc23aea96e3a8aff8facd6fc079defeaa30219ad86f211'
   );
   assert.equal((await hmacSha256('fixture', 'secret', 'hex')).length, 64);
 });

@@ -74,4 +74,3 @@ export function shareCardSvgMarkup(input: {
   accent?: unknown;
   language?: unknown;
 }): string;
-

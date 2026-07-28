@@ -1,13 +1,15 @@
 {
   "name": "@dustwave/platform-workspace",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "private": true,
   "type": "module",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "check": "npm test",
+    "check": "npm run security:secrets && npm run security:audit && npm test",
+    "security:secrets": "node scripts/scan-tracked-secrets.mjs",
+    "security:audit": "npm audit --audit-level=high",
     "test": "node --test packages/*/test/*.test.js"
   },
   "engines": {

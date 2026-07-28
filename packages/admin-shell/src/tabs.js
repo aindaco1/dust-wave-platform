@@ -1,5 +1,12 @@
+import "./tabs-browser.js";
+
+const { mountResponsiveTabSelect } = globalThis.DustWaveAdminShellTabs;
+
+export { mountResponsiveTabSelect };
+
 export function mountAccessibleTabs(root, {
   initialTab,
+  responsiveSelect,
   storageKey,
   storage = globalThis.sessionStorage,
   onSelect
@@ -8,6 +15,7 @@ export function mountAccessibleTabs(root, {
   const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
   const panels = Array.from(root.querySelectorAll('[role="tabpanel"]'));
   if (tabs.length === 0) throw new TypeError("At least one tab is required");
+  let responsiveControl;
 
   function tabName(tab) {
     return tab.dataset.tab || tab.id || "";
@@ -27,6 +35,7 @@ export function mountAccessibleTabs(root, {
     if (persist && storageKey && storage) {
       storage.setItem(storageKey, tabName(selected));
     }
+    responsiveControl?.sync(tabName(selected));
     onSelect?.(tabName(selected), selected);
     return tabName(selected);
   }
@@ -46,7 +55,14 @@ export function mountAccessibleTabs(root, {
     });
   });
 
+  if (responsiveSelect) {
+    responsiveControl = mountResponsiveTabSelect(root, {
+      ...responsiveSelect,
+      tabs,
+      activate: (name) => select(name)
+    });
+  }
   const stored = storageKey && storage ? storage.getItem(storageKey) : "";
   select(initialTab || stored || tabName(tabs[0]), { persist: false });
-  return { select, tabs, panels };
+  return { select, tabs, panels, responsiveSelect: responsiveControl };
 }

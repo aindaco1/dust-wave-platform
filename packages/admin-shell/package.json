@@ -1,9 +1,10 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.2.1",
+  "version": "0.7.0",
   "type": "module",
   "exports": {
     "./api-client": "./src/api-client.js",
+    "./credentialed-download": "./src/credentialed-download.js",
     "./editor": "./src/editor.js",
     "./editor-codec": "./src/editor-codec.js",
     "./marketing-assets": {
@@ -11,7 +12,10 @@
       "default": "./src/marketing-assets.js"
     },
     "./passwordless-session": "./src/passwordless-session.js",
-    "./tabs": "./src/tabs.js"
+    "./tabs-browser": "./src/tabs-browser.js",
+    "./tabs": "./src/tabs.js",
+    "./turnstile-browser": "./src/turnstile-browser.js",
+    "./turnstile": "./src/turnstile.js"
   },
   "engines": {
     "node": ">=20.9"

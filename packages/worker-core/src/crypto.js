@@ -17,7 +17,12 @@ export function randomToken(byteLength = 32) {
 }
 
 export async function sha256Hex(value) {
-  const digest = await crypto.subtle.digest('SHA-256', encoder.encode(String(value ?? '')));
+  return sha256BytesHex(encoder.encode(String(value ?? '')));
+}
+
+export async function sha256BytesHex(value) {
+  const bytes = value instanceof Uint8Array ? value : new Uint8Array(value);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
   return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, '0'))
     .join('');
