@@ -1,8 +1,10 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "exports": {
+    "./crypto": "./src/crypto.js",
+    "./stripe": "./src/stripe.js",
     "./turnstile": "./src/turnstile.js"
   },
   "engines": {
