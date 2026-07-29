@@ -9,7 +9,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | Package | Purpose | Status |
 |---|---|---|
 | `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.1`; exact and policy-injected duplicate extraction |
-| `@dustwave/admin-shell` | Credentialed admin API/download clients, passwordless session coordinator, accessible and responsive tab and Turnstile controls, Pool-characterized rich-text codecs, and shared tagged-link/QR/share-card assets | `0.7.0`; container-aware Turnstile sizing now keeps the documented 300px flexible widget where it fits and selects Cloudflare's compact widget for narrower forms, with module and classic-script consumers sharing one characterized policy |
+| `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.9.0`; API clients remain credentialed by default while explicitly public consumers can opt into the browser's credential-free CORS mode |
 | `@dustwave/tax-core` | Store-characterized destination normalization and deterministic integer-cent manual-rate calculation | `0.1.0`; provider lookup and product taxability remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.1.0`; processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.3.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
@@ -75,6 +75,26 @@ byte-derived MIT QR engine. Consumers supply trusted product text and an
 already-bounded image data URL, then choose their own rasterizer, storage, and
 publication policy; email audiences, attribution storage, and send authority
 remain consumer-owned.
+
+The API client preserves credentialed admin requests as its default. A
+consumer that calls an explicitly public cross-origin API may inject
+`credentials: "omit"` at construction; invalid Fetch credential policies fail
+before any request. The consumer still owns CORS, authentication, CSRF,
+Turnstile, route, and response-schema policy.
+
+The unsaved-change module is the characterized lifecycle overlap between Pool,
+Store, and Podcast. Its module and dependency-free classic-script entries block
+browser exit only while a consumer callback reports dirty state and expose an
+injected confirmation boundary for in-app transitions. Adapter failures fail
+closed. Consumers still own editor baselines, localized messages, discard side
+effects, and which transitions require confirmation.
+
+The dirty-controls module is the exact button-state overlap characterized in
+Pool and Store and now used by Podcast review drafts. Its module and
+dependency-free classic-script entries apply the `is-dirty` class,
+`data-dirty-state`, consumer-provided clean/dirty text, and the established
+disable-when-clean behavior. Consumers still own how changes are detected,
+localized labels, force-disabled policy, and the focus-ring styling.
 
 The credentialed-download module is the characterized overlap between Pool,
 Store, and Podcast accountant/report exports. It always uses credentialed GET,

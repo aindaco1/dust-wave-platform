@@ -54,3 +54,23 @@ test("the rich editor accepts consumer-owned interface translations", () => {
     ["Negrita", "Cursiva", "Encabezado", "Lista", "Enlace"]
   );
 });
+
+test("setHtml restores stored content through the shared sanitizer", () => {
+  const { document } = parseHTML('<div id="root"></div>');
+  const root = document.getElementById("root");
+  const changes = [];
+  const richEditor = mountRichTextEditor(root, {
+    onChange: (change) => changes.push(change)
+  });
+
+  richEditor.setHtml(
+    '<h1 onclick="bad()">Notes</h1><script>bad()</script>'
+    + '<p><strong>Safe</strong> <a href="javascript:bad()">link</a></p>'
+  );
+
+  assert.equal(
+    richEditor.getHtml(),
+    "<h2>Notes</h2><p><strong>Safe</strong> link</p>"
+  );
+  assert.equal(changes.at(-1).markdown, "## Notes\n\n**Safe** link");
+});

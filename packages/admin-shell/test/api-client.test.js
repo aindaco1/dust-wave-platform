@@ -40,6 +40,32 @@ test("does not attach CSRF to public reads", async () => {
   assert.equal(headers.has("x-podcast-csrf"), false);
 });
 
+test("supports an explicit credential-free public client", async () => {
+  let credentials;
+  const client = new AdminApiClient({
+    baseUrl: "https://podcast.test",
+    credentials: "omit",
+    fetchImpl: async (_url, init) => {
+      credentials = init.credentials;
+      return Response.json({ ok: true });
+    }
+  });
+
+  await client.request("/v1/shows/example");
+
+  assert.equal(credentials, "omit");
+});
+
+test("rejects an invalid credential policy before making a request", () => {
+  assert.throws(
+    () => new AdminApiClient({
+      baseUrl: "https://podcast.test",
+      credentials: "cross-origin"
+    }),
+    /credentials must be include, omit, or same-origin/
+  );
+});
+
 test("binds the fetch implementation for browser-native invocation", async () => {
   let receiver;
   const client = new AdminApiClient({

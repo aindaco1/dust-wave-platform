@@ -1,10 +1,13 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.7.0",
+  "version": "0.9.0",
   "type": "module",
   "exports": {
     "./api-client": "./src/api-client.js",
     "./credentialed-download": "./src/credentialed-download.js",
+    "./confirmation-dialog": "./src/confirmation-dialog.js",
+    "./dirty-controls-browser": "./src/dirty-controls-browser.js",
+    "./dirty-controls": "./src/dirty-controls.js",
     "./editor": "./src/editor.js",
     "./editor-codec": "./src/editor-codec.js",
     "./marketing-assets": {
@@ -15,7 +18,10 @@
     "./tabs-browser": "./src/tabs-browser.js",
     "./tabs": "./src/tabs.js",
     "./turnstile-browser": "./src/turnstile-browser.js",
-    "./turnstile": "./src/turnstile.js"
+    "./turnstile": "./src/turnstile.js",
+    "./unsaved-changes-browser": "./src/unsaved-changes-browser.js",
+    "./unsaved-changes": "./src/unsaved-changes.js",
+    "./workflow-progress": "./src/workflow-progress.js"
   },
   "engines": {
     "node": ">=20.9"
