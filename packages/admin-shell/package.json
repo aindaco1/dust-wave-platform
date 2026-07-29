@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "type": "module",
   "exports": {
     "./api-client": "./src/api-client.js",
@@ -15,7 +15,9 @@
     "./tabs-browser": "./src/tabs-browser.js",
     "./tabs": "./src/tabs.js",
     "./turnstile-browser": "./src/turnstile-browser.js",
-    "./turnstile": "./src/turnstile.js"
+    "./turnstile": "./src/turnstile.js",
+    "./unsaved-changes-browser": "./src/unsaved-changes-browser.js",
+    "./unsaved-changes": "./src/unsaved-changes.js"
   },
   "engines": {
     "node": ">=20.9"
