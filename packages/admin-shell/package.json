@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "type": "module",
   "exports": {
     "./api-client": "./src/api-client.js",

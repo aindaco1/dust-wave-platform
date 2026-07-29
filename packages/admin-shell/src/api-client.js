@@ -10,19 +10,25 @@ export class AdminApiError extends Error {
 
 export class AdminApiClient {
   #baseUrl;
+  #credentials;
   #csrfHeader;
   #csrfToken = "";
   #fetch;
 
   constructor({
     baseUrl,
+    credentials = "include",
     csrfHeader = "x-dustwave-csrf",
     fetchImpl
   } = {}) {
     if (!baseUrl) throw new TypeError("baseUrl is required");
+    if (!["include", "omit", "same-origin"].includes(credentials)) {
+      throw new TypeError("credentials must be include, omit, or same-origin");
+    }
     const resolvedFetch = fetchImpl || globalThis.fetch;
     if (typeof resolvedFetch !== "function") throw new TypeError("fetchImpl is required");
     this.#baseUrl = String(baseUrl).replace(/\/+$/, "");
+    this.#credentials = credentials;
     this.#csrfHeader = String(csrfHeader);
     this.#fetch = resolvedFetch.bind(globalThis);
   }
@@ -51,7 +57,7 @@ export class AdminApiClient {
     }
     const response = await this.#fetch(`${this.#baseUrl}${normalizePath(path)}`, {
       method,
-      credentials: "include",
+      credentials: this.#credentials,
       headers: requestHeaders,
       ...(body === undefined
         ? {}
