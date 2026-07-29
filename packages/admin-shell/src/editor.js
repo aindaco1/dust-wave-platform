@@ -3,6 +3,7 @@ import {
   isSafeEditorHref,
   markdownToEditorHtml,
   RICH_TEXT_POLICY,
+  sanitizeClipboardHtml,
   sanitizeClipboardPayload,
   TIMED_TEXT_POLICY
 } from "./editor-codec.js";
@@ -95,6 +96,12 @@ export function mountRichTextEditor(root, {
     getMarkdown: () => editorElementToMarkdown(editor, policy),
     setValue(nextValue) {
       editor.innerHTML = markdownToEditorHtml(nextValue, policy);
+      emitChange();
+    },
+    setHtml(nextValue) {
+      editor.innerHTML = sanitizeClipboardHtml(nextValue, policy, {
+        DOMParser: document.defaultView?.DOMParser || globalThis.DOMParser
+      });
       emitChange();
     },
     focus: () => editor.focus()
