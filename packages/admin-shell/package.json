@@ -1,10 +1,12 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "type": "module",
   "exports": {
     "./api-client": "./src/api-client.js",
     "./credentialed-download": "./src/credentialed-download.js",
+    "./dirty-controls-browser": "./src/dirty-controls-browser.js",
+    "./dirty-controls": "./src/dirty-controls.js",
     "./editor": "./src/editor.js",
     "./editor-codec": "./src/editor-codec.js",
     "./marketing-assets": {

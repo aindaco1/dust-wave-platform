@@ -9,7 +9,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | Package | Purpose | Status |
 |---|---|---|
 | `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.1`; exact and policy-injected duplicate extraction |
-| `@dustwave/admin-shell` | Credentialed admin API/download clients, passwordless session coordinator, accessible and responsive tab and Turnstile controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, and shared tagged-link/QR/share-card assets | `0.8.0`; consumers now share fail-closed browser-exit and injected in-app transition guards while retaining their own dirty-state and localized confirmation policies |
+| `@dustwave/admin-shell` | Credentialed admin API/download clients, passwordless session coordinator, accessible and responsive tab and Turnstile controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.8.1`; consumers now share fail-closed lifecycle guards and the characterized dirty-button behavior while retaining their own baselines, labels, and visual systems |
 | `@dustwave/tax-core` | Store-characterized destination normalization and deterministic integer-cent manual-rate calculation | `0.1.0`; provider lookup and product taxability remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.1.0`; processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.3.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
@@ -82,6 +82,13 @@ browser exit only while a consumer callback reports dirty state and expose an
 injected confirmation boundary for in-app transitions. Adapter failures fail
 closed. Consumers still own editor baselines, localized messages, discard side
 effects, and which transitions require confirmation.
+
+The dirty-controls module is the exact button-state overlap characterized in
+Pool and Store and now used by Podcast review drafts. Its module and
+dependency-free classic-script entries apply the `is-dirty` class,
+`data-dirty-state`, consumer-provided clean/dirty text, and the established
+disable-when-clean behavior. Consumers still own how changes are detected,
+localized labels, force-disabled policy, and the focus-ring styling.
 
 The credentialed-download module is the characterized overlap between Pool,
 Store, and Podcast accountant/report exports. It always uses credentialed GET,
