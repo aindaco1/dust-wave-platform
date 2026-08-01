@@ -144,7 +144,8 @@ export function validateTranscriptionChunkPlan(value, {
 export function mergeChunkTranscriptions(value, {
   language,
   sourceDurationMs,
-  policy = DEFAULT_TRANSCRIPTION_CHUNK_POLICY
+  policy = DEFAULT_TRANSCRIPTION_CHUNK_POLICY,
+  captionPolicy
 }) {
   if (!Array.isArray(value) || value.length < 1) {
     throw new TypeError("Chunk transcription evidence is missing");
@@ -246,7 +247,8 @@ export function mergeChunkTranscriptions(value, {
   }
   const transcription = normalizeTimedTextCues(merged, {
     language,
-    durationMs: sourceDurationMs
+    durationMs: sourceDurationMs,
+    captionPolicy
   });
   return {
     transcription,
