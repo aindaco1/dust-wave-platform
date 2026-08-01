@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/media-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "exports": {
     "./audio-qc": {
@@ -18,6 +18,10 @@
     "./delivery-audio": {
       "types": "./src/delivery-audio.d.ts",
       "default": "./src/delivery-audio.js"
+    },
+    "./image-dimensions": {
+      "types": "./src/image-dimensions.d.ts",
+      "default": "./src/image-dimensions.js"
     }
   },
   "engines": {
