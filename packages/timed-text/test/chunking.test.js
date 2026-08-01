@@ -10,6 +10,9 @@ import {
   validateTranscriptionChunkPlan,
   validateTranscriptionChunkProcessorManifest
 } from "../src/chunking.js";
+import {
+  DEFAULT_CAPTION_SEGMENTATION_POLICY
+} from "../src/transcription.js";
 
 test("plans bounded chunks at the closest safe silence with overlap", () => {
   const plan = planTranscriptionChunks({
@@ -69,8 +72,7 @@ test("merges overlap by core ownership and conservative token dedupe", () => {
     sourceDurationMs,
     silenceWindows: []
   });
-  const result = mergeChunkTranscriptions(
-    plan.chunks.map((chunk, index) => ({
+  const evidence = plan.chunks.map((chunk, index) => ({
       plan: {
         silenceWindows: plan.silenceWindows,
         chunk
@@ -96,7 +98,9 @@ test("merges overlap by core ownership and conservative token dedupe", () => {
               { start: 4, end: 10, text: "Fin." }
             ]
           }
-    })),
+    }));
+  const result = mergeChunkTranscriptions(
+    evidence,
     {
       language: "es",
       sourceDurationMs
@@ -114,6 +118,19 @@ test("merges overlap by core ownership and conservative token dedupe", () => {
   assert.equal(result.evidence.chunkCount, 2);
   assert.equal(result.evidence.deduplicatedTokenCount, 5);
   assert.equal(result.transcription.cues.at(-1).endsAtMs, 728_500);
+
+  const captionResult = mergeChunkTranscriptions(evidence, {
+    language: "es",
+    sourceDurationMs,
+    captionPolicy: DEFAULT_CAPTION_SEGMENTATION_POLICY
+  });
+  assert.equal(captionResult.evidence.deduplicatedTokenCount, 5);
+  for (const cue of captionResult.transcription.cues) {
+    const durationMs = cue.endsAtMs - cue.startsAtMs;
+    assert.ok(durationMs >= 500);
+    assert.ok(durationMs <= 10_000);
+    assert.ok(cue.textMarkdown.length / (durationMs / 1_000) <= 25);
+  }
 });
 
 test("rejects mutated plans and incomplete chunk evidence", () => {

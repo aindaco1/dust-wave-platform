@@ -20,6 +20,17 @@ export interface NormalizedSegmentTranscription {
 }
 
 export const TIMED_TEXT_SCHEMA: "timed-text-v1";
+export interface CaptionSegmentationPolicy {
+  minimumCueDurationMs: number;
+  maximumCueDurationMs: number;
+  maximumCharactersPerSecond: number;
+  maximumCharactersPerCue: number;
+  maximumMergeGapMs: number;
+  maximumPaddingMs: number;
+}
+
+export const DEFAULT_CAPTION_SEGMENTATION_POLICY:
+  Readonly<CaptionSegmentationPolicy>;
 
 export function normalizeTimedTextCues(
   value: Array<{
@@ -30,6 +41,7 @@ export function normalizeTimedTextCues(
   options: {
     language: TimedTextLanguage;
     durationMs: number;
+    captionPolicy?: CaptionSegmentationPolicy;
   }
 ): NormalizedSegmentTranscription;
 
@@ -38,5 +50,6 @@ export function normalizeSegmentTranscription(
   options: {
     language: TimedTextLanguage;
     durationMs: number;
+    captionPolicy?: CaptionSegmentationPolicy;
   }
 ): NormalizedSegmentTranscription;

@@ -1,4 +1,5 @@
 import type {
+  CaptionSegmentationPolicy,
   NormalizedSegmentTranscription,
   TimedTextLanguage
 } from "./transcription.js";
@@ -111,6 +112,7 @@ export function mergeChunkTranscriptions(
     language: TimedTextLanguage;
     sourceDurationMs: number;
     policy?: TranscriptionChunkPolicy;
+    captionPolicy?: CaptionSegmentationPolicy;
   }
 ): {
   transcription: NormalizedSegmentTranscription;
