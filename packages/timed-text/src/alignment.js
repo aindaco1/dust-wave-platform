@@ -448,12 +448,208 @@ export async function canonicalAlignmentSha256(value) {
     .join("");
 }
 
+export function auditTimedTextReference({
+  cues,
+  referenceCues,
+  windowMs = 60_000,
+  minimumSimilarity = 0.75,
+  maximumLowSimilarityWindowRatio = 0.1,
+  maximumReportedWindows = 12
+}) {
+  const primary = reviewCues(cues, "transcript");
+  const reference = reviewCues(referenceCues, "reference");
+  const normalizedWindowMs = boundedInteger(
+    windowMs,
+    10_000,
+    10 * 60_000,
+    "reference audit window"
+  );
+  const normalizedMinimumSimilarity = boundedNumber(
+    minimumSimilarity,
+    0,
+    1,
+    "reference audit minimum similarity"
+  );
+  const normalizedMaximumLowRatio = boundedNumber(
+    maximumLowSimilarityWindowRatio,
+    0,
+    1,
+    "reference audit maximum low-similarity ratio"
+  );
+  const normalizedMaximumReported = boundedInteger(
+    maximumReportedWindows,
+    1,
+    100,
+    "reference audit reported-window limit"
+  );
+  const startsAtMs = Math.floor(
+    primary[0].startsAtMs / normalizedWindowMs
+  ) * normalizedWindowMs;
+  const endsAtMs = primary.at(-1).endsAtMs;
+  const windows = [];
+  let totalDistance = 0;
+  let totalComparisonWords = 0;
+  let lowSimilarityWindowCount = 0;
+  let missingReferenceWindowCount = 0;
+  let referenceWordCount = 0;
+  let primaryWordCount = 0;
+
+  for (
+    let windowStart = startsAtMs;
+    windowStart < endsAtMs;
+    windowStart += normalizedWindowMs
+  ) {
+    const windowEnd = Math.min(windowStart + normalizedWindowMs, endsAtMs);
+    const primaryWindow = reviewWindow(primary, windowStart, windowEnd);
+    const referenceWindow = reviewWindow(reference, windowStart, windowEnd);
+    const primaryWords = primaryWindow.flatMap(({ words }) => words);
+    const referenceWords = referenceWindow.flatMap(({ words }) => words);
+    primaryWordCount += primaryWords.length;
+    referenceWordCount += referenceWords.length;
+    const comparisonWords = Math.max(
+      primaryWords.length,
+      referenceWords.length
+    );
+    const distance = lexicalEditDistance(primaryWords, referenceWords);
+    const similarity = comparisonWords === 0
+      ? 1
+      : Math.max(0, 1 - distance / comparisonWords);
+    if (primaryWords.length > 0 && referenceWords.length === 0) {
+      missingReferenceWindowCount += 1;
+    }
+    if (
+      comparisonWords > 0
+      && similarity < normalizedMinimumSimilarity
+    ) {
+      lowSimilarityWindowCount += 1;
+    }
+    totalDistance += distance;
+    totalComparisonWords += comparisonWords;
+    const primaryCueNumbers = primaryWindow.map(({ index }) => index + 1);
+    windows.push({
+      startsAtMs: windowStart,
+      endsAtMs: windowEnd,
+      primaryWordCount: primaryWords.length,
+      referenceWordCount: referenceWords.length,
+      similarity: roundedRatio(similarity),
+      firstCueNumber: primaryCueNumbers[0] ?? null,
+      lastCueNumber: primaryCueNumbers.at(-1) ?? null
+    });
+  }
+
+  const comparedWindowCount = windows.filter(
+    ({ primaryWordCount: primaryWords, referenceWordCount: referenceWords }) =>
+      primaryWords > 0 || referenceWords > 0
+  ).length;
+  const lowSimilarityWindowRatio = comparedWindowCount === 0
+    ? 1
+    : lowSimilarityWindowCount / comparedWindowCount;
+  const weightedSimilarity = totalComparisonWords === 0
+    ? 0
+    : Math.max(0, 1 - totalDistance / totalComparisonWords);
+  const reportedWindows = [...windows]
+    .filter(({ primaryWordCount: primaryWords, referenceWordCount: referenceWords }) =>
+      primaryWords > 0 || referenceWords > 0
+    )
+    .sort((left, right) =>
+      left.similarity - right.similarity
+      || left.startsAtMs - right.startsAtMs
+    )
+    .slice(0, normalizedMaximumReported);
+
+  return {
+    schemaVersion: "timed-text-reference-audit-v1",
+    windowMs: normalizedWindowMs,
+    minimumSimilarity: normalizedMinimumSimilarity,
+    maximumLowSimilarityWindowRatio: normalizedMaximumLowRatio,
+    primaryWordCount,
+    referenceWordCount,
+    windowCount: windows.length,
+    comparedWindowCount,
+    lowSimilarityWindowCount,
+    lowSimilarityWindowRatio: roundedRatio(lowSimilarityWindowRatio),
+    missingReferenceWindowCount,
+    weightedSimilarity: roundedRatio(weightedSimilarity),
+    passing:
+      comparedWindowCount > 0
+      && missingReferenceWindowCount === 0
+      && lowSimilarityWindowRatio <= normalizedMaximumLowRatio,
+    reportedWindows
+  };
+}
+
 export function normalizeAlignmentLexicalWord(value) {
   return String(value ?? "")
     .normalize("NFKD")
     .replace(/\p{Mark}/gu, "")
     .toLocaleLowerCase("und")
     .replace(/[\p{Punctuation}\p{Symbol}\s]+/gu, "");
+}
+
+function reviewCues(value, field) {
+  if (!Array.isArray(value) || value.length < 1 || value.length > MAXIMUM_CUES) {
+    throw new TypeError(`Timed-text ${field} cues are invalid`);
+  }
+  let previousStart = -1;
+  return value.map((candidate, index) => {
+    if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+      throw new TypeError(`Timed-text ${field} cue ${index + 1} is invalid`);
+    }
+    const startsAtMs = boundedInteger(
+      candidate.startsAtMs,
+      0,
+      MAXIMUM_DURATION_MS - 1,
+      `timed-text ${field} cue ${index + 1} start`
+    );
+    const endsAtMs = boundedInteger(
+      candidate.endsAtMs,
+      1,
+      MAXIMUM_DURATION_MS,
+      `timed-text ${field} cue ${index + 1} end`
+    );
+    if (startsAtMs < previousStart || endsAtMs <= startsAtMs) {
+      throw new TypeError(`Timed-text ${field} cue ${index + 1} timing is invalid`);
+    }
+    previousStart = startsAtMs;
+    const text = candidate.textMarkdown ?? candidate.text;
+    const words = lexicalWords(text);
+    return { index, startsAtMs, endsAtMs, words };
+  });
+}
+
+function reviewWindow(cues, startsAtMs, endsAtMs) {
+  return cues.filter((cue) => {
+    const midpoint = cue.startsAtMs + (cue.endsAtMs - cue.startsAtMs) / 2;
+    return midpoint >= startsAtMs && midpoint < endsAtMs;
+  });
+}
+
+function lexicalWords(value) {
+  return [...String(value ?? "").normalize("NFKC").matchAll(WORD_PATTERN)]
+    .map(({ 0: word }) => normalizeAlignmentLexicalWord(word))
+    .filter(Boolean);
+}
+
+function lexicalEditDistance(left, right) {
+  if (left.length > right.length) return lexicalEditDistance(right, left);
+  let prior = Array.from({ length: left.length + 1 }, (_, index) => index);
+  for (let rightIndex = 1; rightIndex <= right.length; rightIndex += 1) {
+    const current = [rightIndex];
+    for (let leftIndex = 1; leftIndex <= left.length; leftIndex += 1) {
+      current[leftIndex] = Math.min(
+        current[leftIndex - 1] + 1,
+        prior[leftIndex] + 1,
+        prior[leftIndex - 1]
+          + (left[leftIndex - 1] === right[rightIndex - 1] ? 0 : 1)
+      );
+    }
+    prior = current;
+  }
+  return prior[left.length];
+}
+
+function roundedRatio(value) {
+  return Number(Number(value).toFixed(6));
 }
 
 function validateResultAdapter(value, expected) {

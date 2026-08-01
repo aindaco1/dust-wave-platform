@@ -156,3 +156,44 @@ export function validateAlignmentProcessorManifest(
 export function canonicalAlignmentJson(value: unknown): string;
 export function canonicalAlignmentSha256(value: unknown): Promise<string>;
 export function normalizeAlignmentLexicalWord(value: unknown): string;
+
+export interface TimedTextReferenceAuditCue {
+  startsAtMs: number;
+  endsAtMs: number;
+  text?: unknown;
+  textMarkdown?: unknown;
+}
+
+export interface TimedTextReferenceAudit {
+  schemaVersion: "timed-text-reference-audit-v1";
+  windowMs: number;
+  minimumSimilarity: number;
+  maximumLowSimilarityWindowRatio: number;
+  primaryWordCount: number;
+  referenceWordCount: number;
+  windowCount: number;
+  comparedWindowCount: number;
+  lowSimilarityWindowCount: number;
+  lowSimilarityWindowRatio: number;
+  missingReferenceWindowCount: number;
+  weightedSimilarity: number;
+  passing: boolean;
+  reportedWindows: Array<{
+    startsAtMs: number;
+    endsAtMs: number;
+    primaryWordCount: number;
+    referenceWordCount: number;
+    similarity: number;
+    firstCueNumber: number | null;
+    lastCueNumber: number | null;
+  }>;
+}
+
+export function auditTimedTextReference(input: {
+  cues: TimedTextReferenceAuditCue[];
+  referenceCues: TimedTextReferenceAuditCue[];
+  windowMs?: number;
+  minimumSimilarity?: number;
+  maximumLowSimilarityWindowRatio?: number;
+  maximumReportedWindows?: number;
+}): TimedTextReferenceAudit;
