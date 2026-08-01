@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  auditTimedTextReference,
   buildAlignmentTranscriptProjection,
   buildAlignmentProcessorManifest,
   canonicalAlignmentSha256,
@@ -9,6 +10,82 @@ import {
   validateAlignmentProcessorManifest,
   validateAlignmentRunnerResult
 } from "../src/alignment.js";
+
+test("audits bilingual timed text without returning transcript content", () => {
+  const audit = auditTimedTextReference({
+    cues: [
+      cue(0, 30_000, "Ópera en la Selva"),
+      cue(30_000, 60_000, "No podemos settle for menos.")
+    ],
+    referenceCues: [
+      referenceCue(0, 29_000, "Opera en la selva"),
+      referenceCue(31_000, 59_000, "No podemos settle for menos")
+    ],
+    windowMs: 30_000,
+    minimumSimilarity: 0.95
+  });
+  assert.equal(audit.passing, true);
+  assert.equal(audit.weightedSimilarity, 1);
+  assert.equal(audit.lowSimilarityWindowCount, 0);
+  assert.equal(JSON.stringify(audit).includes("Selva"), false);
+  assert.deepEqual(
+    audit.reportedWindows.map(({ firstCueNumber, lastCueNumber }) => ({
+      firstCueNumber,
+      lastCueNumber
+    })),
+    [
+      { firstCueNumber: 1, lastCueNumber: 1 },
+      { firstCueNumber: 2, lastCueNumber: 2 }
+    ]
+  );
+});
+
+test("fails closed and reports only bounded cue ranges for reference drift", () => {
+  const audit = auditTimedTextReference({
+    cues: [
+      cue(0, 30_000, "one two three"),
+      cue(30_000, 60_000, "four five six"),
+      cue(60_000, 90_000, "seven eight nine")
+    ],
+    referenceCues: [
+      referenceCue(0, 30_000, "one two three"),
+      referenceCue(30_000, 60_000, "completely different words"),
+      referenceCue(60_000, 90_000, "seven eight nine")
+    ],
+    windowMs: 30_000,
+    minimumSimilarity: 0.8,
+    maximumLowSimilarityWindowRatio: 0.2,
+    maximumReportedWindows: 1
+  });
+  assert.equal(audit.passing, false);
+  assert.equal(audit.lowSimilarityWindowCount, 1);
+  assert.equal(audit.reportedWindows.length, 1);
+  assert.deepEqual(audit.reportedWindows[0], {
+    startsAtMs: 30_000,
+    endsAtMs: 60_000,
+    primaryWordCount: 3,
+    referenceWordCount: 3,
+    similarity: 0,
+    firstCueNumber: 2,
+    lastCueNumber: 2
+  });
+});
+
+test("rejects missing reference windows and malformed timing", () => {
+  const missing = auditTimedTextReference({
+    cues: [cue(0, 60_000, "one two three")],
+    referenceCues: [referenceCue(60_000, 61_000, "later")]
+  });
+  assert.equal(missing.passing, false);
+  assert.equal(missing.missingReferenceWindowCount, 1);
+  assert.throws(
+    () => auditTimedTextReference({
+      cues: [cue(5_000, 5_000, "invalid")],
+      referenceCues: [referenceCue(0, 1_000, "reference")]
+    }),
+    /timing is invalid/
+  );
+});
 
 const adapter = {
   name: "whisperx",
@@ -223,4 +300,12 @@ function buildProjection() {
       }
     ]
   });
+}
+
+function cue(startsAtMs, endsAtMs, textMarkdown) {
+  return { startsAtMs, endsAtMs, textMarkdown };
+}
+
+function referenceCue(startsAtMs, endsAtMs, text) {
+  return { startsAtMs, endsAtMs, text };
 }
