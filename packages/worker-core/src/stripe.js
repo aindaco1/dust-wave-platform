@@ -245,6 +245,10 @@ export function createStripeClient(secretKey, clientOptions = {}) {
       create: (data, options) => request('POST', '/refunds', data, options),
       retrieve: (id, options) => request('GET', `/refunds/${id}`, null, options)
     },
+    events: {
+      retrieve: (id, options) => request('GET', `/events/${id}`, null, options),
+      retry: (id, data, options) => request('POST', `/events/${id}/retry`, data, options)
+    },
     testHelpers: {
       testClocks: {
         create: (data, options) => request('POST', '/test_helpers/test_clocks', data, options),

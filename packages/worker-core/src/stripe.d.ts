@@ -77,6 +77,10 @@ export interface StripeClient {
     create: StripeOperation;
     retrieve: StripeRetrieveOperation;
   };
+  events: {
+    retrieve: StripeRetrieveOperation;
+    retry: StripeUpdateOperation;
+  };
   testHelpers: {
     testClocks: {
       create: StripeOperation;
