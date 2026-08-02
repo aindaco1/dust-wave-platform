@@ -132,3 +132,78 @@ test('creates and retrieves tax rates through the shared idempotent client', asy
   assert.equal(observed[1].url, 'https://api.stripe.com/v1/tax_rates/txr_fixture');
   assert.equal(observed[1].init.method, 'GET');
 });
+
+test('encodes resumable subscription simulation operations through one client', async (context) => {
+  const originalFetch = globalThis.fetch;
+  context.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+  const observed = [];
+  globalThis.fetch = async (url, init) => {
+    observed.push({ url, init });
+    return new Response(JSON.stringify({
+      id: url.split('/').at(-1) || 'fixture',
+      object: 'fixture'
+    }), { headers: { 'content-type': 'application/json' } });
+  };
+
+  const client = createStripeClient('rk_test_fixture');
+  await client.testHelpers.testClocks.create(
+    { frozen_time: 1_700_000_000, name: 'Launch Lab' },
+    { idempotencyKey: 'clock:fixture' }
+  );
+  await client.customers.update('cus_fixture', {
+    invoice_settings: { default_payment_method: 'pm_fixture' }
+  });
+  await client.paymentMethods.attach('pm_fixture', {
+    customer: 'cus_fixture'
+  });
+  await client.subscriptions.create({
+    customer: 'cus_fixture',
+    items: [{ price: 'price_fixture' }]
+  });
+  await client.subscriptions.update('sub_fixture', {
+    default_payment_method: 'pm_fixture'
+  });
+  await client.invoices.list({ subscription: 'sub_fixture', limit: 3 });
+  await client.invoices.pay('in_fixture', {
+    payment_method: 'pm_fixture'
+  });
+  await client.testHelpers.testClocks.advance('clock_fixture', {
+    frozen_time: 1_702_678_400
+  });
+  await client.subscriptions.cancel('sub_fixture', {
+    invoice_now: false,
+    prorate: false
+  });
+  await client.testHelpers.testClocks.delete('clock_fixture');
+
+  assert.deepEqual(observed.map(({ url, init }) => ({
+    path: new URL(url).pathname,
+    search: new URL(url).search,
+    method: init.method
+  })), [
+    { path: '/v1/test_helpers/test_clocks', search: '', method: 'POST' },
+    { path: '/v1/customers/cus_fixture', search: '', method: 'POST' },
+    { path: '/v1/payment_methods/pm_fixture/attach', search: '', method: 'POST' },
+    { path: '/v1/subscriptions', search: '', method: 'POST' },
+    { path: '/v1/subscriptions/sub_fixture', search: '', method: 'POST' },
+    { path: '/v1/invoices', search: '?subscription=sub_fixture&limit=3', method: 'GET' },
+    { path: '/v1/invoices/in_fixture/pay', search: '', method: 'POST' },
+    { path: '/v1/test_helpers/test_clocks/clock_fixture/advance', search: '', method: 'POST' },
+    { path: '/v1/subscriptions/sub_fixture', search: '', method: 'DELETE' },
+    { path: '/v1/test_helpers/test_clocks/clock_fixture', search: '', method: 'DELETE' }
+  ]);
+  assert.equal(
+    observed[0].init.headers['Idempotency-Key'],
+    'clock:fixture'
+  );
+  assert.match(
+    observed[2].init.body,
+    /customer=cus_fixture/
+  );
+  assert.match(
+    observed[3].init.body,
+    /items%5B0%5D%5Bprice%5D=price_fixture/
+  );
+});

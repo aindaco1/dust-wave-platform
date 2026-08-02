@@ -219,10 +219,30 @@ export function createStripeClient(secretKey, clientOptions = {}) {
     },
     customers: {
       create: (data, options) => request('POST', '/customers', data, options),
+      update: (id, data, options) => request('POST', `/customers/${id}`, data, options),
       retrieve: (id, options) => request('GET', `/customers/${id}`, null, options)
     },
+    paymentMethods: {
+      attach: (id, data, options) => request('POST', `/payment_methods/${id}/attach`, data, options)
+    },
     subscriptions: {
-      retrieve: (id, options) => request('GET', `/subscriptions/${id}`, null, options)
+      create: (data, options) => request('POST', '/subscriptions', data, options),
+      update: (id, data, options) => request('POST', `/subscriptions/${id}`, data, options),
+      retrieve: (id, options) => request('GET', `/subscriptions/${id}`, null, options),
+      cancel: (id, data, options) => request('DELETE', `/subscriptions/${id}`, data, options)
+    },
+    invoices: {
+      list: (data, options) => request('GET', '/invoices', data, options),
+      retrieve: (id, options) => request('GET', `/invoices/${id}`, null, options),
+      pay: (id, data, options) => request('POST', `/invoices/${id}/pay`, data, options)
+    },
+    testHelpers: {
+      testClocks: {
+        create: (data, options) => request('POST', '/test_helpers/test_clocks', data, options),
+        retrieve: (id, options) => request('GET', `/test_helpers/test_clocks/${id}`, null, options),
+        advance: (id, data, options) => request('POST', `/test_helpers/test_clocks/${id}/advance`, data, options),
+        delete: (id, options) => request('DELETE', `/test_helpers/test_clocks/${id}`, null, options)
+      }
     }
   };
 }
