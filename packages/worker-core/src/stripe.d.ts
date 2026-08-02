@@ -31,6 +31,16 @@ type StripeRetrieveOperation = (
   id: string,
   options?: StripeRequestOptions
 ) => Promise<StripeObject>;
+type StripeUpdateOperation = (
+  id: string,
+  data?: Record<string, unknown>,
+  options?: StripeRequestOptions
+) => Promise<StripeObject>;
+type StripeDeleteOperation = (
+  id: string,
+  data?: Record<string, unknown>,
+  options?: StripeRequestOptions
+) => Promise<StripeObject>;
 
 export interface StripeClient {
   products: { create: StripeOperation; retrieve: StripeRetrieveOperation };
@@ -40,8 +50,31 @@ export interface StripeClient {
     sessions: { create: StripeOperation; retrieve: StripeRetrieveOperation };
   };
   billingPortal: { sessions: { create: StripeOperation } };
-  customers: { create: StripeOperation; retrieve: StripeRetrieveOperation };
-  subscriptions: { retrieve: StripeRetrieveOperation };
+  customers: {
+    create: StripeOperation;
+    update: StripeUpdateOperation;
+    retrieve: StripeRetrieveOperation;
+  };
+  paymentMethods: { attach: StripeUpdateOperation };
+  subscriptions: {
+    create: StripeOperation;
+    update: StripeUpdateOperation;
+    retrieve: StripeRetrieveOperation;
+    cancel: StripeDeleteOperation;
+  };
+  invoices: {
+    list: StripeOperation;
+    retrieve: StripeRetrieveOperation;
+    pay: StripeUpdateOperation;
+  };
+  testHelpers: {
+    testClocks: {
+      create: StripeOperation;
+      retrieve: StripeRetrieveOperation;
+      advance: StripeUpdateOperation;
+      delete: StripeRetrieveOperation;
+    };
+  };
 }
 
 export function verifyStripeSignature(
