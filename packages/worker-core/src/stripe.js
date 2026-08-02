@@ -209,7 +209,8 @@ export function createStripeClient(secretKey, clientOptions = {}) {
     checkout: {
       sessions: {
         create: (data, options) => request('POST', '/checkout/sessions', data, options),
-        retrieve: (id, options) => request('GET', `/checkout/sessions/${id}`, null, options)
+        retrieve: (id, options) => request('GET', `/checkout/sessions/${id}`, null, options),
+        expire: (id, options) => request('POST', `/checkout/sessions/${id}/expire`, null, options)
       }
     },
     billingPortal: {
@@ -220,7 +221,8 @@ export function createStripeClient(secretKey, clientOptions = {}) {
     customers: {
       create: (data, options) => request('POST', '/customers', data, options),
       update: (id, data, options) => request('POST', `/customers/${id}`, data, options),
-      retrieve: (id, options) => request('GET', `/customers/${id}`, null, options)
+      retrieve: (id, options) => request('GET', `/customers/${id}`, null, options),
+      delete: (id, data, options) => request('DELETE', `/customers/${id}`, data, options)
     },
     paymentMethods: {
       attach: (id, data, options) => request('POST', `/payment_methods/${id}/attach`, data, options)

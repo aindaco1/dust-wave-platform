@@ -186,6 +186,8 @@ test('encodes resumable subscription simulation operations through one client', 
     invoice_now: false,
     prorate: false
   });
+  await client.checkout.sessions.expire('cs_fixture');
+  await client.customers.delete('cus_fixture');
   await client.testHelpers.testClocks.delete('clock_fixture');
 
   assert.deepEqual(observed.map(({ url, init }) => ({
@@ -205,6 +207,8 @@ test('encodes resumable subscription simulation operations through one client', 
     { path: '/v1/refunds/re_fixture', search: '', method: 'GET' },
     { path: '/v1/test_helpers/test_clocks/clock_fixture/advance', search: '', method: 'POST' },
     { path: '/v1/subscriptions/sub_fixture', search: '', method: 'DELETE' },
+    { path: '/v1/checkout/sessions/cs_fixture/expire', search: '', method: 'POST' },
+    { path: '/v1/customers/cus_fixture', search: '', method: 'DELETE' },
     { path: '/v1/test_helpers/test_clocks/clock_fixture', search: '', method: 'DELETE' }
   ]);
   assert.equal(
