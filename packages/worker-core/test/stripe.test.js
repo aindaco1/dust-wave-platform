@@ -179,6 +179,10 @@ test('encodes resumable subscription simulation operations through one client', 
     reason: 'requested_by_customer'
   }, { idempotencyKey: 'refund:fixture' });
   await client.refunds.retrieve('re_fixture');
+  await client.events.retrieve('evt_fixture');
+  await client.events.retry('evt_fixture', {
+    webhook_endpoint: 'we_fixture'
+  }, { idempotencyKey: 'event-retry:fixture' });
   await client.testHelpers.testClocks.advance('clock_fixture', {
     frozen_time: 1_702_678_400
   });
@@ -205,6 +209,8 @@ test('encodes resumable subscription simulation operations through one client', 
     { path: '/v1/invoice_payments', search: '?invoice=in_fixture&status=paid&limit=10', method: 'GET' },
     { path: '/v1/refunds', search: '', method: 'POST' },
     { path: '/v1/refunds/re_fixture', search: '', method: 'GET' },
+    { path: '/v1/events/evt_fixture', search: '', method: 'GET' },
+    { path: '/v1/events/evt_fixture/retry', search: '', method: 'POST' },
     { path: '/v1/test_helpers/test_clocks/clock_fixture/advance', search: '', method: 'POST' },
     { path: '/v1/subscriptions/sub_fixture', search: '', method: 'DELETE' },
     { path: '/v1/checkout/sessions/cs_fixture/expire', search: '', method: 'POST' },
@@ -225,4 +231,9 @@ test('encodes resumable subscription simulation operations through one client', 
   );
   assert.equal(observed[8].init.headers['Idempotency-Key'], 'refund:fixture');
   assert.match(observed[8].init.body, /payment_intent=pi_fixture/);
+  assert.equal(
+    observed[11].init.headers['Idempotency-Key'],
+    'event-retry:fixture'
+  );
+  assert.match(observed[11].init.body, /webhook_endpoint=we_fixture/);
 });
