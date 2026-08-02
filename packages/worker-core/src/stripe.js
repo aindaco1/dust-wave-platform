@@ -236,6 +236,13 @@ export function createStripeClient(secretKey, clientOptions = {}) {
       retrieve: (id, options) => request('GET', `/invoices/${id}`, null, options),
       pay: (id, data, options) => request('POST', `/invoices/${id}/pay`, data, options)
     },
+    invoicePayments: {
+      list: (data, options) => request('GET', '/invoice_payments', data, options)
+    },
+    refunds: {
+      create: (data, options) => request('POST', '/refunds', data, options),
+      retrieve: (id, options) => request('GET', `/refunds/${id}`, null, options)
+    },
     testHelpers: {
       testClocks: {
         create: (data, options) => request('POST', '/test_helpers/test_clocks', data, options),

@@ -169,6 +169,16 @@ test('encodes resumable subscription simulation operations through one client', 
   await client.invoices.pay('in_fixture', {
     payment_method: 'pm_fixture'
   });
+  await client.invoicePayments.list({
+    invoice: 'in_fixture',
+    status: 'paid',
+    limit: 10
+  });
+  await client.refunds.create({
+    payment_intent: 'pi_fixture',
+    reason: 'requested_by_customer'
+  }, { idempotencyKey: 'refund:fixture' });
+  await client.refunds.retrieve('re_fixture');
   await client.testHelpers.testClocks.advance('clock_fixture', {
     frozen_time: 1_702_678_400
   });
@@ -190,6 +200,9 @@ test('encodes resumable subscription simulation operations through one client', 
     { path: '/v1/subscriptions/sub_fixture', search: '', method: 'POST' },
     { path: '/v1/invoices', search: '?subscription=sub_fixture&limit=3', method: 'GET' },
     { path: '/v1/invoices/in_fixture/pay', search: '', method: 'POST' },
+    { path: '/v1/invoice_payments', search: '?invoice=in_fixture&status=paid&limit=10', method: 'GET' },
+    { path: '/v1/refunds', search: '', method: 'POST' },
+    { path: '/v1/refunds/re_fixture', search: '', method: 'GET' },
     { path: '/v1/test_helpers/test_clocks/clock_fixture/advance', search: '', method: 'POST' },
     { path: '/v1/subscriptions/sub_fixture', search: '', method: 'DELETE' },
     { path: '/v1/test_helpers/test_clocks/clock_fixture', search: '', method: 'DELETE' }
@@ -206,4 +219,6 @@ test('encodes resumable subscription simulation operations through one client', 
     observed[3].init.body,
     /items%5B0%5D%5Bprice%5D=price_fixture/
   );
+  assert.equal(observed[8].init.headers['Idempotency-Key'], 'refund:fixture');
+  assert.match(observed[8].init.body, /payment_intent=pi_fixture/);
 });

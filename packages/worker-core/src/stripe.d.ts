@@ -67,6 +67,11 @@ export interface StripeClient {
     retrieve: StripeRetrieveOperation;
     pay: StripeUpdateOperation;
   };
+  invoicePayments: { list: StripeOperation };
+  refunds: {
+    create: StripeOperation;
+    retrieve: StripeRetrieveOperation;
+  };
   testHelpers: {
     testClocks: {
       create: StripeOperation;
