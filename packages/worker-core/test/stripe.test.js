@@ -95,3 +95,40 @@ test('returns bounded structured provider failures', async (context) => {
     }
   );
 });
+
+test('creates and retrieves tax rates through the shared idempotent client', async (context) => {
+  const originalFetch = globalThis.fetch;
+  context.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+  const observed = [];
+  globalThis.fetch = async (url, init) => {
+    observed.push({ url, init });
+    return new Response(JSON.stringify({
+      id: 'txr_fixture',
+      object: 'tax_rate',
+      livemode: false,
+      percentage: 7.625
+    }), {
+      headers: { 'content-type': 'application/json' }
+    });
+  };
+
+  const client = createStripeClient('rk_test_fixture');
+  await client.taxRates.create({
+    display_name: 'NM GRT',
+    percentage: '7.625',
+    inclusive: false,
+    country: 'US',
+    state: 'NM',
+    metadata: { policy_id: 'policy_fixture' }
+  }, { idempotencyKey: 'tax-policy:policy_fixture' });
+  await client.taxRates.retrieve('txr_fixture');
+
+  assert.equal(observed.length, 2);
+  assert.equal(observed[0].url, 'https://api.stripe.com/v1/tax_rates');
+  assert.equal(observed[0].init.headers['Idempotency-Key'], 'tax-policy:policy_fixture');
+  assert.match(observed[0].init.body, /metadata%5Bpolicy_id%5D=policy_fixture/);
+  assert.equal(observed[1].url, 'https://api.stripe.com/v1/tax_rates/txr_fixture');
+  assert.equal(observed[1].init.method, 'GET');
+});

@@ -202,6 +202,10 @@ export function createStripeClient(secretKey, clientOptions = {}) {
       create: (data, options) => request('POST', '/prices', data, options),
       retrieve: (id, options) => request('GET', `/prices/${id}`, null, options)
     },
+    taxRates: {
+      create: (data, options) => request('POST', '/tax_rates', data, options),
+      retrieve: (id, options) => request('GET', `/tax_rates/${id}`, null, options)
+    },
     checkout: {
       sessions: {
         create: (data, options) => request('POST', '/checkout/sessions', data, options),
