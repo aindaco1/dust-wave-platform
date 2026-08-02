@@ -35,6 +35,7 @@ type StripeRetrieveOperation = (
 export interface StripeClient {
   products: { create: StripeOperation; retrieve: StripeRetrieveOperation };
   prices: { create: StripeOperation; retrieve: StripeRetrieveOperation };
+  taxRates: { create: StripeOperation; retrieve: StripeRetrieveOperation };
   checkout: {
     sessions: { create: StripeOperation; retrieve: StripeRetrieveOperation };
   };
