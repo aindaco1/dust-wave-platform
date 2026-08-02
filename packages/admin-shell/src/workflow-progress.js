@@ -35,17 +35,18 @@ export function mountWorkflowProgress(root, {
   function select(id, { focus = false, notify = true } = {}) {
     const normalized = String(id || "");
     if (!steps.some((step) => String(step.id) === normalized)) return false;
+    const preserveFocus = focus || list.contains(document.activeElement);
     activeStep = normalized;
     render();
-    if (focus) {
-      list.querySelector(`[data-workflow-step="${normalized}"]`)
-        ?.focus({ preventScroll: true });
-    }
     if (notify) {
       onSelect?.(
         activeStep,
         steps.find((step) => String(step.id) === activeStep)
       );
+    }
+    if (preserveFocus) {
+      list.querySelector(`[data-workflow-step="${normalized}"]`)
+        ?.focus({ preventScroll: true });
     }
     return true;
   }
@@ -77,6 +78,7 @@ export function mountWorkflowProgress(root, {
       const item = document.createElement("li");
       item.className = "dw-admin-workflow__item";
       item.dataset.status = String(step.status || "not_started");
+      if (usesTabs) item.setAttribute("role", "presentation");
       const button = document.createElement("button");
       button.className = "dw-admin-workflow__button";
       button.type = "button";
@@ -123,11 +125,16 @@ export function mountWorkflowProgress(root, {
   return {
     element: nav,
     setSteps(nextSteps) {
+      const preserveFocus = list.contains(document.activeElement);
       steps = Array.from(nextSteps || []).map((step) => ({ ...step }));
       if (!steps.some(({ id }) => String(id) === activeStep)) {
         activeStep = String(steps[0]?.id || "");
       }
       render();
+      if (preserveFocus) {
+        list.querySelector(`[data-workflow-step="${activeStep}"]`)
+          ?.focus({ preventScroll: true });
+      }
     },
     setActive(id) {
       return select(id, { notify: false });
