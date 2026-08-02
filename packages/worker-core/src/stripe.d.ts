@@ -47,13 +47,18 @@ export interface StripeClient {
   prices: { create: StripeOperation; retrieve: StripeRetrieveOperation };
   taxRates: { create: StripeOperation; retrieve: StripeRetrieveOperation };
   checkout: {
-    sessions: { create: StripeOperation; retrieve: StripeRetrieveOperation };
+    sessions: {
+      create: StripeOperation;
+      retrieve: StripeRetrieveOperation;
+      expire: StripeRetrieveOperation;
+    };
   };
   billingPortal: { sessions: { create: StripeOperation } };
   customers: {
     create: StripeOperation;
     update: StripeUpdateOperation;
     retrieve: StripeRetrieveOperation;
+    delete: StripeDeleteOperation;
   };
   paymentMethods: { attach: StripeUpdateOperation };
   subscriptions: {
