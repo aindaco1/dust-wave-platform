@@ -9,7 +9,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | Package | Purpose | Status |
 |---|---|---|
 | `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.1`; exact and policy-injected duplicate extraction |
-| `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.9.0`; API clients remain credentialed by default while explicitly public consumers can opt into the browser's credential-free CORS mode |
+| `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
 | `@dustwave/tax-core` | Store-characterized destination normalization and deterministic integer-cent manual-rate calculation | `0.1.0`; provider lookup and product taxability remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.1.0`; processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.3.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
@@ -75,6 +75,15 @@ byte-derived MIT QR engine. Consumers supply trusted product text and an
 already-bounded image data URL, then choose their own rasterizer, storage, and
 publication policy; email audiences, attribution storage, and send authority
 remain consumer-owned.
+
+The workflow-progress entry defaults to ordered progress navigation with
+`aria-current="step"`. `selectionMode: "tabs"` opts into a horizontal,
+automatically activated ARIA tablist: Left and Right wrap across enabled tabs,
+while Home and End select the first and last enabled tabs. Consumers may supply
+each step's `controls` ID and remain responsible for the corresponding tabpanel,
+visibility, and focus policy. Disabled tabs are skipped and cannot be selected;
+`setActive` returns `false` for a missing ID or a disabled tab, an invalid root
+throws `TypeError`, and consumer callback failures propagate to the caller.
 
 The API client preserves credentialed admin requests as its default. A
 consumer that calls an explicitly public cross-origin API may inject

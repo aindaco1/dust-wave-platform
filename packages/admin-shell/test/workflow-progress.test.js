@@ -128,4 +128,58 @@ test("workflow progress supports Pool-style accessible section tabs", () => {
   root.querySelector('[data-workflow-step="media"]')
     .dispatchEvent(end);
   assert.equal(mounted.getActive(), "review");
+
+  const modifiedArrow = new window.Event("keydown", {
+    bubbles: true,
+    cancelable: true
+  });
+  Object.defineProperties(modifiedArrow, {
+    key: { value: "ArrowLeft" },
+    altKey: { value: true }
+  });
+  root.querySelector('[data-workflow-step="review"]')
+    .dispatchEvent(modifiedArrow);
+  assert.equal(mounted.getActive(), "review");
+  assert.equal(modifiedArrow.defaultPrevented, false);
+});
+
+test("workflow tabs keep an enabled tab reachable with arbitrary step IDs", () => {
+  const { document, window } = parseHTML('<div id="root"></div>');
+  const root = document.getElementById("root");
+  let activeElement = null;
+  Object.defineProperty(document, "activeElement", {
+    configurable: true,
+    get: () => activeElement
+  });
+  Object.defineProperty(window.HTMLElement.prototype, "focus", {
+    configurable: true,
+    value() {
+      activeElement = this;
+    }
+  });
+  const mounted = mountWorkflowProgress(root, {
+    selectionMode: "tabs"
+  });
+  mounted.setSteps([
+    { id: "locked", label: "Locked", disabled: true },
+    { id: 'details"]', label: "Details" }
+  ]);
+
+  const [locked, details] = root.querySelectorAll('[role="tab"]');
+  assert.equal(mounted.getActive(), 'details"]');
+  assert.equal(locked.getAttribute("aria-selected"), "false");
+  assert.equal(locked.getAttribute("tabindex"), "-1");
+  assert.equal(details.getAttribute("aria-selected"), "true");
+  assert.equal(details.getAttribute("tabindex"), "0");
+  assert.equal(mounted.setActive("locked"), false);
+
+  details.focus();
+  assert.doesNotThrow(() => details.click());
+  assert.equal(document.activeElement.dataset.workflowStep, 'details"]');
+
+  mounted.setSteps([
+    { id: "locked", label: "Locked", disabled: true },
+    { id: 'details"]', label: "Updated details" }
+  ]);
+  assert.equal(document.activeElement.dataset.workflowStep, 'details"]');
 });
