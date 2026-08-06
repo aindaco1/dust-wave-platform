@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.19.0 - 2026-08-06
+
+### Added
+
+- Added a policy-injected `@dustwave/worker-core` scoped-console factory from
+  the exact Pool/Store Worker logger overlap, including child scopes, severity
+  filtering, per-environment caching, and structured `Error` normalization.
+- Added `@dustwave/media-core/site-catalog` with shared bounded repo-path,
+  public-path, label, type, source/derivative, responsive-image, video WebM,
+  manifest, and placement-budget mechanics.
+- Added injected media scope, entity-slug, placement-budget, WebM-audio, and
+  broken-reference policies for Store and Pool adapters.
+
+### Security, performance, and boundaries
+
+- Logger product/runtime/scope labels and structured error output are bounded;
+  media paths reject controls, traversal, excessive length, and excessive
+  known-path sets before catalog work.
+- Platform sends no telemetry, performs no filesystem write or media transform,
+  and owns no product/campaign content, provider, placement choice, credentials,
+  deployment, or rollback.
+
 ## 0.18.0 - 2026-08-06
 
 ### Added

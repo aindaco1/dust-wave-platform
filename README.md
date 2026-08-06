@@ -8,14 +8,14 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
-| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, HTTP/CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.8.0`; authentication, provider policy, and all product behavior remain consumer-owned |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, scoped logging, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, HTTP/CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.9.0`; authentication, telemetry, provider policy, and all product behavior remain consumer-owned |
 | `@dustwave/shipping-core` | Deterministic physical-item profiles, mixed-shipment aggregation, fallback/manual quote shapes, and delivery-option mechanics | `0.1.0`; destination validation, USPS transport, credentials, product/campaign rules, checkout, and fulfillment remain consumer-owned |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, and the Pool/Store New Mexico starter reference | `0.2.0`; live provider choice and product taxability remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
 | `@dustwave/build-core` | Generated CSS/JavaScript asset minification shared exactly by Pool and Store | `0.1.0`; source assets, HTML, vendor files, and deployment remain consumer-owned |
 | `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, and command-result normalization | `0.1.0`; commands, credentials, provider IDs, rollout, and rollback authority remain consumer-owned |
-| `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.3.0`; processing placement, storage, approval, and publication remain consumer-owned |
+| `@dustwave/media-core` | Runtime-neutral site-media catalog/path mechanics plus source-audio QC, processor manifest, normalized measurements, finding, and report contracts | `0.4.0`; content, transforms, processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.5.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
 
 Packages are added only when consumer characterization tests prove a stable
@@ -129,6 +129,22 @@ The package performs no address normalization, carrier request, OAuth, cache,
 backoff, retry, credential lookup, checkout mutation, storage, or deployment;
 Store retains product rules and Pool retains campaign rules through thin,
 independently reversible adapters.
+
+The Worker logger entry creates a consumer-named scoped-console factory with
+per-owner policy caching, child scopes, severity filtering, and bounded
+structured `Error` output. It writes only to an injected console-compatible
+target and sends no telemetry. Consumers retain environment/config parsing,
+observability destinations, redaction policy for ordinary objects, and whether
+logging is enabled.
+
+The media site-catalog entry owns only bounded repository-path normalization,
+public paths, labels, media type and derivative detection, responsive-image and
+video derivative planning, manifest normalization, and injected placement
+budgets. Traversal, control characters, oversized paths, and excessive
+known-path sets fail closed. Store and Pool inject product/campaign scope,
+entity slugs, WebM-audio compatibility, broken-reference shape, budgets, and
+fallback placement; they retain all content, filesystem access, transforms,
+admin routes, publication, storage, credentials, and deployment.
 
 `@dustwave/release-core` contains only the exact deterministic Pool/Store
 release overlap. Wrangler parsing propagates malformed TOML errors and strips

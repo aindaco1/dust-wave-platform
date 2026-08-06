@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "type": "module",
   "exports": {
     "./crypto": "./src/crypto.js",
@@ -11,6 +11,10 @@
     "./http": {
       "types": "./src/http.d.ts",
       "default": "./src/http.js"
+    },
+    "./logger": {
+      "types": "./src/logger.d.ts",
+      "default": "./src/logger.js"
     },
     "./podcast-benefits": "./src/podcast-benefits.js",
     "./resend": {
