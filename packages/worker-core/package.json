@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "exports": {
     "./crypto": "./src/crypto.js",
@@ -16,6 +16,10 @@
     "./resend": {
       "types": "./src/resend.d.ts",
       "default": "./src/resend.js"
+    },
+    "./session-security": {
+      "types": "./src/session-security.d.ts",
+      "default": "./src/session-security.js"
     },
     "./stripe": "./src/stripe.js",
     "./timezones": {

@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.17.0 - 2026-08-06
+
+### Added
+
+- Added bounded, Web Platform-native signed JSON token creation and verification
+  for the characterized Pool and Store passwordless-admin contract, including
+  explicit expiry and required-claim checks.
+- Added narrow session-cookie serialization and clearing primitives with
+  validated names, paths, sizes, `SameSite`, `HttpOnly`, `Secure`, and
+  non-negative `Max-Age` policy.
+- Added same-origin request evidence evaluation with explicit consumer options
+  for the existing missing-header and unconfigured-local behavior.
+
+### Security and boundaries
+
+- Tokens fail closed on missing expiry, extra segments, malformed base64url,
+  invalid signatures, oversized token/payload/secret input, absent required
+  claims, and expiry. Cookie input is bounded and rejects delimiter injection;
+  `SameSite=None` cannot be emitted without `Secure`.
+- Platform owns no user roles, session or nonce records, CSRF token, route,
+  storage, credential, email, TTL selection, authorization decision, or
+  deployment. Pool and Store inject those policies through thin adapters and
+  retain independent rollout and rollback.
+
 ## 0.16.0 - 2026-08-06
 
 ### Added
