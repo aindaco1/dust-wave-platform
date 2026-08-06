@@ -1,9 +1,17 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "exports": {
     "./crypto": "./src/crypto.js",
+    "./date-time": {
+      "types": "./src/date-time.d.ts",
+      "default": "./src/date-time.js"
+    },
+    "./http": {
+      "types": "./src/http.d.ts",
+      "default": "./src/http.js"
+    },
     "./podcast-benefits": "./src/podcast-benefits.js",
     "./stripe": "./src/stripe.js",
     "./timezones": {
