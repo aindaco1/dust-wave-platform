@@ -96,7 +96,6 @@ export function createGitHubClient(options = {}) {
   }
 
   async function getTextFile(filePath, readRef = ref) {
-    if (!token) return notConfigured();
     const path = requiredPath(filePath);
     const result = await request(
       `/contents/${encodePath(path)}?ref=${encodeURIComponent(requiredRef(readRef))}`,
@@ -121,7 +120,6 @@ export function createGitHubClient(options = {}) {
   }
 
   async function listDirectory(directoryPath, readRef = ref) {
-    if (!token) return notConfigured();
     const path = requiredPath(directoryPath);
     const result = await request(
       `/contents/${encodePath(path)}?ref=${encodeURIComponent(requiredRef(readRef))}`,

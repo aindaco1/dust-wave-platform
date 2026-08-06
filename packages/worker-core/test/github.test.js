@@ -111,15 +111,16 @@ test('maps timeouts and network failures to secret-safe errors', async () => {
   assert.doesNotMatch(JSON.stringify(network), /github-test-token/u);
 });
 
-test('does not send requests without a configured token', async () => {
+test('allows public reads but does not send mutations without a configured token', async () => {
   let calls = 0;
   const github = client(async () => {
     calls += 1;
-    return json({});
+    return json({ encoding: 'base64', content: btoa('public'), sha: 'public-sha' });
   }, { token: '' });
-  assert.equal((await github.getTextFile('data.json')).code, 'github_not_configured');
+  assert.equal((await github.getTextFile('data.json')).content, 'public');
   assert.equal((await github.dispatchWorkflow('deploy.yml')).code, 'github_not_configured');
-  assert.equal(calls, 0);
+  assert.equal((await github.putTextFile('data.json', 'private')).code, 'github_not_configured');
+  assert.equal(calls, 1);
 });
 
 test('rejects duplicate batch paths and stale optimistic-concurrency evidence', async () => {

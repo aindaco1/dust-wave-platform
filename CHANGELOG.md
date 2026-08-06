@@ -8,6 +8,8 @@
   workflow dispatch, bounded UTF-8/base64 Contents API reads and writes,
   directory listing, idempotent deletion, and Store-characterized atomic
   multi-file commits with optimistic SHA checks.
+  Public-repository reads may omit a token; every mutation fails before
+  transport when credentials are absent.
 
 ### Security, performance, and boundaries
 
