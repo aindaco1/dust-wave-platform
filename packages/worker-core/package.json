@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.6.0",
+  "version": "0.12.0",
   "type": "module",
   "exports": {
     "./crypto": "./src/crypto.js",
@@ -12,7 +12,35 @@
       "types": "./src/http.d.ts",
       "default": "./src/http.js"
     },
+    "./github": {
+      "types": "./src/github.d.ts",
+      "default": "./src/github.js"
+    },
+    "./logger": {
+      "types": "./src/logger.d.ts",
+      "default": "./src/logger.js"
+    },
+    "./outbox": {
+      "types": "./src/outbox.d.ts",
+      "default": "./src/outbox.js"
+    },
     "./podcast-benefits": "./src/podcast-benefits.js",
+    "./provider-fetch": {
+      "types": "./src/provider-fetch.d.ts",
+      "default": "./src/provider-fetch.js"
+    },
+    "./request-validation": {
+      "types": "./src/request-validation.d.ts",
+      "default": "./src/request-validation.js"
+    },
+    "./resend": {
+      "types": "./src/resend.d.ts",
+      "default": "./src/resend.js"
+    },
+    "./session-security": {
+      "types": "./src/session-security.d.ts",
+      "default": "./src/session-security.js"
+    },
     "./stripe": "./src/stripe.js",
     "./timezones": {
       "types": "./src/timezones.d.ts",

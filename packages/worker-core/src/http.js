@@ -54,3 +54,99 @@ export function createWorkerHttpHelpers({ defaultPrivateOrigin } = {}) {
     jsonResponse
   });
 }
+
+// Dynamic allow lists remain consumer-owned because they commonly come from
+// Worker environment bindings. This helper deliberately performs exact origin
+// matching and never reflects an unlisted request Origin.
+export function trustedAllowedOrigin(request, allowedOrigins) {
+  const origin = request.headers.get('origin');
+  if (!origin) return null;
+  const allowed = new Set(
+    String(allowedOrigins || '')
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean)
+  );
+  return allowed.has(origin) ? origin : null;
+}
+
+export function createCorsJsonHelpers({
+  allowedMethods,
+  allowedHeaders,
+  accessControlMaxAge = '86400',
+  jsonHeaders = {},
+  privateHeaders = {}
+} = {}) {
+  const methods = requiredHeaderValue(allowedMethods, 'allowedMethods');
+  const headers = requiredHeaderValue(allowedHeaders, 'allowedHeaders');
+  const maxAge = requiredHeaderValue(accessControlMaxAge, 'accessControlMaxAge');
+  const baseJsonHeaders = new Headers(jsonHeaders);
+  const basePrivateHeaders = new Headers(privateHeaders);
+
+  function corsHeaders(
+    request,
+    allowedOrigins,
+    { credentials = false } = {}
+  ) {
+    const origin = trustedAllowedOrigin(request, allowedOrigins);
+    if (!origin) return {};
+    return {
+      'access-control-allow-origin': origin,
+      'access-control-allow-methods': methods,
+      'access-control-allow-headers': headers,
+      'access-control-max-age': maxAge,
+      ...(credentials ? { 'access-control-allow-credentials': 'true' } : {}),
+      vary: 'Origin'
+    };
+  }
+
+  function json(request, allowedOrigins, body, init = {}) {
+    const responseHeaders = new Headers(baseJsonHeaders);
+    applyHeaders(responseHeaders, corsHeaders(request, allowedOrigins));
+    applyHeaders(responseHeaders, init.headers);
+    return new Response(JSON.stringify(body), { ...init, headers: responseHeaders });
+  }
+
+  function privateJson(request, allowedOrigins, body, init = {}) {
+    const responseHeaders = new Headers(baseJsonHeaders);
+    applyHeaders(responseHeaders, corsHeaders(request, allowedOrigins, {
+      credentials: true
+    }));
+    applyHeaders(responseHeaders, init.headers);
+    applyHeaders(responseHeaders, basePrivateHeaders);
+    return new Response(JSON.stringify(body), { ...init, headers: responseHeaders });
+  }
+
+  function options(
+    request,
+    allowedOrigins,
+    { credentials = true } = {}
+  ) {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders(request, allowedOrigins, { credentials })
+    });
+  }
+
+  return Object.freeze({
+    corsHeaders,
+    json,
+    options,
+    privateJson,
+    trustedAllowedOrigin
+  });
+}
+
+function requiredHeaderValue(value, name) {
+  const normalized = String(value ?? '').trim();
+  if (!normalized) throw new TypeError(`${name} is required`);
+  // Let the Web Platform parser enforce its complete header grammar while
+  // rejecting injection before any response can be constructed.
+  new Headers({ 'x-platform-policy': normalized });
+  return normalized;
+}
+
+function applyHeaders(target, source) {
+  if (!source) return;
+  for (const [name, value] of new Headers(source)) target.set(name, value);
+}

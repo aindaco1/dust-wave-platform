@@ -1,0 +1,22 @@
+{
+  "name": "@dustwave/shipping-core",
+  "version": "0.2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./usps": {
+      "types": "./src/usps.d.ts",
+      "default": "./src/usps.js"
+    }
+  },
+  "bin": {
+    "dustwave-sync-shipping-countries": "bin/sync-shipping-countries.mjs"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "license": "MIT"
+}

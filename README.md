@@ -8,13 +8,17 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
-| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, HTTP/CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.6.0`; Stripe version/user-agent policy and all product behavior remain consumer-owned |
+| `@dustwave/inventory-core` | Pure inventory snapshot, count-map, and expiring-reservation state mechanics | `0.1.0`; Durable Object/KV storage, catalog policy, checkout effects, and deployment remain consumer-owned |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, scoped logging, bounded request/provider HTTP, GitHub transport, durable-outbox mechanics, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.12.0`; authentication, telemetry, provider policy, and all product behavior remain consumer-owned |
+| `@dustwave/shipping-core` | Deterministic physical-item profiles, mixed-shipment aggregation, fallback/manual quote shapes, delivery options, bounded USPS transport, and canonical country data | `0.2.0`; destination eligibility, credentials, product/campaign rules, checkout, and fulfillment remain consumer-owned |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
-| `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, and the Pool/Store New Mexico starter reference | `0.2.0`; live provider choice and product taxability remain consumer-owned |
+| `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, bounded Zip-Tax/New Mexico provider transport, and the Pool/Store New Mexico starter reference | `0.3.0`; live provider choice and product taxability remain consumer-owned |
+| `@dustwave/test-core` | Test-framework-neutral browser Storage setup and mobile overflow assertions | `0.1.0`; runner configuration, fixtures, pages, viewports, and product assertions remain consumer-owned |
+| `@dustwave/design-core` | Optional compile-time Sass for exact shared base, button, content-block, modal, and utility components | `0.1.0`; tokens, mixins, templates, breakpoints, content, budgets, builds, and deployment remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
 | `@dustwave/build-core` | Generated CSS/JavaScript asset minification shared exactly by Pool and Store | `0.1.0`; source assets, HTML, vendor files, and deployment remain consumer-owned |
 | `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, and command-result normalization | `0.1.0`; commands, credentials, provider IDs, rollout, and rollback authority remain consumer-owned |
-| `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.3.0`; processing placement, storage, approval, and publication remain consumer-owned |
+| `@dustwave/media-core` | Runtime-neutral site-media catalog/path mechanics plus source-audio QC, processor manifest, normalized measurements, finding, and report contracts | `0.4.0`; content, transforms, processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.5.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
 
 Packages are added only when consumer characterization tests prove a stable
@@ -56,6 +60,15 @@ ignore/tracking posture and searches exact local values in the worktree and
 history without returning or partially masking the values. Consumer-specific
 secret filenames and fixture policy remain in thin local adapters.
 
+`@dustwave/design-core` is an optional compile-time stylesheet package, not an
+application shell. It owns only five independently characterized Sass
+components and assumes consumer-defined tokens and mixins. Consumers retain
+their import selection and order, markup, focus behavior, responsive policy,
+content, localization, CSS budgets, Jekyll configuration, deployment, and
+rollback. Liquid includes and Ruby plugins remain outside Platform; ADR 0002
+records why a future golden Jekyll project needs separate ownership and an
+explicit upgrade workflow.
+
 `@dustwave/site-shell` contains unstyled classic scripts and intentionally
 exports no application shell. Header navigation preserves query and fragment
 state across language links, removes `admin_login` only on an exact localized
@@ -88,6 +101,27 @@ security-header contract. JSON serialization and invalid `Response` status
 errors propagate. Consumers retain route visibility, authentication,
 authorization, CSRF, CSP, HSTS, cache, rate-limit, and deployment policy.
 
+The request-validation entry rejects oversized declared bodies before reading,
+bounds streamed bodies by encoded bytes, cancels after a limit is crossed, and
+preserves explicit request error status/code fields. JSON readers accept only
+objects; scalar helpers keep the independently characterized Podcast
+normalization and failure semantics. The provider-fetch entry owns one timeout
+and abort signal around an injected or global Fetch implementation, always
+clears its timer, and never retries. The policy-injected CORS/JSON helper
+reflects only an exact origin from the consumer's comma-separated allow-list
+matches and lets consumers supply their own method, request-header, base
+response, and private response policies. Podcast retains routes, schemas, CSRF
+names, allowed-origin configuration, authorization, provider credentials,
+retry, storage, deployment, and rollback.
+
+The GitHub entry adds a bounded, timeout-enforced transport for
+workflow dispatch, Contents API operations, directory listing, and atomic
+multi-file commits. It validates repository-relative paths, branch refs,
+workflow names, input counts, file sizes, and response sizes; never returns
+credentials or raw network errors; and never retries or force-updates a branch.
+Consumers retain repository selection, publish mode, content schemas, paths,
+messages, logging, authorization, effects, and rollback.
+
 The Stripe entry provides one form-encoded Worker transport for the
 characterized Pool, Store, and Podcast operations. It accepts injected API
 version, user agent, fetch, and redacted observation policy; it never returns
@@ -98,6 +132,67 @@ closed, observer failures cannot change payment behavior, and provider error
 messages are whitespace-normalized and bounded. Consumers retain keys,
 idempotency construction, prices, products, settlement, reconciliation,
 webhook effects, retry scheduling, and deployment authority.
+
+The Resend entry verifies bounded Svix webhook IDs, integer timestamps,
+multiple `v1` signatures, and the exact raw request body with a five-minute
+default tolerance. It classifies network, conflict, rate-limit, and server
+failures plus bounded numeric or HTTP-date `Retry-After` guidance, but never
+performs a retry or parses a provider event. Consumers retain API transport,
+templates, recipients, consent, idempotency construction, outboxes,
+suppression, webhook effects, scheduling, credentials, and deployment.
+
+The session-security entry signs and verifies bounded expiring JSON claims,
+serializes the characterized secure session-cookie shape, and evaluates
+same-origin request evidence. Verification requires one exact two-part token,
+a valid integer expiry, and any consumer-declared claims. Cookie names, paths,
+values, and policy are validated; `SameSite=None` requires `Secure`. The
+same-origin primitive fails unconfigured policy closed by default, while Pool
+and Store may explicitly preserve their existing local-development allowance.
+Consumers retain secret selection, nonce and session storage, TTL selection,
+roles, scopes, CSRF tokens and header names, routes, authorization, login email,
+credentials, rate limiting, deployment, and rollback.
+
+`@dustwave/shipping-core` contains the exact deterministic Pool/Store overlap
+for physical shipping profiles, mixed tier/support-item/add-on aggregation,
+missing-metadata fallback summaries, the characterized USPS First-Class flat
+table, fallback/free quote shapes, and standard/signature option selection.
+Consumers inject origin country, fallback cents, free-shipping state, and
+configured option IDs. Selection and catalog arrays are bounded before loops.
+The USPS entry accepts consumer-resolved configuration, owns a bounded
+in-memory token/quote/cache-backoff lifecycle, aborts provider timeouts, and
+refreshes once after a 401. Provider credentials never appear in result/error
+shapes. The canonical shipping-country YAML is copied to framework-owned
+consumer data only through an explicit-output check/write command, keeping
+Jekyll integration outside the runtime package. Platform still owns no address
+eligibility, catalog, fallback/free rate, checkout mutation, fulfillment,
+storage, carrier account, or deployment; Store retains product rules and Pool
+retains campaign rules through thin, independently reversible adapters.
+
+`@dustwave/inventory-core` contains the pure state overlap below the Pool and
+Store inventory coordinators: JSON-safe cloning, count-map normalization,
+legacy and expiring reservation normalization, reserved-count totals, and
+bootstrap reconciliation. Consumers must inject a positive default reservation
+TTL and choose `replace` or `merge` bootstrap behavior. Pool uses `replace` so
+its persisted campaign snapshot remains authoritative; Store uses `merge` so
+current catalog metadata can refresh without losing claimed counts. The package
+does not perform Durable Object transactions, KV writes, catalog reads,
+checkout or order/pledge transitions, timers, routes, or deployment.
+
+The Worker logger entry creates a consumer-named scoped-console factory with
+per-owner policy caching, child scopes, severity filtering, and bounded
+structured `Error` output. It writes only to an injected console-compatible
+target and sends no telemetry. Consumers retain environment/config parsing,
+observability destinations, redaction policy for ordinary objects, and whether
+logging is enabled.
+
+The media site-catalog entry owns only bounded repository-path normalization,
+public paths, labels, media type and derivative detection, responsive-image and
+video derivative planning, manifest normalization, and injected placement
+budgets. Traversal, control characters, oversized paths, and excessive
+known-path sets fail closed. Store and Pool inject product/campaign scope,
+entity slugs, WebM-audio compatibility, broken-reference shape, budgets, and
+fallback placement; they retain all content, filesystem access, transforms,
+admin routes, publication, storage, credentials, and deployment.
 
 `@dustwave/release-core` contains only the exact deterministic Pool/Store
 release overlap. Wrangler parsing propagates malformed TOML errors and strips

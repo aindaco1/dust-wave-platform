@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/media-core",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "exports": {
     "./audio-qc": {
@@ -22,6 +22,10 @@
     "./image-dimensions": {
       "types": "./src/image-dimensions.d.ts",
       "default": "./src/image-dimensions.js"
+    },
+    "./site-catalog": {
+      "types": "./src/site-catalog.d.ts",
+      "default": "./src/site-catalog.js"
     }
   },
   "engines": {

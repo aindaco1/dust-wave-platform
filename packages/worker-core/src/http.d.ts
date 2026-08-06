@@ -26,3 +26,42 @@ export function normalizeOrigin(value: unknown): string;
 export function createWorkerHttpHelpers(options: {
   defaultPrivateOrigin: string;
 }): WorkerHttpHelpers;
+
+export interface CorsJsonHelpers {
+  corsHeaders(
+    request: Request,
+    allowedOrigins: string,
+    options?: { credentials?: boolean }
+  ): HeadersInit;
+  json(
+    request: Request,
+    allowedOrigins: string,
+    body: unknown,
+    init?: ResponseInit
+  ): Response;
+  privateJson(
+    request: Request,
+    allowedOrigins: string,
+    body: unknown,
+    init?: ResponseInit
+  ): Response;
+  options(
+    request: Request,
+    allowedOrigins: string,
+    options?: { credentials?: boolean }
+  ): Response;
+  trustedAllowedOrigin(request: Request, allowedOrigins: string): string | null;
+}
+
+export function trustedAllowedOrigin(
+  request: Request,
+  allowedOrigins: string
+): string | null;
+
+export function createCorsJsonHelpers(options: {
+  allowedMethods: string;
+  allowedHeaders: string;
+  accessControlMaxAge?: string;
+  jsonHeaders?: HeadersInit;
+  privateHeaders?: HeadersInit;
+}): CorsJsonHelpers;

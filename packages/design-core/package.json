@@ -1,0 +1,22 @@
+{
+  "name": "@dustwave/design-core",
+  "version": "0.1.0",
+  "type": "module",
+  "files": [
+    "styles"
+  ],
+  "exports": {
+    "./styles/base": "./styles/_base.scss",
+    "./styles/buttons": "./styles/_buttons.scss",
+    "./styles/content-blocks": "./styles/_content-blocks.scss",
+    "./styles/modal": "./styles/_modal.scss",
+    "./styles/utilities": "./styles/_utilities.scss"
+  },
+  "sideEffects": [
+    "**/*.scss"
+  ],
+  "engines": {
+    "node": ">=20.9"
+  },
+  "license": "MIT"
+}

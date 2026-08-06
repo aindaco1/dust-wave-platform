@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/tax-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "bin": {
     "dustwave-update-nm-grt-starter": "./bin/update-nm-grt-starter.mjs"
   },
@@ -17,6 +17,10 @@
     "./nm-grt-updater": {
       "types": "./src/nm-grt-updater.d.ts",
       "default": "./src/nm-grt-updater.js"
+    },
+    "./provider": {
+      "types": "./src/provider.d.ts",
+      "default": "./src/provider.js"
     }
   },
   "license": "MIT"
