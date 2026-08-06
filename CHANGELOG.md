@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.26.0 - 2026-08-06
+
+### Added
+
+- Added `@dustwave/test-core` 0.1.0 with the exact Pool/Store browser Storage
+  setup and mobile horizontal-overflow assertion mechanics.
+- Kept Vitest and Playwright injected by tiny consumer adapters, so Platform
+  does not add a test-runner or browser-automation runtime dependency.
+
+### Reliability and boundaries
+
+- Storage shims preserve the Web Storage surface used by both consumers and
+  reuse an existing usable browser implementation; overflow tolerance is
+  explicit and bounded, and missing page/expect adapters fail before polling.
+- Platform owns no consumer fixtures, URLs, viewports, breakpoints, styles,
+  content, runner configuration, browser installation, CI orchestration,
+  deployment, or rollback. Consumer copies of behavior-focused accessibility
+  and media tests remain independent migration evidence.
+
 ## 0.25.0 - 2026-08-06
 
 ### Added

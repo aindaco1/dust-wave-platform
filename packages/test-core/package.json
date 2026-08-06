@@ -1,0 +1,15 @@
+{
+  "name": "@dustwave/test-core",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "license": "MIT"
+}
