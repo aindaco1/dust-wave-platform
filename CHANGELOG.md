@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.29.0 - 2026-08-06
+
+### Added
+
+- Added `@dustwave/site-shell` 0.2.0 with the characterized Pool/Store shipping
+  option utility, deferred stylesheet activator, form-control identity helper,
+  and cart-summary icon behavior.
+- Replaced product-named globals in the shared mechanics with neutral Dust Wave
+  globals or bounded data-attribute policy for cache, provider, event, ID
+  prefix, and dataset-priority identity.
+- Added framework-free browser characterization for quote selection, signature
+  price labels, deferred activation, explicit control identity preservation,
+  unsafe policy fallback, cached cart summary rendering, and provider cart
+  opening.
+
+### Security, accessibility, performance, and boundaries
+
+- Policy strings are length- and character-bounded before global, storage, ID,
+  or event use. Generated control IDs remain deterministic, explicit IDs/names
+  are preserved, and dynamically inserted controls retain the characterized
+  observer path. Shared scripts add no dependency, timer, network request, or
+  storage migration and replace the same number of consumer script requests.
+- Platform owns no form schema, cart provider, price or tax calculation,
+  shipping quote, currency/label localization, template, style, breakpoint,
+  Content Security Policy, deployment, or rollback. Pool and Store retain that
+  policy in independently reversible includes and runtime adapters.
+
 ## 0.28.0 - 2026-08-06
 
 ### Added
