@@ -1,0 +1,34 @@
+{
+  "name": "@dustwave/release-core",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./command-result": {
+      "types": "./src/command-result.d.ts",
+      "default": "./src/command-result.js"
+    },
+    "./file-integrity": {
+      "types": "./src/file-integrity.d.ts",
+      "default": "./src/file-integrity.js"
+    },
+    "./kv-backup-records": {
+      "types": "./src/kv-backup-records.d.ts",
+      "default": "./src/kv-backup-records.js"
+    },
+    "./provider-evidence": {
+      "types": "./src/provider-evidence.d.ts",
+      "default": "./src/provider-evidence.js"
+    },
+    "./wrangler-config": {
+      "types": "./src/wrangler-config.d.ts",
+      "default": "./src/wrangler-config.js"
+    }
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "dependencies": {
+    "smol-toml": "1.7.1"
+  },
+  "license": "MIT"
+}

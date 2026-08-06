@@ -13,6 +13,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, and the Pool/Store New Mexico starter reference | `0.2.0`; live provider choice and product taxability remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
 | `@dustwave/build-core` | Generated CSS/JavaScript asset minification shared exactly by Pool and Store | `0.1.0`; source assets, HTML, vendor files, and deployment remain consumer-owned |
+| `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, and command-result normalization | `0.1.0`; commands, credentials, provider IDs, rollout, and rollback authority remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.3.0`; processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.5.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
 
@@ -97,6 +98,18 @@ closed, observer failures cannot change payment behavior, and provider error
 messages are whitespace-normalized and bounded. Consumers retain keys,
 idempotency construction, prices, products, settlement, reconciliation,
 webhook effects, retry scheduling, and deployment authority.
+
+`@dustwave/release-core` contains only the exact deterministic Pool/Store
+release overlap. Wrangler parsing propagates malformed TOML errors and strips
+non-primitive binding fields from normalized evidence. KV transforms preserve
+only key, string value, and optional metadata. Checksum verification rejects
+duplicate, missing, escaping, modified, unlisted, symlink, and unsupported
+entries. Provider evidence strips undeclared fields, fails unknown statuses
+closed, and never claims to contain credentials or customer data. Command
+results redact known credential-shaped arguments and omit stdout/stderr unless
+the consumer explicitly opts in. Consumers still own every process execution,
+secret lookup, filesystem destination, provider call, deployment, traffic
+change, and rollback decision.
 
 The New Mexico GRT starter entry is a vendored public reference snapshot. Its
 updater requires an explicit consumer-owned output path, fetches every seed

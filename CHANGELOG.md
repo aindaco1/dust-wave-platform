@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.15.0 - 2026-08-06
+
+### Added
+
+- Added `@dustwave/release-core` 0.1.0 with the exact Pool/Store Wrangler
+  inventory, KV bulk-get transformation, and checksum-manifest primitives.
+- Added canonical redacted provider-evidence and structured command-result
+  normalization for consumer-owned release scripts.
+- Added complete-manifest checks for path escape, duplicate, missing, changed,
+  unlisted, symlink, and unsupported filesystem entries.
+
+### Boundaries
+
+- Platform performs no deployment, provider mutation, secret lookup, traffic
+  shift, or rollback. Consumers retain commands, credentials, environment IDs,
+  release gates, rollout policy, and independent deployment authority.
+
 ## 0.14.0 - 2026-08-06
 
 ### Added
