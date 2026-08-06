@@ -10,7 +10,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 |---|---|---|
 | `@dustwave/inventory-core` | Pure inventory snapshot, count-map, and expiring-reservation state mechanics | `0.1.0`; Durable Object/KV storage, catalog policy, checkout effects, and deployment remain consumer-owned |
 | `@dustwave/worker-core` | Runtime-neutral Worker security, scoped logging, bounded request/provider HTTP, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.10.0`; authentication, telemetry, provider policy, and all product behavior remain consumer-owned |
-| `@dustwave/shipping-core` | Deterministic physical-item profiles, mixed-shipment aggregation, fallback/manual quote shapes, and delivery-option mechanics | `0.1.0`; destination validation, USPS transport, credentials, product/campaign rules, checkout, and fulfillment remain consumer-owned |
+| `@dustwave/shipping-core` | Deterministic physical-item profiles, mixed-shipment aggregation, fallback/manual quote shapes, delivery options, bounded USPS transport, and canonical country data | `0.2.0`; destination eligibility, credentials, product/campaign rules, checkout, and fulfillment remain consumer-owned |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, and the Pool/Store New Mexico starter reference | `0.2.0`; live provider choice and product taxability remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
@@ -139,10 +139,15 @@ missing-metadata fallback summaries, the characterized USPS First-Class flat
 table, fallback/free quote shapes, and standard/signature option selection.
 Consumers inject origin country, fallback cents, free-shipping state, and
 configured option IDs. Selection and catalog arrays are bounded before loops.
-The package performs no address normalization, carrier request, OAuth, cache,
-backoff, retry, credential lookup, checkout mutation, storage, or deployment;
-Store retains product rules and Pool retains campaign rules through thin,
-independently reversible adapters.
+The USPS entry accepts consumer-resolved configuration, owns a bounded
+in-memory token/quote/cache-backoff lifecycle, aborts provider timeouts, and
+refreshes once after a 401. Provider credentials never appear in result/error
+shapes. The canonical shipping-country YAML is copied to framework-owned
+consumer data only through an explicit-output check/write command, keeping
+Jekyll integration outside the runtime package. Platform still owns no address
+eligibility, catalog, fallback/free rate, checkout mutation, fulfillment,
+storage, carrier account, or deployment; Store retains product rules and Pool
+retains campaign rules through thin, independently reversible adapters.
 
 `@dustwave/inventory-core` contains the pure state overlap below the Pool and
 Store inventory coordinators: JSON-safe cloning, count-map normalization,

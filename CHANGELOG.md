@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.22.0 - 2026-08-06
+
+### Added
+
+- Added a policy-injected USPS OAuth/rate client to `@dustwave/shipping-core`
+  0.2.0 from the characterized Pool/Store transport, including one 401 token
+  refresh, domestic/international payloads, service/price normalization,
+  bounded quote caching, and provider cooldown state.
+- Moved the exact 95-entry Pool/Store shipping-country registry beside
+  shipping-core and added an explicit-output check/write sync command for the
+  Jekyll consumer snapshots.
+
+### Security, performance, and boundaries
+
+- Provider credentials stay inside request construction and never appear in
+  result/error shapes. Mail-class lists, access tokens, and the in-memory quote
+  cache are bounded; timeouts abort; 429/5xx/timeout cooldowns prevent provider
+  stampedes; cached OAuth tokens are isolated by base URL and client ID.
+- Platform owns no shipping eligibility, catalog, fallback/free rate, address
+  policy, credentials, checkout, fulfillment, storage, route, deployment, or
+  carrier account. Consumers retain configuration and independent rollback.
+
 ## 0.21.0 - 2026-08-06
 
 ### Added
