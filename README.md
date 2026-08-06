@@ -8,14 +8,16 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
-| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, podcast-benefit code, and request primitives | `0.3.1`; exact and policy-injected duplicate extraction |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, timezone, podcast-benefit code, and request primitives | `0.4.0`; timezone support is the exact Pool/Store runtime overlap |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
-| `@dustwave/tax-core` | Store-characterized destination normalization and deterministic integer-cent manual-rate calculation | `0.1.0`; provider lookup and product taxability remain consumer-owned |
-| `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.1.0`; processing placement, storage, approval, and publication remain consumer-owned |
-| `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.3.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
+| `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, and the Pool/Store New Mexico starter reference | `0.2.0`; live provider choice and product taxability remain consumer-owned |
+| `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
+| `@dustwave/build-core` | Generated CSS/JavaScript asset minification shared exactly by Pool and Store | `0.1.0`; source assets, HTML, vendor files, and deployment remain consumer-owned |
+| `@dustwave/media-core` | Runtime-neutral source-audio QC policy, signed processor manifest, normalized measurements, finding, and report contracts | `0.3.0`; processing placement, storage, approval, and publication remain consumer-owned |
+| `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.5.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
 
-Planned packages are added only when consumer characterization tests prove a
-stable boundary: player controls and alignment job contracts. The first media
+Packages are added only when consumer characterization tests prove a stable
+boundary. The first media
 contract is intentionally limited to deterministic source-audio QC structures
 shared by the Podcast Worker and its owner-controlled FFmpeg processor.
 The first timed-text contract accepts only bounded monotonic provider segments,
@@ -52,6 +54,34 @@ test-only allowlist through `runSecretAudit`. The same primitive then verifies
 ignore/tracking posture and searches exact local values in the worktree and
 history without returning or partially masking the values. Consumer-specific
 secret filenames and fixture policy remain in thin local adapters.
+
+`@dustwave/site-shell` contains unstyled classic scripts and intentionally
+exports no application shell. Header navigation preserves query and fragment
+state across language links, removes `admin_login` only on an exact localized
+or unlocalized admin route, and no-ops when navigation controls are absent.
+The live announcer no-ops without its consumer-rendered region, consumes each
+`data-live-announce` value once, and clears unchanged text after one second.
+Consumers retain markup, labels, localization, focus styling, routes, and
+Content Security Policy.
+
+`@dustwave/build-core` processes only generated CSS and JavaScript below a
+site's `assets` directory. It skips source files, maps, vendor code, and HTML;
+it writes only when output is smaller. A missing generated asset directory is
+an explicit error, and check mode exits unsuccessfully when a generated file
+can still be reduced. Consumers retain build orchestration, budgets, and
+deployment authority.
+
+The Worker timezone entry exposes only runtime-supported IANA zone discovery,
+labels, validation, and deterministic fallback. Unsupported values fall back
+to a caller-supplied supported zone or `America/Denver`; date boundaries and
+domain scheduling remain consumer-owned.
+
+The New Mexico GRT starter entry is a vendored public reference snapshot. Its
+updater requires an explicit consumer-owned output path, fetches every seed
+successfully before writing, and propagates network or response failures. It
+does not select a checkout provider or declare a rate authoritative; each
+consumer retains provider configuration, refresh review, taxability, fallback,
+and release policy.
 
 `@dustwave/admin-shell` is intentionally unstyled. Each product retains its
 templates, visual system, localization, roles, routes, and state. Its editor
