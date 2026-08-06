@@ -14,6 +14,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, bounded Zip-Tax/New Mexico provider transport, and the Pool/Store New Mexico starter reference | `0.3.0`; live provider choice and product taxability remain consumer-owned |
 | `@dustwave/test-core` | Test-framework-neutral browser Storage setup and mobile overflow assertions | `0.1.0`; runner configuration, fixtures, pages, viewports, and product assertions remain consumer-owned |
+| `@dustwave/design-core` | Optional compile-time Sass for exact shared base, button, content-block, modal, and utility components | `0.1.0`; tokens, mixins, templates, breakpoints, content, budgets, builds, and deployment remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
 | `@dustwave/build-core` | Generated CSS/JavaScript asset minification shared exactly by Pool and Store | `0.1.0`; source assets, HTML, vendor files, and deployment remain consumer-owned |
 | `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, and command-result normalization | `0.1.0`; commands, credentials, provider IDs, rollout, and rollback authority remain consumer-owned |
@@ -58,6 +59,15 @@ test-only allowlist through `runSecretAudit`. The same primitive then verifies
 ignore/tracking posture and searches exact local values in the worktree and
 history without returning or partially masking the values. Consumer-specific
 secret filenames and fixture policy remain in thin local adapters.
+
+`@dustwave/design-core` is an optional compile-time stylesheet package, not an
+application shell. It owns only five independently characterized Sass
+components and assumes consumer-defined tokens and mixins. Consumers retain
+their import selection and order, markup, focus behavior, responsive policy,
+content, localization, CSS budgets, Jekyll configuration, deployment, and
+rollback. Liquid includes and Ruby plugins remain outside Platform; ADR 0002
+records why a future golden Jekyll project needs separate ownership and an
+explicit upgrade workflow.
 
 `@dustwave/site-shell` contains unstyled classic scripts and intentionally
 exports no application shell. Header navigation preserves query and fragment

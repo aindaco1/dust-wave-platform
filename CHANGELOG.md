@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.27.0 - 2026-08-06
+
+### Added
+
+- Added optional `@dustwave/design-core` 0.1.0 with the exact Pool/Store Sass
+  overlap for base typography, buttons, content blocks, modals, and utilities.
+- Recorded the explicit design-system/Jekyll boundary: shared Sass is a
+  compile-time package, while Liquid includes, Ruby plugins, tokens, markup,
+  content, localization, build hooks, and deployment remain consumer-owned.
+
+### Accessibility, performance, and boundaries
+
+- Platform locks the initial sources to both consumers' characterized hashes;
+  consumer migrations must preserve generated CSS and pass their complete
+  mobile, accessibility, build, security, and pre-merge suites.
+- Components add no JavaScript or runtime request cost, and future consumers
+  can import only the styles they use. Platform owns no breakpoint, visual
+  token, template, content, asset, CSS budget, Jekyll runtime, or deployment.
+
 ## 0.26.0 - 2026-08-06
 
 ### Added
