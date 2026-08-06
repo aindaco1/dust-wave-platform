@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.18.0 - 2026-08-06
+
+### Added
+
+- Added `@dustwave/shipping-core` 0.1.0 with the independently characterized
+  Pool/Store physical-item profile normalization, mixed-shipment aggregation,
+  missing-metadata summary, manual USPS flat table, fallback/free quote shape,
+  and delivery-option selection mechanics.
+- Added explicit policy injection for origin country, fallback cents, free
+  shipping, and configured option IDs so product and campaign policy remain in
+  their consumer repositories.
+
+### Reliability, performance, and boundaries
+
+- Bounded tier, support-item, add-on, catalog, mail-class, and option lists;
+  invalid quantities and missing physical metadata retain explicit failures.
+- The package performs no USPS request, credential lookup, token caching,
+  retry/backoff, catalog lookup outside injected data, checkout mutation,
+  storage, or deployment. Store and Pool retain destination validation,
+  provider transport/configuration, product/campaign rules, and rollback.
+
 ## 0.17.0 - 2026-08-06
 
 ### Added

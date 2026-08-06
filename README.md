@@ -9,6 +9,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | Package | Purpose | Status |
 |---|---|---|
 | `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, HTTP/CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.8.0`; authentication, provider policy, and all product behavior remain consumer-owned |
+| `@dustwave/shipping-core` | Deterministic physical-item profiles, mixed-shipment aggregation, fallback/manual quote shapes, and delivery-option mechanics | `0.1.0`; destination validation, USPS transport, credentials, product/campaign rules, checkout, and fulfillment remain consumer-owned |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, and the Pool/Store New Mexico starter reference | `0.2.0`; live provider choice and product taxability remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
@@ -117,6 +118,17 @@ and Store may explicitly preserve their existing local-development allowance.
 Consumers retain secret selection, nonce and session storage, TTL selection,
 roles, scopes, CSRF tokens and header names, routes, authorization, login email,
 credentials, rate limiting, deployment, and rollback.
+
+`@dustwave/shipping-core` contains the exact deterministic Pool/Store overlap
+for physical shipping profiles, mixed tier/support-item/add-on aggregation,
+missing-metadata fallback summaries, the characterized USPS First-Class flat
+table, fallback/free quote shapes, and standard/signature option selection.
+Consumers inject origin country, fallback cents, free-shipping state, and
+configured option IDs. Selection and catalog arrays are bounded before loops.
+The package performs no address normalization, carrier request, OAuth, cache,
+backoff, retry, credential lookup, checkout mutation, storage, or deployment;
+Store retains product rules and Pool retains campaign rules through thin,
+independently reversible adapters.
 
 `@dustwave/release-core` contains only the exact deterministic Pool/Store
 release overlap. Wrangler parsing propagates malformed TOML errors and strips
