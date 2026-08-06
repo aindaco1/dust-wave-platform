@@ -17,7 +17,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | `@dustwave/design-core` | Optional compile-time Sass for exact shared base, button, content-block, modal, and utility components | `0.1.0`; tokens, mixins, templates, breakpoints, content, budgets, builds, and deployment remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
 | `@dustwave/build-core` | Generated CSS/JavaScript asset minification shared exactly by Pool and Store | `0.1.0`; source assets, HTML, vendor files, and deployment remain consumer-owned |
-| `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, and command-result normalization | `0.1.0`; commands, credentials, provider IDs, rollout, and rollback authority remain consumer-owned |
+| `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, cache-policy evidence, policy-injected Cloudflare admin rules, screen-reader evidence, and command-result normalization | `0.2.0`; commands, credentials, product origins/identity, rollout, and rollback authority remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral site-media catalog/path mechanics plus source-audio QC, processor manifest, normalized measurements, finding, and report contracts | `0.4.0`; content, transforms, processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.5.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
 
@@ -205,6 +205,18 @@ results redact known credential-shaped arguments and omit stdout/stderr unless
 the consumer explicitly opts in. Consumers still own every process execution,
 secret lookup, filesystem destination, provider call, deployment, traffic
 change, and rollback decision.
+
+The cache-policy entry accepts only explicit HTTP(S) site/Worker origins and
+bounded same-origin paths, rejects redirects, and cancels response bodies after
+header evidence. The Cloudflare admin-response entry requires an HTTPS origin,
+bounded consumer rule identity, a dedicated token, and an exact 32-hex zone ID;
+its returned evidence contains neither credentials nor response bodies. The
+screen-reader entry keeps product text, URL, expected phrases, and temporary
+prefix injected, passes every command argument without a shell, bounds
+diagnostics, restores VoiceOver when it started the process, and fails missing
+recordings or transcript expectations explicitly. Consumers retain target
+selection, credentials, recording consent, evidence retention, release gates,
+provider mutation approval, deployment, and rollback.
 
 The New Mexico GRT starter entry is a vendored public reference snapshot. Its
 updater requires an explicit consumer-owned output path, fetches every seed

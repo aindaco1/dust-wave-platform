@@ -1,8 +1,16 @@
 {
   "name": "@dustwave/release-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "exports": {
+    "./cache-policy": {
+      "types": "./src/cache-policy.d.ts",
+      "default": "./src/cache-policy.js"
+    },
+    "./cloudflare-admin-response-rule": {
+      "types": "./src/cloudflare-admin-response-rule.d.ts",
+      "default": "./src/cloudflare-admin-response-rule.js"
+    },
     "./command-result": {
       "types": "./src/command-result.d.ts",
       "default": "./src/command-result.js"
@@ -18,6 +26,10 @@
     "./provider-evidence": {
       "types": "./src/provider-evidence.d.ts",
       "default": "./src/provider-evidence.js"
+    },
+    "./screen-reader-evidence": {
+      "types": "./src/screen-reader-evidence.d.ts",
+      "default": "./src/screen-reader-evidence.js"
     },
     "./wrangler-config": {
       "types": "./src/wrangler-config.d.ts",

@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.28.0 - 2026-08-06
+
+### Added
+
+- Added `@dustwave/release-core` 0.2.0 with shared cache-policy evidence,
+  policy-injected Cloudflare admin response-rule management, and assisted
+  VoiceOver/Whisper screen-reader evidence.
+- Added characterization coverage for cache semantics, exact origin/path
+  handling, redirect rejection, body cancellation, response-body omission,
+  Cloudflare drift matching, edge-injection failure, repeated transcript
+  expectations, missing recordings, and non-macOS behavior.
+
+### Security, accessibility, performance, and boundaries
+
+- Provider rule identities, origins, paths, target counts, diagnostics, audio
+  settings, transcript phrases, and command names are bounded. Screen-reader
+  commands receive argv directly without a shell; Cloudflare evidence never
+  returns tokens or response bodies; cache probes cancel bodies after headers.
+- Platform owns no product origin, rule identity, credential, recording
+  consent, evidence-retention policy, target list, provider mutation approval,
+  deployment, or rollback. Consumers inject those policies through thin,
+  independently reversible adapters.
+
 ## 0.27.0 - 2026-08-06
 
 ### Added
