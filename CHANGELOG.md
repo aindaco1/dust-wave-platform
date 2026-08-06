@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.23.0 - 2026-08-06
+
+### Added
+
+- Added a policy-injected GitHub client to `@dustwave/worker-core` 0.11.0 for
+  workflow dispatch, bounded UTF-8/base64 Contents API reads and writes,
+  directory listing, idempotent deletion, and Store-characterized atomic
+  multi-file commits with optimistic SHA checks.
+
+### Security, performance, and boundaries
+
+- Repository paths, refs, workflows, workflow inputs, content, messages, and
+  provider responses are bounded; requests time out and reject redirects;
+  network errors are normalized without returning tokens or raw exceptions;
+  batch updates use one non-force branch move and reject duplicate or stale
+  file evidence before creating a commit.
+- Platform performs no retry, repository selection, publish-mode decision,
+  content construction, logging, credential lookup, route handling, provider
+  mutation outside an explicit call, deployment, or rollback. Consumers retain
+  those policies and independent release authority.
+
 ## 0.22.0 - 2026-08-06
 
 ### Added
