@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.16.0 - 2026-08-06
+
+### Added
+
+- Added `@dustwave/worker-core` Resend/Svix verification for the characterized
+  Store, Pool, and Podcast raw-body signature contract, including bounded event
+  IDs, integer timestamps, multiple `v1` candidates, base64 secret handling,
+  and explicit failure reasons.
+- Added the shared bounded Resend error shape and pure retry classification for
+  network failures, conflicts, rate limits, provider failures, and numeric or
+  HTTP-date `Retry-After` guidance.
+
+### Security and boundaries
+
+- Webhook validation fails before event parsing on missing, malformed, stale,
+  oversized, or mismatched inputs; signature work is bounded and comparisons
+  use the existing constant-work primitive.
+- Platform performs no email send, retry, provider lookup, webhook side effect,
+  suppression, storage, or deployment. Consumers retain API transport,
+  recipients, templates, consent, idempotency keys, outbox policy, credentials,
+  and independent rollback.
+
 ## 0.15.0 - 2026-08-06
 
 ### Added

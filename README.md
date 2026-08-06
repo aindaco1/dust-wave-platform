@@ -8,7 +8,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
-| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, HTTP/CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.6.0`; Stripe version/user-agent policy and all product behavior remain consumer-owned |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, Resend/Svix, HTTP/CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.7.0`; provider policy and all product behavior remain consumer-owned |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, and the Pool/Store New Mexico starter reference | `0.2.0`; live provider choice and product taxability remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
@@ -98,6 +98,14 @@ closed, observer failures cannot change payment behavior, and provider error
 messages are whitespace-normalized and bounded. Consumers retain keys,
 idempotency construction, prices, products, settlement, reconciliation,
 webhook effects, retry scheduling, and deployment authority.
+
+The Resend entry verifies bounded Svix webhook IDs, integer timestamps,
+multiple `v1` signatures, and the exact raw request body with a five-minute
+default tolerance. It classifies network, conflict, rate-limit, and server
+failures plus bounded numeric or HTTP-date `Retry-After` guidance, but never
+performs a retry or parses a provider event. Consumers retain API transport,
+templates, recipients, consent, idempotency construction, outboxes,
+suppression, webhook effects, scheduling, credentials, and deployment.
 
 `@dustwave/release-core` contains only the exact deterministic Pool/Store
 release overlap. Wrangler parsing propagates malformed TOML errors and strips
