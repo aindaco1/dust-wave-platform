@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.24.0 - 2026-08-06
+
+### Added
+
+- Added bounded, timeout-enforced Zip-Tax v60 and New Mexico GRT lookup
+  transports to `@dustwave/tax-core` 0.3.0, plus the exact Pool/Store address,
+  street-parser, and provider-source normalization mechanics.
+
+### Security, performance, and boundaries
+
+- Provider bases require HTTPS, redirects are rejected, input and response
+  sizes are bounded, deadlines abort in-flight work, and network errors never
+  return credentials or raw exceptions. Provider failure messages are bounded,
+  while failed New Mexico responses remain generic.
+- Platform performs no provider selection or fallback, rate/taxability
+  decision, tax calculation from provider data, address eligibility, checkout
+  mutation, storage, credential lookup, retry, deployment, or rollback.
+  Consumers retain those policies and independently reversible adapters.
+
 ## 0.23.0 - 2026-08-06
 
 ### Added
