@@ -8,7 +8,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
-| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, HTTP/CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.5.0`; HTTP origins are policy-injected and product routes remain consumer-owned |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, HTTP/CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.6.0`; Stripe version/user-agent policy and all product behavior remain consumer-owned |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, and the Pool/Store New Mexico starter reference | `0.2.0`; live provider choice and product taxability remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
@@ -86,6 +86,17 @@ as a private fallback, and preserves the characterized JSON, CORS, and baseline
 security-header contract. JSON serialization and invalid `Response` status
 errors propagate. Consumers retain route visibility, authentication,
 authorization, CSRF, CSP, HSTS, cache, rate-limit, and deployment policy.
+
+The Stripe entry provides one form-encoded Worker transport for the
+characterized Pool, Store, and Podcast operations. It accepts injected API
+version, user agent, fetch, and redacted observation policy; it never returns
+the API key or request body to observers. Network failures and Stripe-directed
+or status-derived retryability are classified but never retried automatically.
+Invalid object IDs fail before a request, malformed webhook timestamps fail
+closed, observer failures cannot change payment behavior, and provider error
+messages are whitespace-normalized and bounded. Consumers retain keys,
+idempotency construction, prices, products, settlement, reconciliation,
+webhook effects, retry scheduling, and deployment authority.
 
 The New Mexico GRT starter entry is a vendored public reference snapshot. Its
 updater requires an explicit consumer-owned output path, fetches every seed

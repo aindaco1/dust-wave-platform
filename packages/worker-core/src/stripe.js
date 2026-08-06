@@ -21,10 +21,11 @@ function arrayBufferToHex(buffer) {
 }
 
 function timingSafeEqual(left, right) {
-  if (!left || !right || left.length !== right.length) return false;
-  let difference = 0;
-  for (let index = 0; index < left.length; index += 1) {
-    difference |= left.charCodeAt(index) ^ right.charCodeAt(index);
+  const candidate = String(left || '');
+  const expected = String(right || '');
+  let difference = candidate.length ^ expected.length;
+  for (let index = 0; index < expected.length; index += 1) {
+    difference |= (candidate.charCodeAt(index) || 0) ^ expected.charCodeAt(index);
   }
   return difference === 0;
 }
@@ -43,8 +44,11 @@ export async function verifyStripeSignature(
   const signatures = parts
     .filter((part) => part.startsWith('v1='))
     .map((part) => part.slice(3));
-  const timestamp = Number.parseInt(timestampText ?? '', 10);
-  if (!Number.isSafeInteger(timestamp) || signatures.length === 0) {
+  if (!/^\d+$/.test(timestampText || '') || signatures.length === 0) {
+    return { valid: false, error: 'Invalid signature format' };
+  }
+  const timestamp = Number(timestampText);
+  if (!Number.isSafeInteger(timestamp)) {
     return { valid: false, error: 'Invalid signature format' };
   }
   if (Math.abs(nowSeconds - timestamp) > toleranceSeconds) {
@@ -92,10 +96,28 @@ function flattenObject(object, prefix = '') {
   return result;
 }
 
+function stripePathId(value) {
+  const id = String(value || '').trim();
+  if (!id) throw new TypeError('A Stripe object ID is required');
+  return encodeURIComponent(id);
+}
+
+function isRetryableResponse(response) {
+  const stripeShouldRetry = String(response.headers.get('stripe-should-retry') || '').toLowerCase();
+  if (stripeShouldRetry === 'true') return true;
+  if (stripeShouldRetry === 'false') return false;
+  return response.status === 409 || response.status === 429 || response.status >= 500;
+}
+
 export function createStripeClient(secretKey, clientOptions = {}) {
   if (!secretKey) throw new Error('Stripe API key is required');
   const baseUrl = String(clientOptions.baseUrl || 'https://api.stripe.com/v1').replace(/\/$/, '');
-  const userAgent = String(clientOptions.userAgent || 'dust-wave-worker-core/0.2.0');
+  const userAgent = String(clientOptions.userAgent || 'dust-wave-worker-core/0.6.0');
+  const fetchImplementation = clientOptions.fetchImplementation
+    || globalThis.fetch?.bind(globalThis);
+  if (typeof fetchImplementation !== 'function') {
+    throw new TypeError('A fetch implementation is required');
+  }
 
   async function notifyRequest(event) {
     try {
@@ -120,14 +142,14 @@ export function createStripeClient(secretKey, clientOptions = {}) {
       'Stripe-Version': stripeVersion,
       'User-Agent': userAgent
     };
-    if (requestOptions.idempotencyKey) {
+    if (method === 'POST' && requestOptions.idempotencyKey) {
       headers['Idempotency-Key'] = String(requestOptions.idempotencyKey);
     }
 
     let response;
     let payload = {};
     try {
-      response = await fetch(`${baseUrl}${responsePath}`, {
+      response = await fetchImplementation(`${baseUrl}${responsePath}`, {
         method,
         headers,
         ...(method !== 'GET' && data
@@ -153,6 +175,7 @@ export function createStripeClient(secretKey, clientOptions = {}) {
       throw error;
     }
 
+    const retryable = response.ok ? false : isRetryableResponse(response);
     const requestEvent = {
       method,
       path: normalizedPath,
@@ -164,7 +187,8 @@ export function createStripeClient(secretKey, clientOptions = {}) {
       objectId: String(payload?.id || ''),
       objectType: String(payload?.object || ''),
       errorType: String(payload?.error?.type || ''),
-      errorCode: String(payload?.error?.code || '')
+      errorCode: String(payload?.error?.code || ''),
+      retryable
     };
     await notifyRequest(requestEvent);
     if (!response.ok) {
@@ -186,7 +210,7 @@ export function createStripeClient(secretKey, clientOptions = {}) {
             || stripeError.charge
             || ''
           ),
-          retryable: response.status === 409 || response.status === 429 || response.status >= 500
+          retryable
         }
       );
     }
@@ -196,22 +220,30 @@ export function createStripeClient(secretKey, clientOptions = {}) {
   return {
     products: {
       create: (data, options) => request('POST', '/products', data, options),
-      retrieve: (id, options) => request('GET', `/products/${id}`, null, options)
+      retrieve: (id, options) => request('GET', `/products/${stripePathId(id)}`, null, options)
     },
     prices: {
       create: (data, options) => request('POST', '/prices', data, options),
-      retrieve: (id, options) => request('GET', `/prices/${id}`, null, options)
+      retrieve: (id, options) => request('GET', `/prices/${stripePathId(id)}`, null, options)
     },
     taxRates: {
       create: (data, options) => request('POST', '/tax_rates', data, options),
-      retrieve: (id, options) => request('GET', `/tax_rates/${id}`, null, options)
+      retrieve: (id, options) => request('GET', `/tax_rates/${stripePathId(id)}`, null, options)
     },
     checkout: {
       sessions: {
         create: (data, options) => request('POST', '/checkout/sessions', data, options),
-        retrieve: (id, options) => request('GET', `/checkout/sessions/${id}`, null, options),
-        expire: (id, options) => request('POST', `/checkout/sessions/${id}/expire`, null, options)
+        retrieve: (id, options) => request('GET', `/checkout/sessions/${stripePathId(id)}`, null, options),
+        list: (data, options) => request('GET', '/checkout/sessions', data, options),
+        expire: (id, options) => request('POST', `/checkout/sessions/${stripePathId(id)}/expire`, null, options)
       }
+    },
+    setupIntents: {
+      retrieve: (id, options) => request('GET', `/setup_intents/${stripePathId(id)}`, null, options)
+    },
+    paymentIntents: {
+      create: (data, options) => request('POST', '/payment_intents', data, options),
+      retrieve: (id, data, options) => request('GET', `/payment_intents/${stripePathId(id)}`, data, options)
     },
     billingPortal: {
       sessions: {
@@ -220,41 +252,42 @@ export function createStripeClient(secretKey, clientOptions = {}) {
     },
     customers: {
       create: (data, options) => request('POST', '/customers', data, options),
-      update: (id, data, options) => request('POST', `/customers/${id}`, data, options),
-      retrieve: (id, options) => request('GET', `/customers/${id}`, null, options),
-      delete: (id, data, options) => request('DELETE', `/customers/${id}`, data, options)
+      update: (id, data, options) => request('POST', `/customers/${stripePathId(id)}`, data, options),
+      retrieve: (id, options) => request('GET', `/customers/${stripePathId(id)}`, null, options),
+      delete: (id, data, options) => request('DELETE', `/customers/${stripePathId(id)}`, data, options)
     },
     paymentMethods: {
-      attach: (id, data, options) => request('POST', `/payment_methods/${id}/attach`, data, options)
+      attach: (id, data, options) => request('POST', `/payment_methods/${stripePathId(id)}/attach`, data, options),
+      retrieve: (id, options) => request('GET', `/payment_methods/${stripePathId(id)}`, null, options)
     },
     subscriptions: {
       create: (data, options) => request('POST', '/subscriptions', data, options),
-      update: (id, data, options) => request('POST', `/subscriptions/${id}`, data, options),
-      retrieve: (id, options) => request('GET', `/subscriptions/${id}`, null, options),
-      cancel: (id, data, options) => request('DELETE', `/subscriptions/${id}`, data, options)
+      update: (id, data, options) => request('POST', `/subscriptions/${stripePathId(id)}`, data, options),
+      retrieve: (id, options) => request('GET', `/subscriptions/${stripePathId(id)}`, null, options),
+      cancel: (id, data, options) => request('DELETE', `/subscriptions/${stripePathId(id)}`, data, options)
     },
     invoices: {
       list: (data, options) => request('GET', '/invoices', data, options),
-      retrieve: (id, options) => request('GET', `/invoices/${id}`, null, options),
-      pay: (id, data, options) => request('POST', `/invoices/${id}/pay`, data, options)
+      retrieve: (id, options) => request('GET', `/invoices/${stripePathId(id)}`, null, options),
+      pay: (id, data, options) => request('POST', `/invoices/${stripePathId(id)}/pay`, data, options)
     },
     invoicePayments: {
       list: (data, options) => request('GET', '/invoice_payments', data, options)
     },
     refunds: {
       create: (data, options) => request('POST', '/refunds', data, options),
-      retrieve: (id, options) => request('GET', `/refunds/${id}`, null, options)
+      retrieve: (id, options) => request('GET', `/refunds/${stripePathId(id)}`, null, options)
     },
     events: {
-      retrieve: (id, options) => request('GET', `/events/${id}`, null, options),
-      retry: (id, data, options) => request('POST', `/events/${id}/retry`, data, options)
+      retrieve: (id, options) => request('GET', `/events/${stripePathId(id)}`, null, options),
+      retry: (id, data, options) => request('POST', `/events/${stripePathId(id)}/retry`, data, options)
     },
     testHelpers: {
       testClocks: {
         create: (data, options) => request('POST', '/test_helpers/test_clocks', data, options),
-        retrieve: (id, options) => request('GET', `/test_helpers/test_clocks/${id}`, null, options),
-        advance: (id, data, options) => request('POST', `/test_helpers/test_clocks/${id}/advance`, data, options),
-        delete: (id, options) => request('DELETE', `/test_helpers/test_clocks/${id}`, null, options)
+        retrieve: (id, options) => request('GET', `/test_helpers/test_clocks/${stripePathId(id)}`, null, options),
+        advance: (id, data, options) => request('POST', `/test_helpers/test_clocks/${stripePathId(id)}/advance`, data, options),
+        delete: (id, options) => request('DELETE', `/test_helpers/test_clocks/${stripePathId(id)}`, null, options)
       }
     }
   };

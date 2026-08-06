@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.14.0 - 2026-08-06
+
+### Added
+
+- Consolidated the characterized Pool and Store PaymentIntent, SetupIntent,
+  Checkout Session, Customer, and PaymentMethod operations into the shared
+  `@dustwave/worker-core` 0.6.0 Stripe transport without removing Podcast
+  billing operations.
+- Added fetch, API-version, user-agent, and redacted observation injection for
+  thin consumer adapters.
+
+### Security and reliability
+
+- Fail malformed webhook timestamps and blank object IDs before provider work.
+- Honor Stripe's explicit retry header before status-derived classification,
+  while leaving all actual retry and reconciliation policy consumer-owned.
+- Send idempotency keys only for Stripe API v1 POST requests and keep API keys,
+  request bodies, and customer data out of observation events.
+
 ## 0.13.0 - 2026-08-06
 
 ### Added
