@@ -97,6 +97,12 @@ test('fails malformed, stale, oversized, and invalid signatures closed', async (
     { now: new Date(fixture.timestamp * 1000) }
   )).error, 'invalid_secret');
   assert.equal((await verifyResendWebhook(
+    fixture.rawBody,
+    headers,
+    `whsec_${'A'.repeat(2049)}`,
+    { now: new Date(fixture.timestamp * 1000) }
+  )).error, 'invalid_secret');
+  assert.equal((await verifyResendWebhook(
     `${fixture.rawBody} `,
     headers,
     fixture.secret,

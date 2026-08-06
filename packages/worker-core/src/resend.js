@@ -4,6 +4,7 @@ const encoder = new TextEncoder();
 const DEFAULT_WEBHOOK_TOLERANCE_SECONDS = 5 * 60;
 const DEFAULT_MAX_EVENT_ID_LENGTH = 160;
 const MAX_SIGNATURE_HEADER_LENGTH = 4096;
+const MAX_WEBHOOK_SECRET_LENGTH = 2048;
 const DEFAULT_MAX_RETRY_AFTER_SECONDS = 24 * 60 * 60;
 
 export class ResendApiError extends Error {
@@ -29,9 +30,11 @@ function webhookHeader(headers, fullName, shortName) {
 }
 
 function decodeWebhookSecret(secret) {
-  const encoded = String(secret).startsWith('whsec_')
-    ? String(secret).slice(6)
-    : String(secret);
+  const raw = String(secret);
+  if (raw.length > MAX_WEBHOOK_SECRET_LENGTH) {
+    throw new Error('oversized_webhook_secret');
+  }
+  const encoded = raw.startsWith('whsec_') ? raw.slice(6) : raw;
   const binary = atob(encoded);
   if (!binary) throw new Error('empty_webhook_secret');
   return Uint8Array.from(binary, (character) => character.charCodeAt(0));
