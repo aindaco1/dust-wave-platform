@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/build-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "bin": {
     "dustwave-minify-site-assets": "./bin/minify-site-assets.mjs"

@@ -4,6 +4,7 @@ export interface MinifyAssetOptions {
 
 export interface MinifySiteAssetsOptions {
   siteDir?: string;
+  assetDirectories?: string | string[];
   write?: boolean;
 }
 
@@ -17,6 +18,7 @@ export interface MinifiedAssetResult {
 
 export interface MinifySiteAssetsResult {
   siteDir: string;
+  assetDirectories: string[];
   mode: "write" | "check";
   filesChecked: number;
   minifiedCount: number;
@@ -27,9 +29,13 @@ export interface MinifySiteAssetsResult {
 }
 
 export function normalizeRepoPath(repoPath: unknown): string;
+export function normalizeAssetDirectories(
+  assetDirectories?: string | string[]
+): string[];
 export function isMinifiableAssetPath(
   repoPath: unknown,
-  siteDir?: string
+  siteDir?: string,
+  assetDirectories?: string | string[]
 ): boolean;
 export function minifyAssetSource(
   source: unknown,

@@ -4,23 +4,51 @@ import { transform } from 'esbuild';
 
 const DEFAULT_SITE_DIR = '_site';
 const DEFAULT_ASSET_DIR = 'assets';
+const MAX_ASSET_DIRECTORIES = 16;
 const MINIFIABLE_EXTENSIONS = new Set(['.css', '.js']);
 
 export function normalizeRepoPath(repoPath) {
   return String(repoPath || '').replace(/\\/g, '/').replace(/^\.\/+/, '');
 }
 
-export function isMinifiableAssetPath(repoPath, siteDir = DEFAULT_SITE_DIR) {
+export function normalizeAssetDirectories(assetDirectories = [DEFAULT_ASSET_DIR]) {
+  const requested = Array.isArray(assetDirectories) ? assetDirectories : [assetDirectories];
+  const values = requested.length ? requested : [DEFAULT_ASSET_DIR];
+  if (values.length > MAX_ASSET_DIRECTORIES) {
+    throw new Error(`At most ${MAX_ASSET_DIRECTORIES} generated asset directories are allowed.`);
+  }
+
+  const normalized = [];
+  for (const [index, value] of values.entries()) {
+    const directory = normalizeRepoPath(String(value || '').trim()).replace(/\/+$/, '');
+    const segments = directory.split('/');
+    if (!directory || directory.length > 240 || directory.startsWith('/') ||
+        segments.some((segment) => !segment || segment === '.' || segment === '..' ||
+          !/^[A-Za-z0-9._-]+$/.test(segment))) {
+      throw new Error(`Unsafe generated asset directory at index ${index}.`);
+    }
+    if (!normalized.includes(directory)) normalized.push(directory);
+  }
+  return normalized;
+}
+
+export function isMinifiableAssetPath(
+  repoPath,
+  siteDir = DEFAULT_SITE_DIR,
+  assetDirectories = [DEFAULT_ASSET_DIR]
+) {
   const normalized = normalizeRepoPath(repoPath);
   const normalizedSiteDir = normalizeRepoPath(siteDir).replace(/\/+$/, '');
   const relativePath = normalized.startsWith(`${normalizedSiteDir}/`)
     ? normalized.slice(normalizedSiteDir.length + 1)
     : normalized;
+  const allowedDirectories = normalizeAssetDirectories(assetDirectories);
+  const pathSegments = relativePath.split('/');
   const extension = path.posix.extname(relativePath).toLowerCase();
-  return relativePath.startsWith(`${DEFAULT_ASSET_DIR}/`) &&
+  return allowedDirectories.some((directory) => relativePath.startsWith(`${directory}/`)) &&
     MINIFIABLE_EXTENSIONS.has(extension) &&
     !relativePath.endsWith('.map') &&
-    !relativePath.includes('/vendor/');
+    !pathSegments.includes('vendor');
 }
 
 async function walkFiles(root) {
@@ -99,15 +127,30 @@ export async function minifyAssetSource(source, repoPath, options = {}) {
 export async function minifySiteAssets(options = {}) {
   const siteDir = options.siteDir || DEFAULT_SITE_DIR;
   const write = Boolean(options.write);
-  const assetRoot = path.join(siteDir, DEFAULT_ASSET_DIR);
-  if (!await directoryExists(assetRoot)) {
-    throw new Error(`Generated asset directory not found at ${assetRoot}. Run Jekyll build first.`);
+  const assetDirectories = normalizeAssetDirectories(options.assetDirectories);
+  const roots = assetDirectories.map((directory) => ({
+    directory,
+    absolute: path.join(siteDir, directory)
+  }));
+  for (const root of roots) {
+    if (!await directoryExists(root.absolute)) {
+      throw new Error(`Generated asset directory not found at ${root.absolute}. Run the site build first.`);
+    }
+  }
+  const realSiteDir = await fs.realpath(siteDir);
+  for (const root of roots) {
+    const realRoot = await fs.realpath(root.absolute);
+    const relativeRoot = path.relative(realSiteDir, realRoot);
+    if (!relativeRoot || relativeRoot === '..' || relativeRoot.startsWith(`..${path.sep}`) ||
+        path.isAbsolute(relativeRoot)) {
+      throw new Error('Generated asset directories must remain inside the generated site.');
+    }
   }
 
-  const allFiles = await walkFiles(assetRoot);
-  const files = allFiles
+  const allFiles = (await Promise.all(roots.map((root) => walkFiles(root.absolute)))).flat();
+  const files = [...new Set(allFiles
     .map((filePath) => normalizeRepoPath(filePath))
-    .filter((filePath) => isMinifiableAssetPath(filePath, siteDir))
+    .filter((filePath) => isMinifiableAssetPath(filePath, siteDir, assetDirectories)))]
     .sort();
 
   const results = [];
@@ -139,6 +182,7 @@ export async function minifySiteAssets(options = {}) {
 
   return {
     siteDir,
+    assetDirectories,
     mode: write ? 'write' : 'check',
     filesChecked: files.length,
     minifiedCount: results.filter((result) => result.changed).length,

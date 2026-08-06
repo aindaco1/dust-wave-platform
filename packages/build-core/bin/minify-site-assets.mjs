@@ -4,6 +4,7 @@ import { minifySiteAssets } from '../src/site-assets.js';
 function parseArgs(argv = []) {
   const args = {
     siteDir: '_site',
+    assetDirectories: [],
     write: false,
     check: false
   };
@@ -12,6 +13,12 @@ function parseArgs(argv = []) {
     const arg = argv[index];
     if (arg === '--write') args.write = true;
     else if (arg === '--check') args.check = true;
+    else if (arg === '--asset-dir') {
+      args.assetDirectories.push(argv[index + 1] || '');
+      index += 1;
+    } else if (arg.startsWith('--asset-dir=')) {
+      args.assetDirectories.push(arg.slice('--asset-dir='.length));
+    }
     else if (arg === '--site-dir') {
       args.siteDir = argv[index + 1] || '_site';
       index += 1;
@@ -27,7 +34,11 @@ const args = parseArgs(process.argv.slice(2));
 const write = args.write && !args.check;
 
 try {
-  const summary = await minifySiteAssets({ siteDir: args.siteDir, write });
+  const summary = await minifySiteAssets({
+    siteDir: args.siteDir,
+    assetDirectories: args.assetDirectories.length ? args.assetDirectories : undefined,
+    write
+  });
   console.log(JSON.stringify(summary, null, 2));
   if (args.check && summary.minifiedCount > 0) process.exitCode = 1;
 } catch (error) {
