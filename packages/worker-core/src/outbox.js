@@ -114,7 +114,7 @@ export function outboxRetryDelayMs(error, attempts, {
   const max = positiveInteger(maximumMs, 'maximumMs');
   if (min > max) throw new RangeError('minimumMs must not exceed maximumMs');
   if (Number(error?.retryAfterSeconds) > 0) {
-    return Math.min(max, Math.max(min, Math.round(Number(error.retryAfterSeconds) * 1000)));
+    return Math.min(max, Math.max(1, Math.round(Number(error.retryAfterSeconds) * 1000)));
   }
   if (Array.isArray(quotaTypes) && quotaTypes.map(String).includes(String(error?.type || ''))) {
     return max;

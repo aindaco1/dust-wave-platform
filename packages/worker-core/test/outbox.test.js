@@ -81,6 +81,7 @@ test('classifies terminal, due, expired, leased, and ready work deterministicall
 
 test('preserves retry-after, quota, exponential, and redacted error evidence policy', () => {
   assert.equal(outboxRetryDelayMs({ retryAfterSeconds: 120 }, 1), 120_000);
+  assert.equal(outboxRetryDelayMs({ retryAfterSeconds: 1 }, 1), 1_000);
   assert.equal(outboxRetryDelayMs({ type: 'daily_quota_exceeded' }, 1, {
     quotaTypes: ['daily_quota_exceeded']
   }), 86_400_000);
