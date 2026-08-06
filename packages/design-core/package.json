@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/design-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "files": [
     "styles"
@@ -9,6 +9,9 @@
     "./styles/base": "./styles/_base.scss",
     "./styles/buttons": "./styles/_buttons.scss",
     "./styles/content-blocks": "./styles/_content-blocks.scss",
+    "./styles/forms": "./styles/_forms.scss",
+    "./styles/layout": "./styles/_layout.scss",
+    "./styles/mixins": "./styles/_mixins.scss",
     "./styles/modal": "./styles/_modal.scss",
     "./styles/utilities": "./styles/_utilities.scss"
   },

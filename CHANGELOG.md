@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.30.0 - 2026-08-06
+
+### Added
+
+- Expanded `@dustwave/design-core` to 0.2.0 with the byte-identical Pool/Store
+  form controls plus their characterized layout and mixin near-overlap.
+- Added compile-time policy for padding- versus width-based centered gutters
+  and consumer-owned brand-title letter spacing, animation identity, mobile
+  type scale, and line width.
+- Added contract coverage for the exact form source, narrow exports, neutral
+  policy defaults, interpolation, and the absence of product-named selectors.
+
+### Performance, responsiveness, and boundaries
+
+- The package remains Sass-only and adds no browser JavaScript, request,
+  runtime configuration, or deployment coupling. Consumer migrations must
+  prove byte-equivalent generated main/admin CSS and rerun responsive,
+  accessibility, performance-budget, and full release gates.
+- Tokens, selected policy values, import order, templates, content, Jekyll
+  integration, credentials, deployment, and independent rollback remain in
+  Pool and Store. Liquid includes and Ruby plugins remain outside Platform.
+
 ## 0.29.0 - 2026-08-06
 
 ### Added
