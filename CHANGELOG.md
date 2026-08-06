@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.13.0 - 2026-08-06
+
+### Added
+
+- Added policy-injected HTTP/CORS and baseline security-response helpers to
+  `@dustwave/worker-core` 0.5.0 from the characterized Pool and Store overlap.
+- Added generic timezone-aware date parts, date keys, day boundaries,
+  formatting, deadline comparison, and daily-window mechanics.
+- Added regression coverage for invalid origins, private/public CORS,
+  serialization failures, invalid dates, and 23/25-hour daylight-saving days.
+
+### Boundaries
+
+- Consumers must inject their private fallback origin and continue to own
+  routes, authentication, authorization, CSRF, CSP, HSTS, cache, and rate-limit
+  policy.
+- Pool retains campaign terminology; Store retains product and order scheduling
+  policy through independently reversible adapters.
+
 ## 0.12.0 - 2026-08-06
 
 ### Added

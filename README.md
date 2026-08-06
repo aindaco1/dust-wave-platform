@@ -8,7 +8,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
-| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, timezone, podcast-benefit code, and request primitives | `0.4.0`; timezone support is the exact Pool/Store runtime overlap |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, byte/string checksums, signed-identity, Stripe, HTTP/CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.5.0`; HTTP origins are policy-injected and product routes remain consumer-owned |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, and the Pool/Store New Mexico starter reference | `0.2.0`; live provider choice and product taxability remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
@@ -71,10 +71,21 @@ an explicit error, and check mode exits unsuccessfully when a generated file
 can still be reduced. Consumers retain build orchestration, budgets, and
 deployment authority.
 
-The Worker timezone entry exposes only runtime-supported IANA zone discovery,
+The Worker timezone entry exposes runtime-supported IANA zone discovery,
 labels, validation, and deterministic fallback. Unsupported values fall back
-to a caller-supplied supported zone or `America/Denver`; date boundaries and
-domain scheduling remain consumer-owned.
+to a caller-supplied supported zone or `America/Denver`. The date/time entry
+adds the exact Pool/Store local-part, date-key, day-boundary, formatting, and
+daily-window mechanics. Pool retains campaign naming and Store retains its
+catalog/order scheduling policy through thin adapters. Invalid date shapes
+produce an invalid `Date`; formatting invalid instants propagates the runtime
+`RangeError` rather than manufacturing a value.
+
+The Worker HTTP entry requires a valid consumer-supplied private origin before
+it returns helpers. It normalizes configured origins, never accepts wildcard
+as a private fallback, and preserves the characterized JSON, CORS, and baseline
+security-header contract. JSON serialization and invalid `Response` status
+errors propagate. Consumers retain route visibility, authentication,
+authorization, CSRF, CSP, HSTS, cache, rate-limit, and deployment policy.
 
 The New Mexico GRT starter entry is a vendored public reference snapshot. Its
 updater requires an explicit consumer-owned output path, fetches every seed
