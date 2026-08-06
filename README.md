@@ -16,7 +16,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | `@dustwave/test-core` | Test-framework-neutral browser Storage setup and mobile overflow assertions | `0.1.0`; runner configuration, fixtures, pages, viewports, and product assertions remain consumer-owned |
 | `@dustwave/design-core` | Optional compile-time Sass for shared foundations, forms, policy-injected layout/mixins, and visual components | `0.2.0`; tokens, selected layout policy, templates, content, budgets, builds, and deployment remain consumer-owned |
 | `@dustwave/site-shell` | Dependency-free classic browser scripts for shared navigation, live announcements, shipping-option display, deferred styles, form-control identity, and cart-summary behavior | `0.2.0`; consumers inject product names, cache/event identities, control priorities, templates, localization, routes, styling, and breakpoints |
-| `@dustwave/build-core` | Generated CSS/JavaScript asset minification shared exactly by Pool and Store | `0.1.0`; source assets, HTML, vendor files, and deployment remain consumer-owned |
+| `@dustwave/build-core` | Allowlisted generated CSS/JavaScript asset minification shared by Pool and Store | `0.2.0`; source assets, HTML, vendor files, root selection, and deployment remain consumer-owned |
 | `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, cache-policy evidence, policy-injected Cloudflare admin rules, screen-reader evidence, and command-result normalization | `0.2.0`; commands, credentials, product origins/identity, rollout, and rollback authority remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral site-media catalog/path mechanics plus source-audio QC, processor manifest, normalized measurements, finding, and report contracts | `0.4.0`; content, transforms, processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.5.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
@@ -89,12 +89,14 @@ Deferred stylesheet activation changes only links explicitly marked by the
 consumer. Consumers retain script placement, cart/provider behavior, currency
 policy, form schemas, visual design, accessibility review, CSP, and rollout.
 
-`@dustwave/build-core` processes only generated CSS and JavaScript below a
-site's `assets` directory. It skips source files, maps, vendor code, and HTML;
-it writes only when output is smaller. A missing generated asset directory is
-an explicit error, and check mode exits unsuccessfully when a generated file
-can still be reduced. Consumers retain build orchestration, budgets, and
-deployment authority.
+`@dustwave/build-core` processes only generated CSS and JavaScript below the
+explicitly allowlisted directories in a built site; the default remains
+`assets`. Relative roots are bounded, traversal-safe, independently checked for
+existence, and required to resolve inside the built site. The minifier skips
+maps, vendor code, and HTML and writes only when output is smaller. Check mode
+exits unsuccessfully when an allowed generated file can still be reduced.
+Consumers retain root selection, source assets, build orchestration, budgets,
+deployment, and rollback authority.
 
 The Worker timezone entry exposes runtime-supported IANA zone discovery,
 labels, validation, and deterministic fallback. Unsupported values fall back

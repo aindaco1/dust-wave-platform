@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.31.0 - 2026-08-06
+
+### Added
+
+- Expanded `@dustwave/build-core` to 0.2.0 with repeatable, explicitly
+  allowlisted generated-asset roots in both the API and CLI.
+- Added characterization for default-only scope, multiple roots, duplicate
+  normalization, missing roots, CLI flag forms, and untouched unselected and
+  vendor files.
+
+### Security, performance, and boundaries
+
+- Asset roots reject absolute paths, traversal, blank or dot segments, unsafe
+  characters, overlong values, more than 16 entries, and any resolved path
+  outside the built site without reflecting unsafe values. Every selected root
+  must exist before any file is changed.
+- Pool and Store can now minify their generated copies of pinned Site Shell
+  scripts without adding requests or changing runtime behavior. Consumers
+  continue to select roots and own source files, builds, budgets, deployment,
+  and independent rollback.
+
 ## 0.30.0 - 2026-08-06
 
 ### Added
