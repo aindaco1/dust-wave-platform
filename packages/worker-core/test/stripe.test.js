@@ -37,6 +37,18 @@ test('verifies current webhook signatures and rejects stale ones', async () => {
     })).valid,
     false
   );
+  assert.deepEqual(
+    await verifyStripeSignature(payload, `t=${timestamp}suffix,v1=${signature}`, secret, {
+      nowSeconds: timestamp
+    }),
+    { valid: false, error: 'Invalid signature format' }
+  );
+  assert.equal(
+    (await verifyStripeSignature(payload, `t=${timestamp},v1=short,v1=${signature}`, secret, {
+      nowSeconds: timestamp
+    })).valid,
+    true
+  );
 });
 
 test('uses injected product policy and the current API version', async (context) => {
@@ -93,6 +105,149 @@ test('returns bounded structured provider failures', async (context) => {
       assert.equal(error.retryable, false);
       return true;
     }
+  );
+});
+
+test('honors Stripe retry guidance without performing transport retries', async () => {
+  const events = [];
+  let requestCount = 0;
+  const client = createStripeClient('rk_test_fixture', {
+    fetchImplementation: async () => {
+      requestCount += 1;
+      return new Response(JSON.stringify({
+        error: { type: 'api_error', message: 'Temporary provider failure' }
+      }), {
+        status: 500,
+        headers: { 'stripe-should-retry': 'false' }
+      });
+    },
+    onRequest: (event) => events.push(event)
+  });
+
+  await assert.rejects(
+    client.paymentIntents.create(
+      { amount: 1200, currency: 'usd' },
+      { idempotencyKey: 'payment:fixture' }
+    ),
+    (error) => error instanceof StripeApiError && error.retryable === false
+  );
+  assert.equal(requestCount, 1);
+  assert.equal(events[0].retryable, false);
+});
+
+test('supports the characterized Pool and Store Stripe operation surface', async () => {
+  const observed = [];
+  const client = createStripeClient('rk_test_fixture', {
+    stripeVersion: '2026-02-25.clover',
+    userAgent: 'store-worker/fixture',
+    fetchImplementation: async (url, init) => {
+      observed.push({ url, init });
+      return new Response(JSON.stringify({ id: 'fixture', object: 'fixture' }), {
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+  });
+
+  await client.paymentIntents.create(
+    { amount: 1200, currency: 'usd', metadata: { orderId: 'order-1' } },
+    { idempotencyKey: 'store-order:order-1' }
+  );
+  await client.paymentIntents.retrieve('pi_fixture', { expand: ['latest_charge'] });
+  await client.setupIntents.retrieve('seti_fixture');
+  await client.checkout.sessions.list({ payment_intent: 'pi_fixture', limit: 2 }, {
+    idempotencyKey: 'ignored-on-get'
+  });
+  await client.paymentMethods.retrieve('pm_fixture');
+  await client.paymentMethods.attach('pm_fixture', { customer: 'cus_fixture' }, {
+    idempotencyKey: 'attach:fixture'
+  });
+
+  assert.deepEqual(observed.map(({ url, init }) => ({
+    path: new URL(url).pathname,
+    search: new URL(url).search,
+    method: init.method,
+    stripeVersion: init.headers['Stripe-Version'],
+    userAgent: init.headers['User-Agent'],
+    idempotencyKey: init.headers['Idempotency-Key'] || ''
+  })), [
+    {
+      path: '/v1/payment_intents',
+      search: '',
+      method: 'POST',
+      stripeVersion: '2026-02-25.clover',
+      userAgent: 'store-worker/fixture',
+      idempotencyKey: 'store-order:order-1'
+    },
+    {
+      path: '/v1/payment_intents/pi_fixture',
+      search: '?expand%5B0%5D=latest_charge',
+      method: 'GET',
+      stripeVersion: '2026-02-25.clover',
+      userAgent: 'store-worker/fixture',
+      idempotencyKey: ''
+    },
+    {
+      path: '/v1/setup_intents/seti_fixture',
+      search: '',
+      method: 'GET',
+      stripeVersion: '2026-02-25.clover',
+      userAgent: 'store-worker/fixture',
+      idempotencyKey: ''
+    },
+    {
+      path: '/v1/checkout/sessions',
+      search: '?payment_intent=pi_fixture&limit=2',
+      method: 'GET',
+      stripeVersion: '2026-02-25.clover',
+      userAgent: 'store-worker/fixture',
+      idempotencyKey: ''
+    },
+    {
+      path: '/v1/payment_methods/pm_fixture',
+      search: '',
+      method: 'GET',
+      stripeVersion: '2026-02-25.clover',
+      userAgent: 'store-worker/fixture',
+      idempotencyKey: ''
+    },
+    {
+      path: '/v1/payment_methods/pm_fixture/attach',
+      search: '',
+      method: 'POST',
+      stripeVersion: '2026-02-25.clover',
+      userAgent: 'store-worker/fixture',
+      idempotencyKey: 'attach:fixture'
+    }
+  ]);
+  assert.match(observed[0].init.body, /metadata%5BorderId%5D=order-1/);
+});
+
+test('fails invalid configuration and object IDs before provider work', () => {
+  assert.throws(() => createStripeClient(''), /API key/);
+  const client = createStripeClient('rk_test_fixture', {
+    fetchImplementation: async () => {
+      throw new Error('must not be reached');
+    }
+  });
+  assert.throws(() => client.paymentIntents.retrieve(''), /object ID/);
+});
+
+test('encodes object IDs and isolates observer failures from payment behavior', async () => {
+  let observedUrl = '';
+  const client = createStripeClient('rk_test_fixture', {
+    fetchImplementation: async (url) => {
+      observedUrl = String(url);
+      return new Response(JSON.stringify({ id: 'pm_fixture', object: 'payment_method' }));
+    },
+    onRequest: () => {
+      throw new Error('observability unavailable');
+    }
+  });
+  const result = await client.paymentMethods.retrieve('pm/fixture?expand=customer');
+  assert.equal(result.id, 'pm_fixture');
+  assert.equal(
+    observedUrl,
+    'https://api.stripe.com/v1/payment_methods/pm%2Ffixture%3Fexpand%3Dcustomer'
   );
 });
 

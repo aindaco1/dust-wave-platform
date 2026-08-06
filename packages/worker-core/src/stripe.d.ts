@@ -19,6 +19,7 @@ export interface StripeClientOptions {
   baseUrl?: string;
   stripeVersion?: string;
   userAgent?: string;
+  fetchImplementation?: typeof fetch;
   onRequest?: (event: Record<string, unknown>) => void | Promise<void>;
 }
 
@@ -32,6 +33,11 @@ type StripeRetrieveOperation = (
   options?: StripeRequestOptions
 ) => Promise<StripeObject>;
 type StripeUpdateOperation = (
+  id: string,
+  data?: Record<string, unknown>,
+  options?: StripeRequestOptions
+) => Promise<StripeObject>;
+type StripeRetrieveWithParamsOperation = (
   id: string,
   data?: Record<string, unknown>,
   options?: StripeRequestOptions
@@ -50,8 +56,14 @@ export interface StripeClient {
     sessions: {
       create: StripeOperation;
       retrieve: StripeRetrieveOperation;
+      list: StripeOperation;
       expire: StripeRetrieveOperation;
     };
+  };
+  setupIntents: { retrieve: StripeRetrieveOperation };
+  paymentIntents: {
+    create: StripeOperation;
+    retrieve: StripeRetrieveWithParamsOperation;
   };
   billingPortal: { sessions: { create: StripeOperation } };
   customers: {
@@ -60,7 +72,10 @@ export interface StripeClient {
     retrieve: StripeRetrieveOperation;
     delete: StripeDeleteOperation;
   };
-  paymentMethods: { attach: StripeUpdateOperation };
+  paymentMethods: {
+    attach: StripeUpdateOperation;
+    retrieve: StripeRetrieveOperation;
+  };
   subscriptions: {
     create: StripeOperation;
     update: StripeUpdateOperation;
