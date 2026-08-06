@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "type": "module",
   "exports": {
     "./crypto": "./src/crypto.js",
@@ -17,6 +17,14 @@
       "default": "./src/logger.js"
     },
     "./podcast-benefits": "./src/podcast-benefits.js",
+    "./provider-fetch": {
+      "types": "./src/provider-fetch.d.ts",
+      "default": "./src/provider-fetch.js"
+    },
+    "./request-validation": {
+      "types": "./src/request-validation.d.ts",
+      "default": "./src/request-validation.js"
+    },
     "./resend": {
       "types": "./src/resend.d.ts",
       "default": "./src/resend.js"

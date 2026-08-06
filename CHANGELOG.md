@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.20.0 - 2026-08-06
+
+### Added
+
+- Added bounded streamed request bytes/text and required/optional JSON-object
+  readers to `@dustwave/worker-core`, with the characterized Podcast scalar
+  validation and filename/date normalization contract.
+- Added provider fetch timeouts with one managed abort signal and an injectable
+  transport for deterministic consumer tests.
+- Added policy-injected exact-origin CORS, JSON, private JSON, and preflight
+  response helpers while preserving the existing Pool/Store HTTP API.
+
+### Security, performance, and boundaries
+
+- Oversized declared bodies fail before consumption; undeclared streamed bodies
+  are cancelled immediately after crossing the byte limit; origin reflection is
+  restricted to exact consumer allow-list matches; private responses override
+  caller cache and indexing headers.
+- Platform owns no routes, authorization, CSRF policy, allowed-origin values,
+  provider credentials, retry policy, response schema, storage, or deployment.
+  Consumers retain those policies and independent rollback.
+
 ## 0.19.0 - 2026-08-06
 
 ### Added

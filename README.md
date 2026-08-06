@@ -8,7 +8,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
-| `@dustwave/worker-core` | Runtime-neutral Worker security, scoped logging, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, HTTP/CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.9.0`; authentication, telemetry, provider policy, and all product behavior remain consumer-owned |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, scoped logging, bounded request/provider HTTP, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.10.0`; authentication, telemetry, provider policy, and all product behavior remain consumer-owned |
 | `@dustwave/shipping-core` | Deterministic physical-item profiles, mixed-shipment aggregation, fallback/manual quote shapes, and delivery-option mechanics | `0.1.0`; destination validation, USPS transport, credentials, product/campaign rules, checkout, and fulfillment remain consumer-owned |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, and the Pool/Store New Mexico starter reference | `0.2.0`; live provider choice and product taxability remain consumer-owned |
@@ -88,6 +88,19 @@ as a private fallback, and preserves the characterized JSON, CORS, and baseline
 security-header contract. JSON serialization and invalid `Response` status
 errors propagate. Consumers retain route visibility, authentication,
 authorization, CSRF, CSP, HSTS, cache, rate-limit, and deployment policy.
+
+The request-validation entry rejects oversized declared bodies before reading,
+bounds streamed bodies by encoded bytes, cancels after a limit is crossed, and
+preserves explicit request error status/code fields. JSON readers accept only
+objects; scalar helpers keep the independently characterized Podcast
+normalization and failure semantics. The provider-fetch entry owns one timeout
+and abort signal around an injected or global Fetch implementation, always
+clears its timer, and never retries. The policy-injected CORS/JSON helper
+reflects only an exact origin from the consumer's comma-separated allow list
+and lets consumers supply their own method, request-header, base response, and
+private response policies. Podcast retains routes, schemas, CSRF names,
+allowed-origin configuration, authorization, provider credentials, retry,
+storage, deployment, and rollback.
 
 The Stripe entry provides one form-encoded Worker transport for the
 characterized Pool, Store, and Podcast operations. It accepts injected API
