@@ -1,10 +1,14 @@
 {
   "name": "@dustwave/site-shell",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "exports": {
     "./a11y-live-browser": "./src/a11y-live-browser.js",
-    "./header-nav-browser": "./src/header-nav-browser.js"
+    "./cart-icon-browser": "./src/cart-icon-browser.js",
+    "./deferred-stylesheets-browser": "./src/deferred-stylesheets-browser.js",
+    "./form-control-identity-browser": "./src/form-control-identity-browser.js",
+    "./header-nav-browser": "./src/header-nav-browser.js",
+    "./shipping-option-utils-browser": "./src/shipping-option-utils-browser.js"
   },
   "engines": {
     "node": ">=20.9"

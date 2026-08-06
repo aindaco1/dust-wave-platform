@@ -15,7 +15,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, bounded Zip-Tax/New Mexico provider transport, and the Pool/Store New Mexico starter reference | `0.3.0`; live provider choice and product taxability remain consumer-owned |
 | `@dustwave/test-core` | Test-framework-neutral browser Storage setup and mobile overflow assertions | `0.1.0`; runner configuration, fixtures, pages, viewports, and product assertions remain consumer-owned |
 | `@dustwave/design-core` | Optional compile-time Sass for exact shared base, button, content-block, modal, and utility components | `0.1.0`; tokens, mixins, templates, breakpoints, content, budgets, builds, and deployment remain consumer-owned |
-| `@dustwave/site-shell` | Dependency-free classic browser scripts for the exact Pool/Store header-navigation and live-announcement behavior | `0.1.0`; templates, localization, routes, styling, and breakpoints remain consumer-owned |
+| `@dustwave/site-shell` | Dependency-free classic browser scripts for shared navigation, live announcements, shipping-option display, deferred styles, form-control identity, and cart-summary behavior | `0.2.0`; consumers inject product names, cache/event identities, control priorities, templates, localization, routes, styling, and breakpoints |
 | `@dustwave/build-core` | Generated CSS/JavaScript asset minification shared exactly by Pool and Store | `0.1.0`; source assets, HTML, vendor files, and deployment remain consumer-owned |
 | `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, cache-policy evidence, policy-injected Cloudflare admin rules, screen-reader evidence, and command-result normalization | `0.2.0`; commands, credentials, product origins/identity, rollout, and rollback authority remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral site-media catalog/path mechanics plus source-audio QC, processor manifest, normalized measurements, finding, and report contracts | `0.4.0`; content, transforms, processing placement, storage, approval, and publication remain consumer-owned |
@@ -77,6 +77,17 @@ The live announcer no-ops without its consumer-rendered region, consumes each
 `data-live-announce` value once, and clears unchanged text after one second.
 Consumers retain markup, labels, localization, focus styling, routes, and
 Content Security Policy.
+
+The Site Shell browser-primitives extension exposes shipping-option display
+mechanics through one neutral global and reads only bounded policy from the
+consumer-rendered script element for form-control IDs and cart summaries.
+Control ID prefixes, prioritized dataset keys, cache keys, provider globals,
+and event names reject unsafe shapes and fall back to generic values. The cart
+icon still receives all visible labels from consumer markup; it performs no
+checkout, pricing, tax, shipping, storage migration, or network request.
+Deferred stylesheet activation changes only links explicitly marked by the
+consumer. Consumers retain script placement, cart/provider behavior, currency
+policy, form schemas, visual design, accessibility review, CSP, and rollout.
 
 `@dustwave/build-core` processes only generated CSS and JavaScript below a
 site's `assets` directory. It skips source files, maps, vendor code, and HTML;
