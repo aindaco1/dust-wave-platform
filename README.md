@@ -8,6 +8,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 
 | Package | Purpose | Status |
 |---|---|---|
+| `@dustwave/inventory-core` | Pure inventory snapshot, count-map, and expiring-reservation state mechanics | `0.1.0`; Durable Object/KV storage, catalog policy, checkout effects, and deployment remain consumer-owned |
 | `@dustwave/worker-core` | Runtime-neutral Worker security, scoped logging, bounded request/provider HTTP, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.10.0`; authentication, telemetry, provider policy, and all product behavior remain consumer-owned |
 | `@dustwave/shipping-core` | Deterministic physical-item profiles, mixed-shipment aggregation, fallback/manual quote shapes, and delivery-option mechanics | `0.1.0`; destination validation, USPS transport, credentials, product/campaign rules, checkout, and fulfillment remain consumer-owned |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
@@ -142,6 +143,16 @@ The package performs no address normalization, carrier request, OAuth, cache,
 backoff, retry, credential lookup, checkout mutation, storage, or deployment;
 Store retains product rules and Pool retains campaign rules through thin,
 independently reversible adapters.
+
+`@dustwave/inventory-core` contains the pure state overlap below the Pool and
+Store inventory coordinators: JSON-safe cloning, count-map normalization,
+legacy and expiring reservation normalization, reserved-count totals, and
+bootstrap reconciliation. Consumers must inject a positive default reservation
+TTL and choose `replace` or `merge` bootstrap behavior. Pool uses `replace` so
+its persisted campaign snapshot remains authoritative; Store uses `merge` so
+current catalog metadata can refresh without losing claimed counts. The package
+does not perform Durable Object transactions, KV writes, catalog reads,
+checkout or order/pledge transitions, timers, routes, or deployment.
 
 The Worker logger entry creates a consumer-named scoped-console factory with
 per-owner policy caching, child scopes, severity filtering, and bounded

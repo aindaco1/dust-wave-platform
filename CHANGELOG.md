@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.21.0 - 2026-08-06
+
+### Added
+
+- Added `@dustwave/inventory-core` 0.1.0 with shared deep-copy, count-map,
+  reservation expiry, reserved-count, and inventory-state normalization
+  mechanics characterized in Pool and Store.
+- Made the consumers' distinct bootstrap behavior explicit: Pool keeps its
+  stored campaign snapshot authoritative, while Store refreshes catalog
+  metadata and preserves already-claimed counts.
+
+### Reliability and boundaries
+
+- Reservation TTL and bootstrap strategy are required policy; callers may
+  inject time for deterministic tests. Expired reservations are removed with
+  explicit cleanup evidence, and reservation updates can exclude their own
+  counts when calculating availability.
+- Platform performs no Durable Object transaction, KV write, catalog lookup,
+  checkout mutation, reservation scheduling, order/pledge transition, route,
+  credential lookup, or deployment. Consumers retain those responsibilities
+  and independent rollback.
+
 ## 0.20.0 - 2026-08-06
 
 ### Added
