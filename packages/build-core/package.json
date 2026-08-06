@@ -1,0 +1,21 @@
+{
+  "name": "@dustwave/build-core",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "dustwave-minify-site-assets": "./bin/minify-site-assets.mjs"
+  },
+  "exports": {
+    "./site-assets": {
+      "types": "./src/site-assets.d.ts",
+      "default": "./src/site-assets.js"
+    }
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "dependencies": {
+    "esbuild": "0.28.1"
+  },
+  "license": "MIT"
+}

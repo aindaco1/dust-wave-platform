@@ -1,0 +1,13 @@
+{
+  "name": "@dustwave/site-shell",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./a11y-live-browser": "./src/a11y-live-browser.js",
+    "./header-nav-browser": "./src/header-nav-browser.js"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "license": "MIT"
+}
