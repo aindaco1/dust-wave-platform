@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.25.0 - 2026-08-06
+
+### Added
+
+- Added `@dustwave/worker-core` 0.12.0 durable-outbox primitives for canonical
+  payload serialization and job IDs, bounded record and queue-state creation,
+  terminal/due/expiry/lease classification, injected retry policy, redacted
+  failure evidence, safe email/tag normalization, and Resend event mechanics.
+
+### Security, performance, and boundaries
+
+- Job kinds, dedupe inputs, records, metadata, email/tag values, error evidence,
+  webhook tags, retry/lease policy, and timestamps are bounded or validated;
+  consumer metadata cannot override lifecycle fields; errors omit messages,
+  payloads, addresses, credentials, and provider response bodies.
+- Platform performs no KV/D1/Queue operation, template rendering, provider
+  send, retry scheduling, suppression lookup/write, order/pledge mutation,
+  webhook storage effect, credential lookup, deployment, or rollback. Pool and
+  Store retain those policies in independently reversible adapters.
+
 ## 0.24.0 - 2026-08-06
 
 ### Added

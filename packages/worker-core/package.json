@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "type": "module",
   "exports": {
     "./crypto": "./src/crypto.js",
@@ -19,6 +19,10 @@
     "./logger": {
       "types": "./src/logger.d.ts",
       "default": "./src/logger.js"
+    },
+    "./outbox": {
+      "types": "./src/outbox.d.ts",
+      "default": "./src/outbox.js"
     },
     "./podcast-benefits": "./src/podcast-benefits.js",
     "./provider-fetch": {
