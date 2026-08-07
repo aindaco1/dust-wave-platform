@@ -23,10 +23,19 @@ rollback.
 
 Do not move Liquid includes or Ruby plugins into Platform. They remain Jekyll
 integration code and currently depend on consumer templates, data shapes,
-localization, content-safety policy, or post-build behavior. An eventual golden
-Jekyll project must be a separately owned template with its own versioning and
-upgrade workflow, not part of the Platform runtime or an implicit consumer
-sync.
+localization, content-safety policy, or post-build behavior. At decision time,
+the planned golden Jekyll project was required to be a separately owned
+template with its own versioning and upgrade workflow, not part of the
+Platform runtime or an implicit consumer sync.
+
+## Implementation status
+
+The separately owned
+[`dust-wave-jekyll-template`](https://github.com/aindaco1/dust-wave-jekyll-template)
+implemented that boundary at `v0.1.0`. Pool `v1.2.19` and Store `v1.1.22` pin
+its exact `351281a5` commit and retain checked-in runtime copies. Its manifest
+check/write workflow is explicit and independently reversible; no Liquid or
+Ruby code was added to Platform.
 
 ## Consequences
 

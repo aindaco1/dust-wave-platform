@@ -41,10 +41,27 @@ adapter launch-ready; Podcast retains the bilingual human benchmark gate.
 
 Each consumer pins this repository as `shared/dust-wave-platform` and imports an exact package version. Submodule pointers are updated independently on consumer release branches. A consumer must never import another consumer's application code or storage.
 
+### Current production adoption
+
+| Consumer | Consumer release | Platform pin | Shared scope |
+|---|---:|---:|---|
+| Pool | `v1.2.19` | `v0.31.0` (`5ca8ee6d`) | Worker, admin, browser, design, build, release, shipping, tax, inventory, media, and test primitives |
+| Store | `v1.1.22` | `v0.31.0` (`5ca8ee6d`) | Worker, admin, browser, design, build, release, shipping, tax, inventory, media, and test primitives |
+| Podcast | `v0.2.26` | `v0.23.0` (`a0006c3e`) | Worker HTTP/provider/GitHub, admin, media, tax, and timed-text primitives |
+| Dust Wave website | `v1.3.0` | `v0.15.0` (`2e79a8d7`) | Media contracts and shared admin-shell browser assets |
+
+These pins are intentionally not synchronized automatically. A newer Platform
+release becomes active in a consumer only after that consumer advances its
+gitlink and exact package versions, passes its characterization and release
+gates, and ships an independently reversible release. Pool and Store also pin
+[`dust-wave-jekyll-template`](https://github.com/aindaco1/dust-wave-jekyll-template)
+`v0.1.0` (`351281a5`) for 17 checked-in Jekyll integration files; that template
+is a compile-time source-upgrade dependency, not a Platform or Worker runtime.
+
 ## Development
 
 ```bash
-npm install
+npm ci
 npm run check
 ```
 
@@ -66,8 +83,9 @@ policy-injected layout and mixin sources. Consumers retain tokens, selected
 gutter and brand-title policy, import order, markup, focus behavior, content,
 localization, CSS budgets, Jekyll configuration, deployment, and rollback.
 Liquid includes and Ruby plugins remain outside Platform; ADR 0002 records why
-a future golden Jekyll project needs separate ownership and an explicit
-upgrade workflow.
+the separately versioned Dust Wave Jekyll Template has its own ownership and
+explicit upgrade workflow. See
+[`ADR 0002`](docs/adr/0002-design-system-and-jekyll-boundary.md).
 
 `@dustwave/site-shell` contains unstyled classic scripts and intentionally
 exports no application shell. Header navigation preserves query and fragment
