@@ -60,7 +60,7 @@ test('executes each encode and records parsed ffprobe evidence through an inject
     async runCommand(command, args, options) {
       calls.push({ command, args, options });
       return command === 'ffprobe'
-        ? { status: 0, stdout: '{"streams":[{"codec_name":"vp9"}]}', stderr: '' }
+        ? { status: 0, stdout: '{"streams":[{"codec_name":"vp9","width":1480,"height":960}],"format":{"duration":"10.000000"}}', stderr: '' }
         : { status: 0, stdout: '', stderr: '' };
     }
   });
@@ -71,4 +71,20 @@ test('executes each encode and records parsed ffprobe evidence through an inject
   assert.equal(calls[2].command, 'ffprobe');
   assert.equal(result.outputs[0].alphaVerified, true);
   assert.equal(result.outputs[0].probe.streams[0].codec_name, 'vp9');
+});
+
+test('rejects outputs whose codec, dimensions, duration, or frame evidence drift', async () => {
+  const plan = createProductVideoRenderPlan({
+    captureManifest: CAPTURE_MANIFEST,
+    framesDir: '/frames',
+    outputDir: '/output',
+    formats: ['webm']
+  });
+  await assert.rejects(() => executeProductVideoRenderPlan(plan, {
+    async runCommand(command) {
+      return command === 'ffprobe'
+        ? { status: 0, stdout: '{"streams":[{"codec_name":"vp9","width":320,"height":240}],"format":{"duration":"1.0"}}', stderr: '' }
+        : { status: 0, stdout: '', stderr: '' };
+    }
+  }), /render contract/u);
 });
