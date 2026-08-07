@@ -55,7 +55,7 @@ Each consumer pins this repository as `shared/dust-wave-platform` and imports an
 
 | Consumer | Consumer release | Platform pin | Shared scope |
 |---|---:|---:|---|
-| Pool | `v1.2.19` | `v0.31.0` (`5ca8ee6d`) | Worker, admin, browser, design, build, release, shipping, tax, inventory, media, and test primitives |
+| Pool | `v1.2.20` | `v0.32.0` (`85165a16`) | Worker, admin, browser, design, build, release, shipping, tax, inventory, media, test, and local product-video primitives |
 | Store | `v1.1.22` | `v0.31.0` (`5ca8ee6d`) | Worker, admin, browser, design, build, release, shipping, tax, inventory, media, and test primitives |
 | Podcast | `v0.2.26` | `v0.23.0` (`a0006c3e`) | Worker HTTP/provider/GitHub, admin, media, tax, and timed-text primitives |
 | Dust Wave website | `v1.3.0` | `v0.15.0` (`2e79a8d7`) | Media contracts and shared admin-shell browser assets |
