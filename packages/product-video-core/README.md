@@ -8,7 +8,7 @@ It provides:
 - Playwright frame capture with a transparent stage and visible synthetic cursor
 - an allowlisted generated-output root that never recursively deletes or overwrites a run
 - shell-free FFmpeg plans for ProRes 4444, VP9 WebM alpha, and HEVC alpha
-- FFprobe JSON evidence for every rendered output
+- decoded alpha-plane verification plus FFprobe JSON evidence for every rendered output
 
 ## Consumer setup
 

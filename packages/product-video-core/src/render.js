@@ -49,16 +49,19 @@ export function createProductVideoRenderPlan({ captureManifest, framesDir, outpu
     prores: {
       outputPath: path.join(outputDir, `${normalizedName}-master.mov`),
       codec: 'prores_ks',
+      decoder: 'prores',
       args: ['-c:v', 'prores_ks', '-profile:v', '4', '-pix_fmt', 'yuva444p10le']
     },
     webm: {
       outputPath: path.join(outputDir, `${normalizedName}.webm`),
       codec: 'libvpx-vp9',
+      decoder: 'libvpx-vp9',
       args: ['-c:v', 'libvpx-vp9', '-pix_fmt', 'yuva420p', '-row-mt', '1', '-tile-columns', '2', '-auto-alt-ref', '0', '-crf', '30', '-b:v', '0']
     },
     hevc: {
       outputPath: path.join(outputDir, `${normalizedName}.mp4`),
       codec: 'hevc_videotoolbox',
+      decoder: 'hevc',
       args: ['-c:v', 'hevc_videotoolbox', '-pix_fmt', 'bgra', '-alpha_quality', '0.75', '-allow_sw', '1', '-tag:v', 'hvc1', '-movflags', '+faststart']
     }
   };
@@ -71,6 +74,7 @@ export function createProductVideoRenderPlan({ captureManifest, framesDir, outpu
     commands: selectedFormats.map((format) => ({
       format,
       codec: definitions[format].codec,
+      decoder: definitions[format].decoder,
       command: 'ffmpeg',
       args: [...inputArgs, ...definitions[format].args, definitions[format].outputPath],
       outputPath: definitions[format].outputPath
@@ -108,6 +112,15 @@ export async function executeProductVideoRenderPlan(plan, { runCommand = runProd
   const outputs = [];
   for (const entry of plan.commands) {
     await runCommand(entry.command, entry.args);
+    await runCommand('ffmpeg', [
+      '-v', 'error',
+      '-c:v', entry.decoder,
+      '-i', entry.outputPath,
+      '-frames:v', '1',
+      '-vf', 'alphaextract',
+      '-f', 'null',
+      '-'
+    ]);
     const probe = await runCommand('ffprobe', [
       '-v', 'error',
       '-print_format', 'json',
@@ -121,7 +134,13 @@ export async function executeProductVideoRenderPlan(plan, { runCommand = runProd
     } catch {
       throw new Error(`ffprobe returned invalid JSON for ${entry.format}`);
     }
-    outputs.push({ format: entry.format, codec: entry.codec, path: entry.outputPath, probe: evidence });
+    outputs.push({
+      format: entry.format,
+      codec: entry.codec,
+      path: entry.outputPath,
+      alphaVerified: true,
+      probe: evidence
+    });
   }
   return { fps: plan.fps, frameCount: plan.frameCount, crop: plan.crop, outputs };
 }

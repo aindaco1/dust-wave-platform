@@ -9,7 +9,7 @@ Pool had a local-only worktree containing a Playwright frame capturer, FFmpeg al
 
 ## Decision
 
-Add `@dustwave/product-video-core` to Platform as a local developer tool. Platform owns only the bounded declarative flow, transparent Playwright stage, frame-capture mechanics, generated-path guardrails, shell-free render plan, and FFprobe evidence contract.
+Add `@dustwave/product-video-core` to Platform as a local developer tool. Platform owns only the bounded declarative flow, transparent Playwright stage, frame-capture mechanics, generated-path guardrails, shell-free render plan, decoded alpha verification, and FFprobe evidence contract.
 
 Consumers retain preview startup, framework configuration, product fixtures and selectors, presentation CSS, editorial timing, output names, marketing destinations, generated media, review, publication, and deployment. Playwright is an optional peer so Platform does not install a browser runtime for packages that do not use the tool. FFmpeg and FFprobe remain host tools.
 

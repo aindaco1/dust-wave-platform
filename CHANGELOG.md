@@ -6,7 +6,7 @@
 
 - Added `@dustwave/product-video-core` 0.1.0 with a reusable declarative
   Playwright capture engine, transparent cursor stage, ProRes/VP9/HEVC render
-  plans, and FFprobe output evidence.
+  plans, decoded alpha-plane verification, and FFprobe output evidence.
 - Added behavior coverage for the Pool-characterized flow shape, same-origin
   navigation, bounded timing and dimensions, output containment, preservation
   of existing runs, shell-free encoder arguments, and CLI availability without

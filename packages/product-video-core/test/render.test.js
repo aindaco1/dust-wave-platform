@@ -64,8 +64,11 @@ test('executes each encode and records parsed ffprobe evidence through an inject
         : { status: 0, stdout: '', stderr: '' };
     }
   });
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 3);
   assert.equal(calls[0].command, 'ffmpeg');
-  assert.equal(calls[1].command, 'ffprobe');
+  assert.equal(calls[1].command, 'ffmpeg');
+  assert.equal(calls[1].args.includes('alphaextract'), true);
+  assert.equal(calls[2].command, 'ffprobe');
+  assert.equal(result.outputs[0].alphaVerified, true);
   assert.equal(result.outputs[0].probe.streams[0].codec_name, 'vp9');
 });
