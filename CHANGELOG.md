@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.32.0 - 2026-08-06
+
+### Added
+
+- Added `@dustwave/product-video-core` 0.1.0 with a reusable declarative
+  Playwright capture engine, transparent cursor stage, ProRes/VP9/HEVC render
+  plans, decoded alpha-plane verification, and FFprobe codec, dimension,
+  duration, and frame-count evidence.
+- Added behavior coverage for the Pool-characterized flow shape, same-origin
+  navigation, bounded timing and dimensions, output containment, preservation
+  of existing runs, shell-free encoder arguments, and CLI availability without
+  eager browser or encoder dependencies.
+
+### Security, performance, responsiveness, and boundaries
+
+- Capture defaults to loopback and requires explicit remote-origin authority;
+  the flow cannot evaluate arbitrary JavaScript or navigate cross-origin.
+  Generated output stays below an explicit workspace root and is never
+  recursively deleted or overwritten. FFmpeg and FFprobe receive argument
+  arrays without a shell.
+- The package adds no production browser asset or request. Consumers retain
+  previews, frameworks, product fixtures and selectors, capture CSS, editorial
+  timing, browser/encoder installation, generated media, publication,
+  deployment, and independent rollback. ADR 0003 records the boundary.
+
 ## 0.31.0 - 2026-08-06
 
 ### Added

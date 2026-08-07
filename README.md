@@ -19,6 +19,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | `@dustwave/build-core` | Allowlisted generated CSS/JavaScript asset minification shared by Pool and Store | `0.2.0`; source assets, HTML, vendor files, root selection, and deployment remain consumer-owned |
 | `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, cache-policy evidence, policy-injected Cloudflare admin rules, screen-reader evidence, and command-result normalization | `0.2.0`; commands, credentials, product origins/identity, rollout, and rollback authority remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral site-media catalog/path mechanics plus source-audio QC, processor manifest, normalized measurements, finding, and report contracts | `0.4.0`; content, transforms, processing placement, storage, approval, and publication remain consumer-owned |
+| `@dustwave/product-video-core` | Bounded declarative Playwright capture, transparent frame staging, guarded generated-output paths, shell-free alpha-video render plans, decoded alpha verification, and FFprobe evidence | `0.1.0`; previews, selectors, product fixtures, presentation CSS, browser installation, generated media, review, publication, and deployment remain consumer-owned |
 | `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.5.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
 
 Packages are added only when consumer characterization tests prove a stable
@@ -36,6 +37,15 @@ cues to stable lexical word IDs and verifies exact runner identity, canonical
 result digests, explained omissions, cue/source timing, provenance, and
 resource evidence. It validates candidate evidence but cannot declare an
 adapter launch-ready; Podcast retains the bilingual human benchmark gate.
+
+The product-video package is a local developer tool, not a browser runtime.
+Its flow language cannot evaluate arbitrary JavaScript or navigate
+cross-origin; preview origins default to loopback, generated output is confined
+below an explicit consumer work root, and existing output is never recursively
+deleted or overwritten. Consumers retain their preview framework, product
+selectors and fixtures, capture-only styling, editorial timing, browser and
+encoder installation, generated media, review, publishing target, and rollout.
+See [`ADR 0003`](docs/adr/0003-product-video-boundary.md).
 
 ## Consumer model
 
