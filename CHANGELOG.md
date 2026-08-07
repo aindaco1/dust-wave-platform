@@ -21,6 +21,15 @@
   continue to select roots and own source files, builds, budgets, deployment,
   and independent rollback.
 
+### Documentation and adoption
+
+- Recorded the active, independently reversible Platform pins for Pool
+  `v1.2.19`, Store `v1.1.22`, Podcast `v0.2.26`, and the Dust Wave website
+  `v1.3.0`, including the narrower package scope used by older consumers.
+- Linked the separately versioned Jekyll Template `v0.1.0` adoption by Pool and
+  Store and clarified that its source-upgrade workflow is not a Platform or
+  Worker runtime dependency.
+
 ## 0.30.0 - 2026-08-06
 
 ### Added
