@@ -32,6 +32,55 @@ export interface CaptionSegmentationPolicy {
 export const DEFAULT_CAPTION_SEGMENTATION_POLICY:
   Readonly<CaptionSegmentationPolicy>;
 
+export const ENGLISH_EDITORIAL_NORMALIZATION_POLICY:
+  "english-editorial-normalization-v1";
+
+export interface EnglishEditorialWord {
+  text: string;
+  sourceStartIndex: number;
+  sourceEndIndex: number;
+}
+
+export function normalizeEnglishEditorialWords(
+  value: string[]
+): EnglishEditorialWord[];
+
+export interface TimedWordGroupingPolicy {
+  minimumWordsPerCue: number;
+  targetWordsPerCue: number;
+  maximumWordsPerCue: number;
+  targetCharactersPerCue: number;
+  maximumCharactersPerCue: number;
+  maximumCueDurationMs: number;
+  maximumGapMs: number;
+  preferredPauseMs: number;
+  maximumCandidateWords: number;
+}
+
+export interface TimedWordInput {
+  text: string;
+  startsAtMs: number;
+  endsAtMs: number;
+  boundaryBefore?: boolean;
+}
+
+export interface GroupedTimedWordCue {
+  startsAtMs: number;
+  endsAtMs: number;
+  textMarkdown: string;
+}
+
+export const DEFAULT_TIMED_WORD_GROUPING_POLICY:
+  Readonly<TimedWordGroupingPolicy>;
+
+export function groupTimedWords(
+  value: TimedWordInput[],
+  options: {
+    durationMs: number;
+    policy: TimedWordGroupingPolicy;
+  }
+): GroupedTimedWordCue[];
+
 export function normalizeTimedTextCues(
   value: Array<{
     startsAtMs: number;
