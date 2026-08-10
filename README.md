@@ -20,7 +20,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, cache-policy evidence, policy-injected Cloudflare admin rules, screen-reader evidence, and command-result normalization | `0.2.0`; commands, credentials, product origins/identity, rollout, and rollback authority remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral site-media catalog/path mechanics plus source-audio QC, processor manifest, normalized measurements, finding, and report contracts | `0.4.0`; content, transforms, processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/product-video-core` | Bounded declarative Playwright capture, transparent frame staging, guarded generated-output paths, shell-free alpha-video render plans, decoded alpha verification, and FFprobe evidence | `0.1.0`; previews, selectors, product fixtures, presentation CSS, browser installation, generated media, review, publication, and deployment remain consumer-owned |
-| `@dustwave/timed-text` | Bounded English/Spanish provider-segment normalization, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.5.0`; provider calls, storage, review, speaker identity, benchmark approval, and publication remain consumer-owned |
+| `@dustwave/timed-text` | Bounded English/Spanish normalization, editorial word grouping, dialogue cue reflow, immutable transcript lineage, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.8.0`; provider calls, storage, review, speaker identity, model inference, benchmark approval, and publication remain consumer-owned |
 
 Packages are added only when consumer characterization tests prove a stable
 boundary. The first media
@@ -37,6 +37,10 @@ cues to stable lexical word IDs and verifies exact runner identity, canonical
 result digests, explained omissions, cue/source timing, provenance, and
 resource evidence. It validates candidate evidence but cannot declare an
 adapter launch-ready; Podcast retains the bilingual human benchmark gate.
+The editorial extensions normalize English display text, regroup timed words,
+and reflow adjacent same-speaker dialogue under bounded readability policies.
+They validate immutable review lineage and never rewrite dialogue, infer a
+speaker, cross an acoustic speaker boundary, call a model, or access a network.
 
 The product-video package is a local developer tool, not a browser runtime.
 Its flow language cannot evaluate arbitrary JavaScript or navigate

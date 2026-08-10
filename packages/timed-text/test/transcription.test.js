@@ -3,8 +3,110 @@ import test from "node:test";
 
 import {
   DEFAULT_CAPTION_SEGMENTATION_POLICY,
+  DEFAULT_TIMED_WORD_GROUPING_POLICY,
+  groupTimedWords,
+  normalizeEnglishEditorialWords,
   normalizeSegmentTranscription
 } from "../src/transcription.js";
+
+test("normalizes conservative English editorial forms with source spans", () => {
+  const result = normalizeEnglishEditorialWords([
+    "in", "twenty", "twenty", "four,", "i", "said", "i'm", "ready.",
+    "there", "were", "twenty", "four", "people."
+  ]);
+
+  assert.deepEqual(result, [
+    { text: "In", sourceStartIndex: 0, sourceEndIndex: 0 },
+    { text: "2024,", sourceStartIndex: 1, sourceEndIndex: 3 },
+    { text: "I", sourceStartIndex: 4, sourceEndIndex: 4 },
+    { text: "said", sourceStartIndex: 5, sourceEndIndex: 5 },
+    { text: "I'm", sourceStartIndex: 6, sourceEndIndex: 6 },
+    { text: "ready.", sourceStartIndex: 7, sourceEndIndex: 7 },
+    { text: "There", sourceStartIndex: 8, sourceEndIndex: 8 },
+    { text: "were", sourceStartIndex: 9, sourceEndIndex: 9 },
+    { text: "twenty", sourceStartIndex: 10, sourceEndIndex: 10 },
+    { text: "four", sourceStartIndex: 11, sourceEndIndex: 11 },
+    { text: "people.", sourceStartIndex: 12, sourceEndIndex: 12 }
+  ]);
+});
+
+test("normalizes supported year forms but leaves ambiguous short numbers alone", () => {
+  assert.deepEqual(
+    normalizeEnglishEditorialWords([
+      "nineteen", "ninety", "nine;", "two", "thousand", "and", "four,",
+      "twenty", "oh", "five.", "twenty", "five", "items."
+    ]).map(({ text }) => text),
+    ["1999;", "2004,", "2005.", "Twenty", "five", "items."]
+  );
+});
+
+test("sentence capitalization preserves established mixed-case words", () => {
+  assert.deepEqual(
+    normalizeEnglishEditorialWords(["iphone", "works.", "iPhone", "works."])
+      .map(({ text }) => text),
+    ["Iphone", "works.", "iPhone", "works."]
+  );
+});
+
+test("groups timed words deterministically without an avoidable singleton tail", () => {
+  const words = Array.from({ length: 13 }, (_, index) => ({
+    text: `word${index + 1}`,
+    startsAtMs: index * 220,
+    endsAtMs: index * 220 + 160
+  }));
+  const policy = {
+    ...DEFAULT_TIMED_WORD_GROUPING_POLICY,
+    minimumWordsPerCue: 3,
+    targetWordsPerCue: 5,
+    maximumWordsPerCue: 6,
+    maximumCandidateWords: 6
+  };
+
+  const first = groupTimedWords(words, { durationMs: 4_000, policy });
+  const second = groupTimedWords(words, { durationMs: 4_000, policy });
+
+  assert.deepEqual(first, second);
+  assert.ok(first.every(({ textMarkdown }) => textMarkdown.split(" ").length > 1));
+  assert.equal(
+    first.map(({ textMarkdown }) => textMarkdown).join(" "),
+    words.map(({ text }) => text).join(" ")
+  );
+});
+
+test("honors pauses and explicit speaker boundaries while grouping", () => {
+  const cues = groupTimedWords([
+    { text: "One", startsAtMs: 0, endsAtMs: 200 },
+    { text: "short", startsAtMs: 240, endsAtMs: 440 },
+    { text: "thought", startsAtMs: 480, endsAtMs: 700 },
+    { text: "New", startsAtMs: 760, endsAtMs: 930, boundaryBefore: true },
+    { text: "speaker.", startsAtMs: 970, endsAtMs: 1_200 },
+    { text: "After", startsAtMs: 2_100, endsAtMs: 2_300 },
+    { text: "a", startsAtMs: 2_340, endsAtMs: 2_430 },
+    { text: "pause.", startsAtMs: 2_470, endsAtMs: 2_700 }
+  ], {
+    durationMs: 3_000,
+    policy: DEFAULT_TIMED_WORD_GROUPING_POLICY
+  });
+
+  assert.deepEqual(cues.map(({ textMarkdown }) => textMarkdown), [
+    "One short thought",
+    "New speaker.",
+    "After a pause."
+  ]);
+});
+
+test("rejects unsafe editorial words and incomplete grouping policies", () => {
+  assert.throws(
+    () => normalizeEnglishEditorialWords(["safe", "bad\u202evalue"]),
+    /word 2 is invalid/
+  );
+  assert.throws(() => groupTimedWords([
+    { text: "Safe", startsAtMs: 0, endsAtMs: 100 }
+  ], {
+    durationMs: 100,
+    policy: { ...DEFAULT_TIMED_WORD_GROUPING_POLICY, maximumCandidateWords: 0 }
+  }), /maximumCandidateWords is invalid/);
+});
 
 test("normalizes provider segments into deterministic bilingual artifacts", () => {
   const result = normalizeSegmentTranscription({

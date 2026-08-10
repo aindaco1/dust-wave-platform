@@ -6,6 +6,15 @@ const MAXIMUM_CUE_DURATION_MS = 120_000;
 const CONTROL_OR_BIDI =
   /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g;
 
+export {
+  ENGLISH_EDITORIAL_NORMALIZATION_POLICY,
+  normalizeEnglishEditorialWords
+} from "./editorial.js";
+export {
+  DEFAULT_TIMED_WORD_GROUPING_POLICY,
+  groupTimedWords
+} from "./word-grouping.js";
+
 export const TIMED_TEXT_SCHEMA = "timed-text-v1";
 export const DEFAULT_CAPTION_SEGMENTATION_POLICY = Object.freeze({
   minimumCueDurationMs: 500,

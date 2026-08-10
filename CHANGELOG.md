@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.33.0 - 2026-08-09
+
+### Added
+
+- Expanded `@dustwave/timed-text` to 0.8.0 with deterministic English editorial
+  word normalization, bounded timed-word grouping, strict immutable transcript
+  lineage, and bounded dialogue cue reflow.
+- The linear dialogue pass joins short adjacent same-speaker fragments using
+  punctuation, casing, pause, duration, word-count, and character-count
+  evidence while preserving every word and the source timing envelope.
+
+### Security, performance, and boundaries
+
+- Editorial input, cue shapes, Unicode controls, timestamps, policies, hashes,
+  identifiers, lineage, and transcript size are validated at the package
+  boundary. Speaker changes and long pauses are hard reflow boundaries.
+- Reflow is O(n), processes the 10,000-cue contract maximum in one bounded
+  pass, and performs no inference, media access, storage, or network request.
+  Consumers retain acoustic speaker attribution, optional model policy,
+  approval, persistence, rendering, deployment, and independent rollback.
+
 ## 0.32.0 - 2026-08-06
 
 ### Added
