@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/timed-text",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "type": "module",
   "exports": {
     "./alignment": {
@@ -14,6 +14,10 @@
     "./dialogue": {
       "types": "./src/dialogue.d.ts",
       "default": "./src/dialogue.js"
+    },
+    "./presentation": {
+      "types": "./src/presentation.d.ts",
+      "default": "./src/presentation.js"
     },
     "./transcription": {
       "types": "./src/transcription.d.ts",

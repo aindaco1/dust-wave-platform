@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.34.0 - 2026-08-10
+
+### Added
+
+- Expanded `@dustwave/timed-text` to 0.9.0 with a framework-neutral,
+  punctuation-aware visual presentation planner for aligned words.
+- The planner preserves source word IDs, acoustic timestamps, source cue
+  lineage, and speaker boundaries while deriving measured one- or two-line
+  visual cues and a machine-readable readability report.
+
+### Security, performance, and boundaries
+
+- Word shapes, identifiers, Unicode controls, dimensions, timings, effective
+  acoustic gaps, and every injected policy value are bounded at the package
+  boundary. Speaker changes, explicit boundaries, and long pauses remain hard
+  boundaries; the planner performs no inference, storage, media access, or
+  network request.
+- Dynamic programming is limited by a fixed candidate window. The 10,000-word
+  regression fixture completes in well under the five-second contract while
+  preserving every input word. Consumers retain font metrics, visual style,
+  punctuation policy, rendering, publication, and independent rollback.
+
 ## 0.33.0 - 2026-08-09
 
 ### Added
