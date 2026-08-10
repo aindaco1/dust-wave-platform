@@ -15,6 +15,11 @@ export interface DialogueReflowPolicy {
   continuationMergeGapMs: number;
 }
 
+export interface DialogueBoundaryDecision {
+  afterCueIndex: number;
+  action: "merge" | "keep";
+}
+
 export const DIALOGUE_REFLOW_POLICY_VERSION: "dialogue-reflow-v1";
 export const DEFAULT_DIALOGUE_REFLOW_POLICY: Readonly<DialogueReflowPolicy>;
 
@@ -23,5 +28,6 @@ export function reflowDialogueCues(
   options: {
     durationMs: number;
     policy?: DialogueReflowPolicy;
+    boundaryDecisions?: DialogueBoundaryDecision[];
   }
 ): DialogueCue[];

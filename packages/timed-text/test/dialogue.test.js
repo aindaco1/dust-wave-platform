@@ -32,6 +32,32 @@ test("preserves speaker changes, long pauses, and readability bounds", () => {
   ];
 
   assert.deepEqual(reflowDialogueCues(input, { durationMs: 15_000 }), input);
+  assert.deepEqual(reflowDialogueCues(input, {
+    durationMs: 15_000,
+    boundaryDecisions: [{ afterCueIndex: 0, action: "merge" }]
+  }), input);
+});
+
+test("applies advisory boundary decisions without bypassing hard bounds", () => {
+  const input = [
+    cue(0, 1_000, "A complete thought."),
+    cue(1_100, 2_000, "Another complete thought."),
+  ];
+
+  assert.deepEqual(reflowDialogueCues(input, {
+    durationMs: 3_000,
+    boundaryDecisions: [{ afterCueIndex: 0, action: "merge" }]
+  }), [cue(0, 2_000, "A complete thought. Another complete thought.")]);
+  assert.deepEqual(reflowDialogueCues([
+    cue(0, 500, "A fragment"),
+    cue(600, 1_500, "that would normally merge."),
+  ], {
+    durationMs: 2_000,
+    boundaryDecisions: [{ afterCueIndex: 0, action: "keep" }]
+  }), [
+    cue(0, 500, "A fragment"),
+    cue(600, 1_500, "that would normally merge."),
+  ]);
 });
 
 test("rejects unknown fields and invalid injected policies", () => {
@@ -43,6 +69,13 @@ test("rejects unknown fields and invalid injected policies", () => {
     durationMs: 2_000,
     policy: { ...DEFAULT_DIALOGUE_REFLOW_POLICY, maximumMergeGapMs: -1 }
   }), /maximumMergeGapMs/);
+  assert.throws(() => reflowDialogueCues([
+    ...input,
+    cue(1_100, 1_900, "Another safe cue."),
+  ], {
+    durationMs: 2_000,
+    boundaryDecisions: [{ afterCueIndex: 0, action: "rewrite" }]
+  }), /boundary decision 1/);
 });
 
 test("reflows the maximum cue count in one bounded pass", () => {

@@ -18,14 +18,20 @@ export const DEFAULT_DIALOGUE_REFLOW_POLICY = Object.freeze({
   continuationMergeGapMs: 450
 });
 
-export function reflowDialogueCues(value, { durationMs, policy = DEFAULT_DIALOGUE_REFLOW_POLICY }) {
+export function reflowDialogueCues(value, {
+  durationMs,
+  policy = DEFAULT_DIALOGUE_REFLOW_POLICY,
+  boundaryDecisions = []
+}) {
   validateDuration(durationMs);
   const normalizedPolicy = normalizePolicy(policy);
   const cues = validateCues(value, durationMs);
+  const decisions = normalizeBoundaryDecisions(boundaryDecisions, cues.length);
   const reflowed = [];
   let current = { ...cues[0] };
-  for (const next of cues.slice(1)) {
-    if (canMerge(current, next, normalizedPolicy)) {
+  for (let nextIndex = 1; nextIndex < cues.length; nextIndex += 1) {
+    const next = cues[nextIndex];
+    if (canMerge(current, next, normalizedPolicy, decisions.get(nextIndex - 1))) {
       current.endsAtMs = next.endsAtMs;
       current.textMarkdown = `${current.textMarkdown} ${next.textMarkdown}`;
     } else {
@@ -35,6 +41,27 @@ export function reflowDialogueCues(value, { durationMs, policy = DEFAULT_DIALOGU
   }
   reflowed.push(current);
   return reflowed;
+}
+
+function normalizeBoundaryDecisions(value, cueCount) {
+  if (!Array.isArray(value) || value.length >= cueCount) {
+    throw new TypeError("Dialogue reflow boundary decisions are invalid");
+  }
+  const decisions = new Map();
+  for (const [position, decision] of value.entries()) {
+    const keys = new Set(["afterCueIndex", "action"]);
+    if (!decision || typeof decision !== "object" || Array.isArray(decision)
+        || Object.keys(decision).length !== keys.size
+        || Object.keys(decision).some((key) => !keys.has(key))
+        || !Number.isSafeInteger(decision.afterCueIndex)
+        || decision.afterCueIndex < 0 || decision.afterCueIndex >= cueCount - 1
+        || !["merge", "keep"].includes(decision.action)
+        || decisions.has(decision.afterCueIndex)) {
+      throw new TypeError(`Dialogue reflow boundary decision ${position + 1} is invalid`);
+    }
+    decisions.set(decision.afterCueIndex, decision.action);
+  }
+  return decisions;
 }
 
 function validateDuration(value) {
@@ -105,7 +132,7 @@ function wordCount(value) {
   return value.split(/\s+/u).length;
 }
 
-function canMerge(left, right, policy) {
+function canMerge(left, right, policy, boundaryDecision) {
   if (left.speakerLabel !== right.speakerLabel) return false;
   const gapMs = right.startsAtMs - left.endsAtMs;
   if (gapMs < 0 || gapMs > policy.maximumMergeGapMs) return false;
@@ -118,6 +145,8 @@ function canMerge(left, right, policy) {
       || right.endsAtMs - left.startsAtMs > policy.maximumCueDurationMs) {
     return false;
   }
+  if (boundaryDecision === "keep") return false;
+  if (boundaryDecision === "merge") return true;
   return leftWords <= policy.orphanWordCount
     || rightWords <= policy.orphanWordCount
     || !SENTENCE_END.test(left.textMarkdown)
