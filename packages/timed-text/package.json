@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/timed-text",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "type": "module",
   "exports": {
     "./alignment": {
@@ -10,6 +10,10 @@
     "./chunking": {
       "types": "./src/chunking.d.ts",
       "default": "./src/chunking.js"
+    },
+    "./chapters": {
+      "types": "./src/chapters.d.ts",
+      "default": "./src/chapters.js"
     },
     "./dialogue": {
       "types": "./src/dialogue.d.ts",
