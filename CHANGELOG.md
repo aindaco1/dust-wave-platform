@@ -1,14 +1,19 @@
 # Changelog
 
-## 0.34.0 - 2026-08-10
+## 0.34.0 - 2026-08-18
 
 ### Added
 
-- Expanded `@dustwave/timed-text` to 0.9.0 with a framework-neutral,
-  punctuation-aware visual presentation planner for aligned words.
+- Expanded `@dustwave/timed-text` to 0.10.0 with a framework-neutral,
+  punctuation-aware visual presentation planner for aligned words and bounded,
+  anchor-grounded chapter planning in topic or question mode.
 - The planner preserves source word IDs, acoustic timestamps, source cue
   lineage, and speaker boundaries while deriving measured one- or two-line
   visual cues and a machine-readable readability report.
+- The chapter contract divides reviewed cues into bounded context windows,
+  validates caller-supplied titles against exact cue and word anchors, enforces
+  a YouTube-valid opening and minimum duration, and formats strict YouTube or
+  Markdown chapter lists.
 
 ### Security, performance, and boundaries
 
@@ -19,8 +24,11 @@
   network request.
 - Dynamic programming is limited by a fixed candidate window. The 10,000-word
   regression fixture completes in well under the five-second contract while
-  preserving every input word. Consumers retain font metrics, visual style,
-  punctuation policy, rendering, publication, and independent rollback.
+  preserving every input word; chapter context planning handles its 10,000-cue
+  contract in one bounded linear pass. Neither planner performs inference,
+  storage, media access, or a network request. Consumers retain font metrics,
+  visual style, punctuation and chapter-title policy, rendering, publication,
+  and independent rollback.
 
 ## 0.33.0 - 2026-08-09
 
