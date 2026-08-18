@@ -20,7 +20,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, cache-policy evidence, policy-injected Cloudflare admin rules, screen-reader evidence, and command-result normalization | `0.2.0`; commands, credentials, product origins/identity, rollout, and rollback authority remain consumer-owned |
 | `@dustwave/media-core` | Runtime-neutral site-media catalog/path mechanics plus source-audio QC, processor manifest, normalized measurements, finding, and report contracts | `0.4.0`; content, transforms, processing placement, storage, approval, and publication remain consumer-owned |
 | `@dustwave/product-video-core` | Bounded declarative Playwright capture, transparent frame staging, guarded generated-output paths, shell-free alpha-video render plans, decoded alpha verification, and FFprobe evidence | `0.1.0`; previews, selectors, product fixtures, presentation CSS, browser installation, generated media, review, publication, and deployment remain consumer-owned |
-| `@dustwave/timed-text` | Bounded English/Spanish normalization, editorial word grouping, dialogue cue reflow, immutable transcript lineage, deterministic transcript/chunk projection, and alignment-runner evidence contracts | `0.8.0`; provider calls, storage, review, speaker identity, model inference, benchmark approval, and publication remain consumer-owned |
+| `@dustwave/timed-text` | Bounded English/Spanish normalization, editorial word grouping, dialogue cue reflow, immutable transcript lineage, deterministic transcript/chunk projection, aligned-word presentation planning, bounded chapter context/list compilation, and alignment-runner evidence contracts | `0.10.0`; provider calls, storage, review, speaker identity, model inference, font metrics, chapter titles, benchmark approval, and publication remain consumer-owned |
 
 Packages are added only when consumer characterization tests prove a stable
 boundary. The first media
@@ -41,6 +41,12 @@ The editorial extensions normalize English display text, regroup timed words,
 and reflow adjacent same-speaker dialogue under bounded readability policies.
 They validate immutable review lineage and never rewrite dialogue, infer a
 speaker, cross an acoustic speaker boundary, call a model, or access a network.
+The presentation planner derives measured one- or two-line visual cues from
+aligned words while preserving source IDs, timings, cue lineage, and speaker
+boundaries. The chapter planner divides reviewed cues into bounded topic or
+question context windows, then validates caller-supplied titles against exact
+cue/word anchors before formatting YouTube or Markdown chapter lists. It does
+not generate titles, infer boundaries, access storage, or call a model.
 
 The product-video package is a local developer tool, not a browser runtime.
 Its flow language cannot evaluate arbitrary JavaScript or navigate
