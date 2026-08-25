@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.34.1 - 2026-08-25
+
+### Fixed
+
+- Updated `@dustwave/worker-core` to 0.12.1 so its GitHub transport uses the
+  Cloudflare Workers-supported manual redirect mode and explicitly rejects 3xx
+  responses instead of passing the unsupported `redirect: "error"` option to
+  the runtime.
+- Added regression coverage for the exact request mode, bounded redirect
+  failure shape, single-attempt behavior, and omission of redirect locations.
+
+### Security, reliability, and boundaries
+
+- Redirects remain fail-closed and are never followed, so GitHub credentials
+  cannot travel to a provider-supplied location. The change restores Contents
+  API reads, writes, and workflow dispatch in Cloudflare Workers without
+  changing consumer retry, repository, authorization, or deployment policy.
+
 ## 0.34.0 - 2026-08-18
 
 ### Added
