@@ -31,9 +31,30 @@ test('dispatches a bounded workflow request without exposing credentials', async
 
   assert.deepEqual(result, { ok: true, status: 204, workflow: 'deploy.yml' });
   assert.equal(observed.url, 'https://api.github.com/repos/aindaco1/example/actions/workflows/deploy.yml/dispatches');
-  assert.equal(observed.init.redirect, 'error');
+  assert.equal(observed.init.redirect, 'manual');
   assert.equal(observed.init.headers.authorization, 'Bearer github-test-token');
   assert.deepEqual(JSON.parse(observed.init.body), { ref: 'main', inputs: { reason: 'manual' } });
+});
+
+test('uses the edge-compatible redirect mode and rejects redirects explicitly', async () => {
+  let calls = 0;
+  const result = await client(async (_url, init) => {
+    calls += 1;
+    assert.equal(init.redirect, 'manual');
+    return new Response(null, {
+      status: 302,
+      headers: { location: 'https://example.test/untrusted' }
+    });
+  }).getTextFile('data.json');
+
+  assert.deepEqual(result, {
+    ok: false,
+    status: 502,
+    code: 'github_redirect_rejected',
+    error: 'GitHub request was redirected',
+    path: 'data.json'
+  });
+  assert.equal(calls, 1);
 });
 
 test('reads and writes UTF-8 content with optimistic SHA evidence', async () => {

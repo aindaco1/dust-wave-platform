@@ -38,7 +38,7 @@ export function createGitHubClient(options = {}) {
     try {
       response = await fetchWithTimeout(
         `${repoBase}${path}`,
-        { redirect: 'error', ...init, headers: { ...headers, ...init.headers } },
+        { redirect: 'manual', ...init, headers: { ...headers, ...init.headers } },
         timeoutMs,
         { fetchTarget }
       );
@@ -48,6 +48,16 @@ export function createGitHubClient(options = {}) {
         status: 502,
         code: error?.name === 'AbortError' ? 'github_timeout' : 'github_request_failed',
         error: error?.name === 'AbortError' ? 'GitHub request timed out' : 'Unable to reach GitHub'
+      };
+    }
+
+    if (response.status >= 300 && response.status < 400) {
+      await response.body?.cancel().catch(() => {});
+      return {
+        ok: false,
+        status: 502,
+        code: 'github_redirect_rejected',
+        error: 'GitHub request was redirected'
       };
     }
 

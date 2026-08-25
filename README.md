@@ -9,7 +9,7 @@ This is intentionally a small monorepo, not a shared application runtime. Pool, 
 | Package | Purpose | Status |
 |---|---|---|
 | `@dustwave/inventory-core` | Pure inventory snapshot, count-map, and expiring-reservation state mechanics | `0.1.0`; Durable Object/KV storage, catalog policy, checkout effects, and deployment remain consumer-owned |
-| `@dustwave/worker-core` | Runtime-neutral Worker security, scoped logging, bounded request/provider HTTP, GitHub transport, durable-outbox mechanics, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.12.0`; authentication, telemetry, provider policy, and all product behavior remain consumer-owned |
+| `@dustwave/worker-core` | Runtime-neutral Worker security, scoped logging, bounded request/provider HTTP, GitHub transport, durable-outbox mechanics, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.12.1`; authentication, telemetry, provider policy, and all product behavior remain consumer-owned |
 | `@dustwave/shipping-core` | Deterministic physical-item profiles, mixed-shipment aggregation, fallback/manual quote shapes, delivery options, bounded USPS transport, and canonical country data | `0.2.0`; destination eligibility, credentials, product/campaign rules, checkout, and fulfillment remain consumer-owned |
 | `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
 | `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, bounded Zip-Tax/New Mexico provider transport, and the Pool/Store New Mexico starter reference | `0.3.0`; live provider choice and product taxability remain consumer-owned |
@@ -170,6 +170,8 @@ workflow dispatch, Contents API operations, directory listing, and atomic
 multi-file commits. It validates repository-relative paths, branch refs,
 workflow names, input counts, file sizes, and response sizes; never returns
 credentials or raw network errors; and never retries or force-updates a branch.
+It uses the edge-runtime-compatible manual redirect mode and rejects every 3xx
+response before reading or following its location.
 Consumers retain repository selection, publish mode, content schemas, paths,
 messages, logging, authorization, effects, and rollback.
 
