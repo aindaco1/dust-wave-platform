@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/timed-text",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "type": "module",
   "exports": {
     "./alignment": {
@@ -30,6 +30,10 @@
     "./revisions": {
       "types": "./src/revisions.d.ts",
       "default": "./src/revisions.js"
+    },
+    "./confidence": {
+      "types": "./src/confidence.d.ts",
+      "default": "./src/confidence.js"
     }
   },
   "engines": {
