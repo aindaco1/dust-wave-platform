@@ -8,7 +8,8 @@ Consumers must define their own design tokens before importing a component.
 The shared mixin and layout partials expose compile-time policy for the
 characterized Pool/Store gutter model and brand-title geometry. Consumers set
 those variables before import; import order, unused components, CSS budgets,
-templates, localization, content, and release authority remain consumer-owned.
+templates, focus behavior, localization, content, Jekyll configuration,
+deployment, and rollback remain consumer-owned.
 
 With Jekyll Sass Converter 3, a pinned Platform submodule can be added as a
 load path:
@@ -36,3 +37,11 @@ The optional policy variables are:
 
 These values produce CSS at build time only. No JavaScript or request-time
 design configuration is added.
+
+## Architecture and validation
+
+The [design-system and Jekyll ADR](../../docs/adr/0002-design-system-and-jekyll-boundary.md)
+records why Liquid includes and Ruby plugins remain outside Platform and why
+the Jekyll Template has its own ownership and explicit upgrade workflow.
+See the [characterization tests](test/styles.test.js) and the
+[consumer adoption guide](../../docs/consumer-adoption.md).

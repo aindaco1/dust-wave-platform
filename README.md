@@ -4,336 +4,53 @@ Versioned, framework-neutral primitives shared by [Dust Wave](https://dustwave.x
 
 This is intentionally a small monorepo, not a shared application runtime. Pool, Store, the Dust Wave site, and Podcast retain separate deployments, data, sessions, secrets, and business rules.
 
-## Packages
-
-| Package | Purpose | Status |
-|---|---|---|
-| `@dustwave/inventory-core` | Pure inventory snapshot, count-map, and expiring-reservation state mechanics | `0.1.0`; Durable Object/KV storage, catalog policy, checkout effects, and deployment remain consumer-owned |
-| `@dustwave/worker-core` | Runtime-neutral Worker security, scoped logging, bounded request/provider HTTP, GitHub transport, durable-outbox mechanics, byte/string checksums, signed identity/session mechanics, Stripe, Resend/Svix, CORS, date/time, timezone, podcast-benefit code, and request primitives | `0.12.1`; authentication, telemetry, provider policy, and all product behavior remain consumer-owned |
-| `@dustwave/shipping-core` | Deterministic physical-item profiles, mixed-shipment aggregation, fallback/manual quote shapes, delivery options, bounded USPS transport, and canonical country data | `0.2.0`; destination eligibility, credentials, product/campaign rules, checkout, and fulfillment remain consumer-owned |
-| `@dustwave/admin-shell` | Policy-bound admin/public API and credentialed-download clients, passwordless session coordinator, accessible responsive tabs, Turnstile, workflow-progress and confirmation-dialog controls, Pool-characterized rich-text codecs, unsaved-change lifecycle protection, dirty-action state, and shared tagged-link/QR/share-card assets | `0.10.2`; workflow progress supports opt-in accessible section tabs with resilient roving focus |
-| `@dustwave/tax-core` | Store-characterized destination normalization, deterministic integer-cent manual-rate calculation, bounded Zip-Tax/New Mexico provider transport, and the Pool/Store New Mexico starter reference | `0.3.0`; live provider choice and product taxability remain consumer-owned |
-| `@dustwave/test-core` | Test-framework-neutral browser Storage setup and mobile overflow assertions | `0.1.0`; runner configuration, fixtures, pages, viewports, and product assertions remain consumer-owned |
-| `@dustwave/design-core` | Optional compile-time Sass for shared foundations, forms, policy-injected layout/mixins, and visual components | `0.2.0`; tokens, selected layout policy, templates, content, budgets, builds, and deployment remain consumer-owned |
-| `@dustwave/site-shell` | Dependency-free classic browser scripts for shared navigation, live announcements, shipping-option display, deferred styles, form-control identity, and cart-summary behavior | `0.2.0`; consumers inject product names, cache/event identities, control priorities, templates, localization, routes, styling, and breakpoints |
-| `@dustwave/build-core` | Allowlisted generated CSS/JavaScript asset minification shared by Pool and Store | `0.2.0`; source assets, HTML, vendor files, root selection, and deployment remain consumer-owned |
-| `@dustwave/release-core` | Deterministic Wrangler inventory, KV backup transforms, checksum manifests, redacted provider evidence, cache-policy evidence, policy-injected Cloudflare admin rules, screen-reader evidence, and command-result normalization | `0.2.0`; commands, credentials, product origins/identity, rollout, and rollback authority remain consumer-owned |
-| `@dustwave/media-core` | Runtime-neutral site-media catalog/path mechanics plus source-audio QC, processor manifest, normalized measurements, finding, and report contracts | `0.4.0`; content, transforms, processing placement, storage, approval, and publication remain consumer-owned |
-| `@dustwave/product-video-core` | Bounded declarative Playwright capture, transparent frame staging, guarded generated-output paths, shell-free alpha-video render plans, decoded alpha verification, and FFprobe evidence | `0.1.0`; previews, selectors, product fixtures, presentation CSS, browser installation, generated media, review, publication, and deployment remain consumer-owned |
-| `@dustwave/timed-text` | Bounded English/Spanish normalization, editorial word grouping, dialogue cue reflow, immutable transcript lineage, deterministic transcript/chunk projection, local recognition-confidence compilation, aligned-word presentation planning, bounded chapter context/list compilation, and alignment-runner evidence contracts | `0.11.0`; provider calls, storage, review, speaker identity, model inference, font metrics, chapter titles, benchmark approval, and publication remain consumer-owned |
+## Boundaries
 
 Packages are added only when consumer characterization tests prove a stable
-boundary. The first media
-contract is intentionally limited to deterministic source-audio QC structures
-shared by the Podcast Worker and its owner-controlled FFmpeg processor.
-The first timed-text contract accepts only bounded monotonic provider segments,
-normalizes generated text as untrusted plain text, and never manufactures word
-timing or speaker identity. Its large-source extension deterministically chooses
-safe silence boundaries (or duration fallbacks), binds processor manifests to
-immutable source/output evidence, and merges source-relative segment timing with
-conservative overlap removal. It still never manufactures word timing or
-speaker identity. The alignment extension deterministically projects reviewed
-cues to stable lexical word IDs and verifies exact runner identity, canonical
-result digests, explained omissions, cue/source timing, provenance, and
-resource evidence. It validates candidate evidence but cannot declare an
-adapter launch-ready; Podcast retains the bilingual human benchmark gate.
-The editorial extensions normalize English display text, regroup timed words,
-and reflow adjacent same-speaker dialogue under bounded readability policies.
-They validate immutable review lineage and never rewrite dialogue, infer a
-speaker, cross an acoustic speaker boundary, call a model, or access a network.
-The presentation planner derives measured one- or two-line visual cues from
-aligned words while preserving source IDs, timings, cue lineage, and speaker
-boundaries. The chapter planner divides reviewed cues into bounded topic or
-question context windows, then validates caller-supplied titles against exact
-cue/word anchors before formatting YouTube or Markdown chapter lists. It does
-not generate titles, infer boundaries, access storage, or call a model.
+boundary. Exact duplicates move first; near-duplicates require injected policy
+or adapters and independent migration evidence. Consumers retain domain models,
+storage, templates, routes, credentials, content, and deployment authority.
 
-The product-video package is a local developer tool, not a browser runtime.
-Its flow language cannot evaluate arbitrary JavaScript or navigate
-cross-origin; preview origins default to loopback, generated output is confined
-below an explicit consumer work root, and existing output is never recursively
-deleted or overwritten. Consumers retain their preview framework, product
-selectors and fixtures, capture-only styling, editorial timing, browser and
-encoder installation, generated media, review, publishing target, and rollout.
-See [`ADR 0003`](docs/adr/0003-product-video-boundary.md).
+Each consumer pins a Platform submodule commit and exact package versions.
+Package releases are immutable; consumers upgrade and roll back independently.
+See the [consumer adoption guide](docs/consumer-adoption.md) for the migration
+workflow and recorded adoption snapshot, and [AGENTS.md](AGENTS.md) for the
+repository contribution rules.
 
-## Consumer model
+## Packages
 
-Each consumer pins this repository as `shared/dust-wave-platform` and imports an exact package version. Submodule pointers are updated independently on consumer release branches. A consumer must never import another consumer's application code or storage.
-
-### Current production adoption
-
-| Consumer | Consumer release | Platform pin | Shared scope |
-|---|---:|---:|---|
-| Pool | `v1.2.20` | `v0.32.0` (`85165a16`) | Worker, admin, browser, design, build, release, shipping, tax, inventory, media, test, and local product-video primitives |
-| Store | `v1.1.22` | `v0.31.0` (`5ca8ee6d`) | Worker, admin, browser, design, build, release, shipping, tax, inventory, media, and test primitives |
-| Podcast | `v0.2.26` | `v0.23.0` (`a0006c3e`) | Worker HTTP/provider/GitHub, admin, media, tax, and timed-text primitives |
-| Dust Wave website | `v1.3.0` | `v0.15.0` (`2e79a8d7`) | Media contracts and shared admin-shell browser assets |
-
-These pins are intentionally not synchronized automatically. A newer Platform
-release becomes active in a consumer only after that consumer advances its
-gitlink and exact package versions, passes its characterization and release
-gates, and ships an independently reversible release. Pool and Store also pin
-[`dust-wave-jekyll-template`](https://github.com/aindaco1/dust-wave-jekyll-template)
-`v0.1.0` (`351281a5`) for 17 checked-in Jekyll integration files; that template
-is a compile-time source-upgrade dependency, not a Platform or Worker runtime.
+| Package | Purpose and reference | Version |
+|---|---|---|
+| `@dustwave/inventory-core` | [Inventory snapshots, counts, and expiring reservations](packages/inventory-core/README.md) | `0.1.0`|
+| `@dustwave/worker-core` | [Worker HTTP, security, providers, sessions, logging, and outbox mechanics](packages/worker-core/README.md) | `0.12.1`|
+| `@dustwave/shipping-core` | [Shipping profiles, quotes, USPS transport, and country data](packages/shipping-core/README.md) | `0.2.0`|
+| `@dustwave/admin-shell` | [Unstyled admin clients, session/UI controls, editors, and share assets](packages/admin-shell/README.md) | `0.10.2`|
+| `@dustwave/tax-core` | [Destination normalization, manual calculation, and provider transport](packages/tax-core/README.md) | `0.3.0`|
+| `@dustwave/test-core` | [Browser Storage setup and overflow assertions](packages/test-core/README.md) | `0.1.0`|
+| `@dustwave/design-core` | [Compile-time Sass foundations, forms, layout, and components](packages/design-core/README.md) | `0.2.0`|
+| `@dustwave/site-shell` | [Classic browser navigation, announcements, forms, and cart display](packages/site-shell/README.md) | `0.2.0`|
+| `@dustwave/build-core` | [Allowlisted generated CSS/JavaScript minification](packages/build-core/README.md) | `0.2.0`|
+| `@dustwave/release-core` | [Release normalization, integrity, provider, and accessibility evidence](packages/release-core/README.md) | `0.2.0`|
+| `@dustwave/media-core` | [Site-media paths/catalogs and audio processor contracts](packages/media-core/README.md) | `0.4.0`|
+| `@dustwave/product-video-core` | [Local declarative capture and alpha-video rendering](packages/product-video-core/README.md) | `0.1.0`|
+| `@dustwave/timed-text` | [Transcription, alignment, confidence, editorial, presentation, and chapters](packages/timed-text/README.md) | `0.11.0`|
 
 ## Development
+
+Use Node.js 20.9 or newer; CI uses Node.js 22. From the repository root:
 
 ```bash
 npm ci
 npm run check
 ```
 
-The check runs the shared unit suite, the locked dependency audit, and a
-high-confidence scan of tracked text files, including the current prefixed
-Cloudflare global-key, user-token, and account-token formats. Findings report
-only the file, line, and credential type; suspected secret values are never
-echoed. No secrets are required for the shared checks.
+The check runs the secret scan, locked dependency audit, and unit suite. No
+secrets are required. See the [development guide](docs/development.md) for
+individual checks and consumer secret-audit adapters.
 
-Consumers with local `.dev.vars` files may inject those paths and their
-test-only allowlist through `runSecretAudit`. The same primitive then verifies
-ignore/tracking posture and searches exact local values in the worktree and
-history without returning or partially masking the values. Consumer-specific
-secret filenames and fixture policy remain in thin local adapters.
+## Documentation
 
-`@dustwave/design-core` is an optional compile-time stylesheet package, not an
-application shell. It owns independently characterized Sass components plus
-policy-injected layout and mixin sources. Consumers retain tokens, selected
-gutter and brand-title policy, import order, markup, focus behavior, content,
-localization, CSS budgets, Jekyll configuration, deployment, and rollback.
-Liquid includes and Ruby plugins remain outside Platform; ADR 0002 records why
-the separately versioned Dust Wave Jekyll Template has its own ownership and
-explicit upgrade workflow. See
-[`ADR 0002`](docs/adr/0002-design-system-and-jekyll-boundary.md).
-
-`@dustwave/site-shell` contains unstyled classic scripts and intentionally
-exports no application shell. Header navigation preserves query and fragment
-state across language links, removes `admin_login` only on an exact localized
-or unlocalized admin route, and no-ops when navigation controls are absent.
-The live announcer no-ops without its consumer-rendered region, consumes each
-`data-live-announce` value once, and clears unchanged text after one second.
-Consumers retain markup, labels, localization, focus styling, routes, and
-Content Security Policy.
-
-The Site Shell browser-primitives extension exposes shipping-option display
-mechanics through one neutral global and reads only bounded policy from the
-consumer-rendered script element for form-control IDs and cart summaries.
-Control ID prefixes, prioritized dataset keys, cache keys, provider globals,
-and event names reject unsafe shapes and fall back to generic values. The cart
-icon still receives all visible labels from consumer markup; it performs no
-checkout, pricing, tax, shipping, storage migration, or network request.
-Deferred stylesheet activation changes only links explicitly marked by the
-consumer. Consumers retain script placement, cart/provider behavior, currency
-policy, form schemas, visual design, accessibility review, CSP, and rollout.
-
-`@dustwave/build-core` processes only generated CSS and JavaScript below the
-explicitly allowlisted directories in a built site; the default remains
-`assets`. Relative roots are bounded, traversal-safe, independently checked for
-existence, and required to resolve inside the built site. The minifier skips
-maps, vendor code, and HTML and writes only when output is smaller. Check mode
-exits unsuccessfully when an allowed generated file can still be reduced.
-Consumers retain root selection, source assets, build orchestration, budgets,
-deployment, and rollback authority.
-
-The Worker timezone entry exposes runtime-supported IANA zone discovery,
-labels, validation, and deterministic fallback. Unsupported values fall back
-to a caller-supplied supported zone or `America/Denver`. The date/time entry
-adds the exact Pool/Store local-part, date-key, day-boundary, formatting, and
-daily-window mechanics. Pool retains campaign naming and Store retains its
-catalog/order scheduling policy through thin adapters. Invalid date shapes
-produce an invalid `Date`; formatting invalid instants propagates the runtime
-`RangeError` rather than manufacturing a value.
-
-The Worker HTTP entry requires a valid consumer-supplied private origin before
-it returns helpers. It normalizes configured origins, never accepts wildcard
-as a private fallback, and preserves the characterized JSON, CORS, and baseline
-security-header contract. JSON serialization and invalid `Response` status
-errors propagate. Consumers retain route visibility, authentication,
-authorization, CSRF, CSP, HSTS, cache, rate-limit, and deployment policy.
-
-The request-validation entry rejects oversized declared bodies before reading,
-bounds streamed bodies by encoded bytes, cancels after a limit is crossed, and
-preserves explicit request error status/code fields. JSON readers accept only
-objects; scalar helpers keep the independently characterized Podcast
-normalization and failure semantics. The provider-fetch entry owns one timeout
-and abort signal around an injected or global Fetch implementation, always
-clears its timer, and never retries. The policy-injected CORS/JSON helper
-reflects only an exact origin from the consumer's comma-separated allow-list
-matches and lets consumers supply their own method, request-header, base
-response, and private response policies. Podcast retains routes, schemas, CSRF
-names, allowed-origin configuration, authorization, provider credentials,
-retry, storage, deployment, and rollback.
-
-The GitHub entry adds a bounded, timeout-enforced transport for
-workflow dispatch, Contents API operations, directory listing, and atomic
-multi-file commits. It validates repository-relative paths, branch refs,
-workflow names, input counts, file sizes, and response sizes; never returns
-credentials or raw network errors; and never retries or force-updates a branch.
-It uses the edge-runtime-compatible manual redirect mode and rejects every 3xx
-response before reading or following its location.
-Consumers retain repository selection, publish mode, content schemas, paths,
-messages, logging, authorization, effects, and rollback.
-
-The Stripe entry provides one form-encoded Worker transport for the
-characterized Pool, Store, and Podcast operations. It accepts injected API
-version, user agent, fetch, and redacted observation policy; it never returns
-the API key or request body to observers. Network failures and Stripe-directed
-or status-derived retryability are classified but never retried automatically.
-Invalid object IDs fail before a request, malformed webhook timestamps fail
-closed, observer failures cannot change payment behavior, and provider error
-messages are whitespace-normalized and bounded. Consumers retain keys,
-idempotency construction, prices, products, settlement, reconciliation,
-webhook effects, retry scheduling, and deployment authority.
-
-The Resend entry verifies bounded Svix webhook IDs, integer timestamps,
-multiple `v1` signatures, and the exact raw request body with a five-minute
-default tolerance. It classifies network, conflict, rate-limit, and server
-failures plus bounded numeric or HTTP-date `Retry-After` guidance, but never
-performs a retry or parses a provider event. Consumers retain API transport,
-templates, recipients, consent, idempotency construction, outboxes,
-suppression, webhook effects, scheduling, credentials, and deployment.
-
-The session-security entry signs and verifies bounded expiring JSON claims,
-serializes the characterized secure session-cookie shape, and evaluates
-same-origin request evidence. Verification requires one exact two-part token,
-a valid integer expiry, and any consumer-declared claims. Cookie names, paths,
-values, and policy are validated; `SameSite=None` requires `Secure`. The
-same-origin primitive fails unconfigured policy closed by default, while Pool
-and Store may explicitly preserve their existing local-development allowance.
-Consumers retain secret selection, nonce and session storage, TTL selection,
-roles, scopes, CSRF tokens and header names, routes, authorization, login email,
-credentials, rate limiting, deployment, and rollback.
-
-`@dustwave/shipping-core` contains the exact deterministic Pool/Store overlap
-for physical shipping profiles, mixed tier/support-item/add-on aggregation,
-missing-metadata fallback summaries, the characterized USPS First-Class flat
-table, fallback/free quote shapes, and standard/signature option selection.
-Consumers inject origin country, fallback cents, free-shipping state, and
-configured option IDs. Selection and catalog arrays are bounded before loops.
-The USPS entry accepts consumer-resolved configuration, owns a bounded
-in-memory token/quote/cache-backoff lifecycle, aborts provider timeouts, and
-refreshes once after a 401. Provider credentials never appear in result/error
-shapes. The canonical shipping-country YAML is copied to framework-owned
-consumer data only through an explicit-output check/write command, keeping
-Jekyll integration outside the runtime package. Platform still owns no address
-eligibility, catalog, fallback/free rate, checkout mutation, fulfillment,
-storage, carrier account, or deployment; Store retains product rules and Pool
-retains campaign rules through thin, independently reversible adapters.
-
-`@dustwave/inventory-core` contains the pure state overlap below the Pool and
-Store inventory coordinators: JSON-safe cloning, count-map normalization,
-legacy and expiring reservation normalization, reserved-count totals, and
-bootstrap reconciliation. Consumers must inject a positive default reservation
-TTL and choose `replace` or `merge` bootstrap behavior. Pool uses `replace` so
-its persisted campaign snapshot remains authoritative; Store uses `merge` so
-current catalog metadata can refresh without losing claimed counts. The package
-does not perform Durable Object transactions, KV writes, catalog reads,
-checkout or order/pledge transitions, timers, routes, or deployment.
-
-The Worker logger entry creates a consumer-named scoped-console factory with
-per-owner policy caching, child scopes, severity filtering, and bounded
-structured `Error` output. It writes only to an injected console-compatible
-target and sends no telemetry. Consumers retain environment/config parsing,
-observability destinations, redaction policy for ordinary objects, and whether
-logging is enabled.
-
-The media site-catalog entry owns only bounded repository-path normalization,
-public paths, labels, media type and derivative detection, responsive-image and
-video derivative planning, manifest normalization, and injected placement
-budgets. Traversal, control characters, oversized paths, and excessive
-known-path sets fail closed. Store and Pool inject product/campaign scope,
-entity slugs, WebM-audio compatibility, broken-reference shape, budgets, and
-fallback placement; they retain all content, filesystem access, transforms,
-admin routes, publication, storage, credentials, and deployment.
-
-`@dustwave/release-core` contains only the exact deterministic Pool/Store
-release overlap. Wrangler parsing propagates malformed TOML errors and strips
-non-primitive binding fields from normalized evidence. KV transforms preserve
-only key, string value, and optional metadata. Checksum verification rejects
-duplicate, missing, escaping, modified, unlisted, symlink, and unsupported
-entries. Provider evidence strips undeclared fields, fails unknown statuses
-closed, and never claims to contain credentials or customer data. Command
-results redact known credential-shaped arguments and omit stdout/stderr unless
-the consumer explicitly opts in. Consumers still own every process execution,
-secret lookup, filesystem destination, provider call, deployment, traffic
-change, and rollback decision.
-
-The cache-policy entry accepts only explicit HTTP(S) site/Worker origins and
-bounded same-origin paths, rejects redirects, and cancels response bodies after
-header evidence. The Cloudflare admin-response entry requires an HTTPS origin,
-bounded consumer rule identity, a dedicated token, and an exact 32-hex zone ID;
-its returned evidence contains neither credentials nor response bodies. The
-screen-reader entry keeps product text, URL, expected phrases, and temporary
-prefix injected, passes every command argument without a shell, bounds
-diagnostics, restores VoiceOver when it started the process, and fails missing
-recordings or transcript expectations explicitly. Consumers retain target
-selection, credentials, recording consent, evidence retention, release gates,
-provider mutation approval, deployment, and rollback.
-
-The New Mexico GRT starter entry is a vendored public reference snapshot. Its
-updater requires an explicit consumer-owned output path, fetches every seed
-successfully before writing, and propagates network or response failures. It
-does not select a checkout provider or declare a rate authoritative; each
-consumer retains provider configuration, refresh review, taxability, fallback,
-and release policy.
-
-`@dustwave/admin-shell` is intentionally unstyled. Each product retains its
-templates, visual system, localization, roles, routes, and state. Its editor
-codec is derived from the Pool behavior that preserves emphasis boundary spaces
-and sanitizes rich pasted content. Podcast consumes the new package first;
-Pool and Store keep their domain-specific URL and dashboard adapters. The shared
-responsive-tab control mirrors the accessible tab controller into a labeled
-native select without owning consumer breakpoints, labels, or CSS. Its
-`tabs-browser` entry is a namespaced, dependency-free classic-script bridge for
-Pool and Store; the module entry uses that same implementation, so dynamic tab
-visibility and option rebuilding stay behavior-equivalent without a second
-runtime copy. The Turnstile browser entry follows the same bridge pattern and
-owns only the provider-documented responsive size choice: a consumer with at
-least 300 CSS pixels uses the flexible widget, while a narrower or unmeasurable
-container fails small to the compact widget. Consumers still own script
-loading, site keys, actions, callbacks, tokens, server-side validation, and
-visual styling. The shared
-marketing asset module owns only normalization, canonical tagged-URL assembly,
-QR matrix rendering, bounded escaped social-card SVG composition, and the
-byte-derived MIT QR engine. Consumers supply trusted product text and an
-already-bounded image data URL, then choose their own rasterizer, storage, and
-publication policy; email audiences, attribution storage, and send authority
-remain consumer-owned.
-
-The workflow-progress entry defaults to ordered progress navigation with
-`aria-current="step"`. `selectionMode: "tabs"` opts into a horizontal,
-automatically activated ARIA tablist: Left and Right wrap across enabled tabs,
-while Home and End select the first and last enabled tabs. Consumers may supply
-each step's `controls` ID and remain responsible for the corresponding tabpanel,
-visibility, and focus policy. Disabled tabs are skipped and cannot be selected;
-`setActive` returns `false` for a missing ID or a disabled tab, an invalid root
-throws `TypeError`, and consumer callback failures propagate to the caller.
-
-The API client preserves credentialed admin requests as its default. A
-consumer that calls an explicitly public cross-origin API may inject
-`credentials: "omit"` at construction; invalid Fetch credential policies fail
-before any request. The consumer still owns CORS, authentication, CSRF,
-Turnstile, route, and response-schema policy.
-
-The unsaved-change module is the characterized lifecycle overlap between Pool,
-Store, and Podcast. Its module and dependency-free classic-script entries block
-browser exit only while a consumer callback reports dirty state and expose an
-injected confirmation boundary for in-app transitions. Adapter failures fail
-closed. Consumers still own editor baselines, localized messages, discard side
-effects, and which transitions require confirmation.
-
-The dirty-controls module is the exact button-state overlap characterized in
-Pool and Store and now used by Podcast review drafts. Its module and
-dependency-free classic-script entries apply the `is-dirty` class,
-`data-dirty-state`, consumer-provided clean/dirty text, and the established
-disable-when-clean behavior. Consumers still own how changes are detected,
-localized labels, force-disabled policy, and the focus-ring styling.
-
-The credentialed-download module is the characterized overlap between Pool,
-Store, and Podcast accountant/report exports. It always uses credentialed GET,
-accepts only caller-allowlisted content types, bounds declared and streamed
-bytes, retains only bounded structured JSON errors, rejects path-shaped
-filenames, and revokes its temporary object URL. Consumers still own the API
-origin, session cookie, authorization, response schema, export columns,
-fallback filename, UI messages, and audit policy.
+- [Documentation index](docs/README.md): guides, architecture decisions, and document ownership.
+- [Consumer adoption](docs/consumer-adoption.md): pinning, migration, rollback, and recorded release evidence.
+- [Changelog](CHANGELOG.md): Platform release history.
+- [License](LICENSE): MIT terms.

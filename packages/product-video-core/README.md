@@ -12,7 +12,14 @@ It provides:
 
 ## Consumer setup
 
-Consumers pin the Platform commit and package version, install a compatible `@playwright/test`, and keep product policy locally:
+Consumers pin the Platform commit and package version, install a compatible
+`@playwright/test`, and keep product policy locally. Playwright is an optional
+peer; browser installation, FFmpeg, and FFprobe remain consumer-owned host tools.
+This package is a local developer tool, not a browser runtime. Consumers retain
+their preview framework, product fixtures, capture-only styling, editorial timing,
+generated media, review, and rollout.
+
+Example consumer flow:
 
 ```json
 {
@@ -64,3 +71,9 @@ HEVC alpha uses `hevc_videotoolbox` and therefore requires a compatible Apple FF
 - Existing output is preserved and causes a failure; the tool never performs recursive cleanup.
 - Commands are passed directly to FFmpeg/FFprobe without a shell.
 - Platform owns no browser installation, product data, credentials, templates, build server, generated media, marketing repository, publication, or deployment.
+
+## Architecture and reference
+
+See the [product-video ADR](../../docs/adr/0003-product-video-boundary.md),
+[public API](src/index.d.ts), [behavior tests](test/), and
+[consumer adoption guide](../../docs/consumer-adoption.md).
