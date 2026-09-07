@@ -21,6 +21,7 @@ repository contribution rules.
 
 | Package | Purpose and reference | Version |
 |---|---|---|
+| `@dustwave/digest-core` | [Responsive digest HTML presentation and escaping](packages/digest-core/README.md) | `0.1.0`|
 | `@dustwave/inventory-core` | [Inventory snapshots, counts, and expiring reservations](packages/inventory-core/README.md) | `0.1.0`|
 | `@dustwave/worker-core` | [Worker HTTP, security, providers, sessions, logging, and outbox mechanics](packages/worker-core/README.md) | `0.12.1`|
 | `@dustwave/shipping-core` | [Shipping profiles, quotes, USPS transport, and country data](packages/shipping-core/README.md) | `0.2.0`|
