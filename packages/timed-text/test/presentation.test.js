@@ -112,6 +112,20 @@ test("accepts an effective acoustic gap when nonvisual words remain in the timin
   assert.equal(plan.cues.length, 1);
 });
 
+test("accepts long acoustic gaps bounded by the recording duration", () => {
+  const input = words(["Before", "after."], { step: 60_000 });
+  input[1].gapBeforeMs = 59_780;
+  const options = { durationMs: 61_000, policy: policy() };
+  const plan = planTimedTextPresentation(input, options);
+  assert.deepEqual(plan.cues.map(({ wordStartIndex, wordEndIndex }) =>
+    [wordStartIndex, wordEndIndex]), [[0, 0], [1, 1]]);
+  for (const gapBeforeMs of [-1, 1.5, 61_001, Infinity]) {
+    assert.throws(() => planTimedTextPresentation(
+      [input[0], { ...input[1], gapBeforeMs }], options
+    ), /word 2 is invalid/);
+  }
+});
+
 test("reports fast, short, and overlong presentation exceptions", () => {
   const input = words(["Supercalifragilisticexpialidocious"], { width: 2_000, step: 200 });
   const plan = planTimedTextPresentation(input, {

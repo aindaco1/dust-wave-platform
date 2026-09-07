@@ -107,7 +107,7 @@ function normalizeWord(value, index, durationMs, previousStart) {
       || value.displayWidth > 1_000_000
       || (value.gapBeforeMs !== undefined
         && (!Number.isSafeInteger(value.gapBeforeMs) || value.gapBeforeMs < 0
-          || value.gapBeforeMs > 10_000))
+          || value.gapBeforeMs > durationMs))
       || (value.boundaryBefore !== undefined && typeof value.boundaryBefore !== "boolean")) {
     throw new TypeError(`Timed-text presentation word ${index + 1} is invalid`);
   }

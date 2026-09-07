@@ -44,7 +44,13 @@ speaker, cross an acoustic speaker boundary, call a model, or access a network.
 
 The presentation planner derives measured one- or two-line visual cues from
 aligned words while preserving source IDs, timings, cue lineage, and speaker
-boundaries. The chapter planner divides reviewed cues into bounded topic or
+boundaries. Explicit acoustic gaps may span up to the supplied recording
+duration; gaps above the configured grouping threshold create a cue boundary.
+Invalid gaps (negative, fractional, nonfinite, or beyond that duration) throw a
+`TypeError`. Existing valid recordings within the earlier gap limit keep their
+presentation results and presentation policy version.
+
+The chapter planner divides reviewed cues into bounded topic or
 question context windows, then validates caller-supplied titles against exact
 cue/word anchors before formatting YouTube or Markdown chapter lists. It does
 not generate titles, infer boundaries, access storage, or call a model.

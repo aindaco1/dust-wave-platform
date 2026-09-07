@@ -6,6 +6,7 @@ export interface TimedTextPresentationWord {
   speakerId: string;
   sourceCueId: string;
   displayWidth: number;
+  /** Effective acoustic gap: an integer from zero through the supplied durationMs. */
   gapBeforeMs?: number;
   boundaryBefore?: boolean;
 }
