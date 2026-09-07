@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.35.0 - 2026-09-07
+
+### Added
+
+- `@dustwave/digest-core` 0.1.0: the characterized Opportunity Radar HTML shell, responsive cards, escaping and compact display formatting. GitHub Repo Scan injects its own report presentation. Consumer grouping, text/Markdown, schedules, storage and email transport remain independent.
+- Byte-for-byte source characterization and scanner injection/escaping tests. Existing packages retain their versions and behavior.
+
 ## 0.34.1 - 2026-08-25
 
 ### Fixed
