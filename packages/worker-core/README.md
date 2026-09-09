@@ -115,3 +115,7 @@ and tests define validation errors and structured result shapes.
 See the [public exports](package.json), [source contracts](src/), and
 [behavior tests](test/). Follow the shared
 [consumer adoption guide](../../docs/consumer-adoption.md) when updating a pin.
+
+## Email delivery defaults
+
+`automaticEmailHeaders(headers)` preserves existing headers and adds `Auto-Submitted: auto-generated` when absent. `prepareResendEmail(payload, { replyTo })` also supplies a missing reply address. Existing explicit reply addresses and unsubscribe controls take precedence. Content, sender, recipients and attachments are preserved; invalid multiline header values fail closed. Apply these helpers before an outbox payload is frozen, never to an already attempted message. They do not send, suppress, retry, generate text, or decide marketing consent.

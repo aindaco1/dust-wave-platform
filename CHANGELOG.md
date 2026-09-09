@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.36.0 - 2026-09-09
+
+- Added Worker Core 0.13.0 email delivery defaults: automated-message headers and consumer-supplied reply addresses, without changing message content, recipients or unsubscribe controls.
+- Preparation is explicitly performed before outbox freezing; previously attempted messages remain immutable.
+
 ## 0.35.0 - 2026-09-07
 
 ### Added

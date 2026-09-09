@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "type": "module",
   "exports": {
     "./crypto": "./src/crypto.js",
@@ -46,7 +46,11 @@
       "types": "./src/timezones.d.ts",
       "default": "./src/timezones.js"
     },
-    "./turnstile": "./src/turnstile.js"
+    "./turnstile": "./src/turnstile.js",
+    "./email": {
+      "types": "./src/email.d.ts",
+      "default": "./src/email.js"
+    }
   },
   "engines": {
     "node": ">=20.9"
