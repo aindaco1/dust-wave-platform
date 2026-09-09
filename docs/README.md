@@ -41,3 +41,5 @@ Maintain one detailed reference for each subject and link to it from overviews.
 Keep package versions in the root catalog and release changes in the changelog;
 do not duplicate those tables in package references. Date consumer-adoption
 snapshots and cite their evidence when refreshing them.
+
+- [Email deliverability](email-deliverability.md): shared defaults, content preservation, provider verification and independent consumer rollout.
