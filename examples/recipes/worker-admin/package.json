@@ -1,0 +1,17 @@
+{
+  "name": "example-worker-admin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node shared/dust-wave-platform/examples/recipes/check-pin.mjs && node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@dustwave/worker-core": "file:shared/dust-wave-platform/packages/worker-core",
+    "@dustwave/admin-shell": "file:shared/dust-wave-platform/packages/admin-shell",
+    "@dustwave/test-core": "file:shared/dust-wave-platform/packages/test-core"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

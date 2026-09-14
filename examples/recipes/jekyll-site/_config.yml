@@ -1,0 +1,15 @@
+title: Example site
+url: https://example.test
+exclude:
+  - shared
+  - node_modules
+  - vendor
+  - scripts
+  - test
+  - package.json
+  - package-lock.json
+  - platform-packages.json
+  - platform-commit.txt
+  - Gemfile
+  - Gemfile.lock
+  - README.md

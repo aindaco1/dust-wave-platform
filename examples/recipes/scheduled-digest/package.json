@@ -1,0 +1,16 @@
+{
+  "name": "example-scheduled-digest",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node shared/dust-wave-platform/examples/recipes/check-pin.mjs && node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@dustwave/digest-core": "file:shared/dust-wave-platform/packages/digest-core",
+    "@dustwave/test-core": "file:shared/dust-wave-platform/packages/test-core"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

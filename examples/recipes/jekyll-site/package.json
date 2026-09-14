@@ -1,0 +1,18 @@
+{
+  "name": "example-jekyll-site",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node shared/dust-wave-platform/examples/recipes/check-pin.mjs && node --test test/*.test.js",
+    "build": "bundle exec jekyll build && node scripts/copy-site-assets.mjs",
+    "template:check": "node shared/dust-wave-jekyll-template/bin/sync-consumer.mjs --consumer-root . --check"
+  },
+  "dependencies": {
+    "@dustwave/site-shell": "file:shared/dust-wave-platform/packages/site-shell",
+    "@dustwave/test-core": "file:shared/dust-wave-platform/packages/test-core"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
