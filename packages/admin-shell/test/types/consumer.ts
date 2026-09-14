@@ -31,3 +31,7 @@ const unchecked: Promise<{ ok: true }> = client.request("/");
 mountUnsavedChangesGuard({});
 // @ts-expect-error control results are not tab names
 const name: string = mountResponsiveTabSelect(root);
+// @ts-expect-error URL configuration is a private runtime field
+client.baseUrl;
+// @ts-expect-error CSRF state is changed only through the public methods
+client.csrfToken = "token";

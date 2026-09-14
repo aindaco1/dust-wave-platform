@@ -18,12 +18,8 @@ export class AdminApiError extends Error {
   details: unknown;
 }
 export class AdminApiClient {
+  #private;
   constructor(options: AdminApiClientOptions);
-  baseUrl: string;
-  credentials: RequestCredentials;
-  csrfHeader: string;
-  fetchImpl: typeof fetch;
-  csrfToken: string;
   setCsrfToken(value: unknown): void;
   clearCsrfToken(): void;
   request(path: string, options?: AdminApiRequestOptions): Promise<unknown>;
