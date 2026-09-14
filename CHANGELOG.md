@@ -2,6 +2,8 @@
 
 ## 0.38.0 - 2026-09-14
 
+- Share lazy first-frame video posters in Site Shell 0.3.0 with explicit page/document-base URL policy and consumer-owned global/cache names.
+
 - Add one-attempt Notion JSON transport with bounded response streaming, explicit API version, cancellation and fail-closed redirects; retry and error-presentation policy remains with each consumer.
 
 - Share characterized backup retention selection, evidence-age classification and read-only encrypted receipt inspection, preserving consumer execution authority.

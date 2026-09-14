@@ -29,7 +29,7 @@ repository contribution rules.
 | `@dustwave/tax-core` | [Destination normalization, manual calculation, and provider transport](packages/tax-core/README.md) | `0.3.0`|
 | `@dustwave/test-core` | [Browser Storage setup and overflow assertions](packages/test-core/README.md) | `0.2.0`|
 | `@dustwave/design-core` | [Compile-time Sass foundations, forms, layout, and components](packages/design-core/README.md) | `0.2.0`|
-| `@dustwave/site-shell` | [Classic browser navigation, announcements, forms, and cart display](packages/site-shell/README.md) | `0.2.0`|
+| `@dustwave/site-shell` | [Classic browser navigation, announcements, forms, and cart display](packages/site-shell/README.md) | `0.3.0`|
 | `@dustwave/build-core` | [Allowlisted generated CSS/JavaScript minification](packages/build-core/README.md) | `0.2.0`|
 | `@dustwave/release-core` | [Release normalization, integrity, provider, and accessibility evidence](packages/release-core/README.md) | `0.4.0`|
 | `@dustwave/media-core` | [Site-media paths/catalogs and audio processor contracts](packages/media-core/README.md) | `0.4.0`|
