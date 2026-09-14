@@ -11,6 +11,8 @@ quick-start commands.
   rollback evidence, and the dated adoption snapshot.
 - [Choose an existing primitive](capabilities.md): capability lookup, project
   starting points and reusable pin assertions.
+- [Reuse review status](reuse-review.md): completed release batches, deferred
+  candidates and the checklist for resuming the paused work.
 - [Package references](../README.md#packages): the catalog links to each
   package's README, behavior/failure semantics, public exports, and tests.
 - [Changelog](../CHANGELOG.md): versioned release history.

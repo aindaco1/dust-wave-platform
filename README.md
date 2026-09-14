@@ -53,5 +53,6 @@ individual checks and consumer secret-audit adapters.
 
 - [Documentation index](docs/README.md): guides, architecture decisions, and document ownership.
 - [Consumer adoption](docs/consumer-adoption.md): pinning, migration, rollback, and recorded release evidence.
+- [Reuse review status](docs/reuse-review.md): completed batches and remaining work, currently paused.
 - [Changelog](CHANGELOG.md): Platform release history.
 - [License](LICENSE): MIT terms.

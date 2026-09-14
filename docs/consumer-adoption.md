@@ -41,7 +41,35 @@ Do not merge a breaking Platform change until all affected consumers have a
 compatible release branch. See the [repository rules](../AGENTS.md) and
 [shared-repository ADR](adr/0001-shared-repository-boundary.md).
 
-## Source adoption inventory — September 13, 2026
+## Reuse rollout source snapshot — September 14, 2026
+
+The two reuse batches are complete; further extraction is paused. Source pins
+below were rechecked against fetched default branches on September 14 UTC
+(September 13, America/Denver). These supersede the pre-migration entries for
+the listed consumers, not the independent pins of every other consumer.
+Private consumer identity and operational evidence remain outside this guide.
+
+- [Platform v0.37.0](https://github.com/aindaco1/dust-wave-platform/releases/tag/v0.37.0):
+  immutable commit `30b1cf9c1154b6f38e3da34fc7b2ed3b6d312088`.
+- [Platform v0.38.0](https://github.com/aindaco1/dust-wave-platform/releases/tag/v0.38.0):
+  immutable commit `8609b10348da42f20e51b5a9048e074a3a3ae5e2`.
+
+| Public consumer source | Pinned Platform release | Migration and rollback evidence |
+| --- | --- | --- |
+| [Pool at cfe28be2](https://github.com/aindaco1/pool/tree/cfe28be28073d9f92a06eeda71c270a1c4b463a3/shared/dust-wave-platform) | v0.38.0 | [PR 44](https://github.com/aindaco1/pool/pull/44), [PR 45](https://github.com/aindaco1/pool/pull/45) |
+| [Store at 86418a05](https://github.com/aindaco1/store/tree/86418a0559668851f073d10ebd79c39a67531583/shared/dust-wave-platform) | v0.38.0 | [PR 81](https://github.com/aindaco1/store/pull/81) |
+| [Opportunity Radar at f72193f3](https://github.com/aindaco1/dust-wave-opportunity-radar/tree/f72193f3c95238b550b08294cc52dd39d58e1eb6/shared/dust-wave-platform) | v0.38.0 | [PR 47](https://github.com/aindaco1/dust-wave-opportunity-radar/pull/47), [PR 48](https://github.com/aindaco1/dust-wave-opportunity-radar/pull/48) |
+| [Scheduler at 9910b96b](https://github.com/aindaco1/scheduler/tree/9910b96bda8d476455bf8b27f7afe148a4be6dd5/shared/dust-wave-platform) | v0.37.0 | [PR 2](https://github.com/aindaco1/scheduler/pull/2) |
+| [Film at 8c28a96e](https://github.com/aindaco1/film/tree/8c28a96e96f0c5e8b7924781ef1d3e344db366ef/shared/dust-wave-platform) | v0.37.0 | [PR 2](https://github.com/aindaco1/film/pull/2) |
+| [RSS Feed Digest at 943dfe38](https://github.com/aindaco1/rss-feed-digest/tree/943dfe38506385a0df4de4794111ac03d3ffdacb/shared/dust-wave-platform) | v0.37.0 | [PR 3](https://github.com/aindaco1/rss-feed-digest/pull/3) |
+
+Consumer PRs record validation, source rollback rehearsals and rollout evidence.
+This refresh verified source and published Platform releases, not current live
+provider health or the next scheduled delivery. The immutable release pins
+remain unchanged by subsequent documentation commits on Platform's main branch.
+See [reuse review status](reuse-review.md) for completed scope and deferred work.
+
+## Pre-migration source adoption inventory — September 13, 2026
 
 The portfolio source review identified 12 direct Platform consumers. The public
 repository gitlinks below are verified at their linked source commits; private
