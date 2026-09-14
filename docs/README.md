@@ -9,6 +9,8 @@ quick-start commands.
 - [Development](development.md): local checks, CI, and secret-audit behavior.
 - [Consumer adoption](consumer-adoption.md): immutable pins, migration and
   rollback evidence, and the dated adoption snapshot.
+- [Choose an existing primitive](capabilities.md): capability lookup, project
+  starting points and reusable pin assertions.
 - [Package references](../README.md#packages): the catalog links to each
   package's README, behavior/failure semantics, public exports, and tests.
 - [Changelog](../CHANGELOG.md): versioned release history.

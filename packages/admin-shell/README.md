@@ -81,6 +81,14 @@ fallback filename, UI messages, and audit policy.
 
 ## Reference
 
+The `api-client`, `tabs`, `dirty-controls`, `unsaved-changes` and `turnstile`
+entries publish TypeScript declarations alongside their existing JavaScript.
+Consumers can remove ambient module copies for these entries. API responses
+remain `unknown` until narrowed by the consumer; no schema or response shape is
+implied by the declaration. The compile fixture exercises package resolution
+and rejected input/response assumptions; existing runtime behavior tests remain
+authoritative.
+
 See the [public exports](package.json), [source contracts](src/), and
 [behavior tests](test/). Follow the shared
 [consumer adoption guide](../../docs/consumer-adoption.md) when updating a pin.

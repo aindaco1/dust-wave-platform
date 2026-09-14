@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/platform-workspace",
-  "version": "0.36.0",
+  "version": "0.37.0",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -9,7 +9,7 @@
   "scripts": {
     "check": "npm run security:secrets && npm run security:audit && npm test",
     "security:secrets": "node scripts/scan-tracked-secrets.mjs",
-    "security:audit": "npm audit --audit-level=high",
+    "security:audit": "node scripts/audit-dependencies.mjs",
     "test": "node --test packages/*/test/*.test.js"
   },
   "engines": {
@@ -17,6 +17,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "linkedom": "0.18.12"
+    "linkedom": "0.18.12",
+    "typescript": "7.0.2"
   }
 }

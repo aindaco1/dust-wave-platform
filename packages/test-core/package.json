@@ -1,11 +1,23 @@
 {
   "name": "@dustwave/test-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "exports": {
     ".": {
       "types": "./src/index.d.ts",
       "default": "./src/index.js"
+    },
+    "./consumer-pin": {
+      "types": "./src/consumer-pin.d.ts",
+      "default": "./src/consumer-pin.js"
+    },
+    "./documentation": {
+      "types": "./src/documentation.d.ts",
+      "default": "./src/documentation.js"
+    },
+    "./sqlite-d1": {
+      "types": "./src/sqlite-d1.d.ts",
+      "default": "./src/sqlite-d1.js"
     }
   },
   "engines": {

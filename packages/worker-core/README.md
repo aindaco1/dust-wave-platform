@@ -110,6 +110,27 @@ logging is enabled.
 Failure behavior is entry-specific; the linked implementations, declarations,
 and tests define validation errors and structured result shapes.
 
+## Upstream response bodies and text comparison
+
+`response-body` exports `readBoundedBytes`, `readBoundedText` and
+`readBoundedJson`. They share the internal read loop with request validation while
+preserving the newsletter response contract. Consumers supply a finite
+non-negative byte budget. Any finite declared length above it, including a
+fractional length, cancels the body before reading; a cancellation failure at
+that point propagates. Stream overflow throws `Response exceeded N byte cap`.
+Once a reader is acquired it is cancelled on completion/error; cleanup failures
+are ignored to preserve the read/overflow result. The response reader retains
+the reader lock as the donor did. Null bodies return empty bytes. Text uses the
+default UTF-8 decoder; JSON parsing is unvalidated and syntax failures propagate.
+Incoming request validation retains its own validated budget, stable 413 error
+and lock-release behavior.
+
+`crypto/timingSafeEqualText` hashes both texts before comparing their fixed-length
+digests and returns a Promise. Two empty texts match. The existing synchronous
+`timingSafeEqual` still rejects empty tokens. These are separate contracts; do not
+replace one with the other implicitly. JavaScript does not guarantee constant-time
+execution. Use `sha256Hex` for text coercion and `sha256BytesHex` for binary data.
+
 ## Reference
 
 See the [public exports](package.json), [source contracts](src/), and

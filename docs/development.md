@@ -8,7 +8,7 @@ moving consumer code. Prefer Web Platform APIs to keep Worker packages portable.
 
 Use Node.js 20.9 or newer, matching the minimum in the
 [workspace manifest](../package.json). [CI](../.github/workflows/ci.yml) uses
-Node.js 22. From the repository root, install the locked dependencies:
+Node.js 22 and 24. From the repository root, install the locked dependencies:
 
 ```bash
 npm ci

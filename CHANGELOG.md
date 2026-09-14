@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.37.0 - 2026-09-14
+
+- Publish typed admin client, tabs, dirty-controls, unsaved-change and Turnstile entries.
+- Share response byte limits through the existing request stream mechanism and add digest-based text comparison without changing synchronous token behavior.
+- Add opt-in test helpers for immutable consumer pins, policy-driven local documentation validation and an injected SQLite D1 adapter.
+- Extract bounded dependency-audit classification/retries with consumer-owned execution and severity policy; use it for Platform's high-threshold audit.
+- Document capability selection, first-batch adoption and independent rollback requirements.
+
 ## 0.36.0 - 2026-09-09
 
 - Added Worker Core 0.13.0 email delivery defaults: automated-message headers and consumer-supplied reply addresses, without changing message content, recipients or unsubscribe controls.

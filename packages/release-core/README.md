@@ -4,8 +4,8 @@ Shared release primitives for consumer-owned release adapters.
 
 ## Normalization and failure semantics
 
-`@dustwave/release-core` contains only the exact deterministic Pool/Store
-release overlap. Wrangler parsing propagates malformed TOML errors and strips
+`@dustwave/release-core` contains small release mechanisms with injected consumer
+policy. Wrangler parsing propagates malformed TOML errors and strips
 non-primitive binding fields from normalized evidence. KV transforms preserve
 only key, string value, and optional metadata. Checksum verification rejects
 duplicate, missing, escaping, modified, unlisted, symlink, and unsupported
@@ -29,6 +29,23 @@ diagnostics, restores VoiceOver when it started the process, and fails missing
 recordings or transcript expectations explicitly. Consumers retain target
 selection, credentials, recording consent, evidence retention, release gates,
 provider mutation approval, deployment, and rollback.
+
+## Dependency audit evidence
+
+The Node-only `dependency-audit` entry validates npm audit v2 report structure,
+severity counts, findings and process status before declaring success. Findings
+at the injected threshold return `findings`; missing, contradictory or interrupted
+evidence returns `incomplete`. Below-threshold findings remain visible. The
+default threshold is moderate; Platform explicitly chooses high.
+
+Consumers supply the process runner and directory/scope policy. The runner must
+honor the requested 45-second deadline and SIGKILL termination, returning captured
+status/stdout/stderr and a timeout flag. The helper requests lockfile-only audit,
+disables npm retries/scripts, uses a 30-second fetch timeout, and retries only
+recognized transient failures at most three times with 5/10-second backoff.
+Authentication/configuration failures and findings are not retried. Raw transport
+diagnostics are not logged; completed vulnerability reports are. No dependency
+fix, process implementation, deployment or provider action is performed here.
 
 ## Reference
 
