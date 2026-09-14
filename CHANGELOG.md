@@ -2,6 +2,8 @@
 
 ## 0.38.0 - 2026-09-14
 
+- Add one-attempt Notion JSON transport with bounded response streaming, explicit API version, cancellation and fail-closed redirects; retry and error-presentation policy remains with each consumer.
+
 - Share characterized backup retention selection, evidence-age classification and read-only encrypted receipt inspection, preserving consumer execution authority.
 
 ## 0.37.0 - 2026-09-14

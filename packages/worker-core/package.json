@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "type": "module",
   "exports": {
     "./crypto": {
@@ -57,6 +57,10 @@
     "./response-body": {
       "types": "./src/response-body.d.ts",
       "default": "./src/response-body.js"
+    },
+    "./notion": {
+      "types": "./src/notion.d.ts",
+      "default": "./src/notion.js"
     }
   },
   "engines": {
