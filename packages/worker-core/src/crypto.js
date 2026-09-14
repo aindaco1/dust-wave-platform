@@ -60,6 +60,12 @@ export function timingSafeEqual(leftValue, rightValue) {
   return difference === 0;
 }
 
+/** Digest both texts before comparison. Empty texts compare equal; the synchronous token API is unchanged. */
+export async function timingSafeEqualText(provided, expected) {
+  const [left, right] = await Promise.all([sha256Hex(provided), sha256Hex(expected)]);
+  return timingSafeEqual(left, right);
+}
+
 export function normalizeEmail(value) {
   return String(value ?? '').trim().toLowerCase();
 }

@@ -1,9 +1,12 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "type": "module",
   "exports": {
-    "./crypto": "./src/crypto.js",
+    "./crypto": {
+      "types": "./src/crypto.d.ts",
+      "default": "./src/crypto.js"
+    },
     "./date-time": {
       "types": "./src/date-time.d.ts",
       "default": "./src/date-time.js"
@@ -50,6 +53,10 @@
     "./email": {
       "types": "./src/email.d.ts",
       "default": "./src/email.js"
+    },
+    "./response-body": {
+      "types": "./src/response-body.d.ts",
+      "default": "./src/response-body.js"
     }
   },
   "engines": {

@@ -1,13 +1,19 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.10.2",
+  "version": "0.11.0",
   "type": "module",
   "exports": {
-    "./api-client": "./src/api-client.js",
+    "./api-client": {
+      "types": "./src/api-client.d.ts",
+      "default": "./src/api-client.js"
+    },
     "./credentialed-download": "./src/credentialed-download.js",
     "./confirmation-dialog": "./src/confirmation-dialog.js",
     "./dirty-controls-browser": "./src/dirty-controls-browser.js",
-    "./dirty-controls": "./src/dirty-controls.js",
+    "./dirty-controls": {
+      "types": "./src/dirty-controls.d.ts",
+      "default": "./src/dirty-controls.js"
+    },
     "./editor": "./src/editor.js",
     "./editor-codec": "./src/editor-codec.js",
     "./marketing-assets": {
@@ -16,11 +22,20 @@
     },
     "./passwordless-session": "./src/passwordless-session.js",
     "./tabs-browser": "./src/tabs-browser.js",
-    "./tabs": "./src/tabs.js",
+    "./tabs": {
+      "types": "./src/tabs.d.ts",
+      "default": "./src/tabs.js"
+    },
     "./turnstile-browser": "./src/turnstile-browser.js",
-    "./turnstile": "./src/turnstile.js",
+    "./turnstile": {
+      "types": "./src/turnstile.d.ts",
+      "default": "./src/turnstile.js"
+    },
     "./unsaved-changes-browser": "./src/unsaved-changes-browser.js",
-    "./unsaved-changes": "./src/unsaved-changes.js",
+    "./unsaved-changes": {
+      "types": "./src/unsaved-changes.d.ts",
+      "default": "./src/unsaved-changes.js"
+    },
     "./workflow-progress": "./src/workflow-progress.js"
   },
   "engines": {

@@ -1,3 +1,5 @@
+import { readBoundedStream } from "./bounded-stream.js";
+
 export class RequestValidationError extends Error {
   constructor(message, code = 'invalid_request', status = 400) {
     super(message);
@@ -42,42 +44,13 @@ export async function readBoundedBytes(
     }
   }
 
-  if (!request.body) return new Uint8Array();
-
-  const reader = request.body.getReader();
-  const chunks = [];
-  let totalBytes = 0;
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      totalBytes += value.byteLength;
-      if (totalBytes > maximumBytes) {
-        try {
-          await reader.cancel('body_too_large');
-        } catch {
-          // Preserve the stable validation error if upstream cancellation fails.
-        }
-        throw new RequestValidationError(
-          `${bodyName} is too large`,
-          'body_too_large',
-          413
-        );
-      }
-      chunks.push(value);
-    }
-  } finally {
-    reader.releaseLock();
-  }
-
-  const bodyBytes = new Uint8Array(totalBytes);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bodyBytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return bodyBytes;
+  return readBoundedStream(request.body, maximumBytes, {
+    async overflow(reader) {
+      try { await reader.cancel('body_too_large'); } catch { /* Preserve the validation error. */ }
+      throw new RequestValidationError(`${bodyName} is too large`, 'body_too_large', 413);
+    },
+    cleanup(reader) { reader.releaseLock(); }
+  });
 }
 
 export async function readJsonObject(request, maximumBytes = 1_000_000) {

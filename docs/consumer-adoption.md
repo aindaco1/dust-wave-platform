@@ -41,6 +41,31 @@ Do not merge a breaking Platform change until all affected consumers have a
 compatible release branch. See the [repository rules](../AGENTS.md) and
 [shared-repository ADR](adr/0001-shared-repository-boundary.md).
 
+## Source adoption inventory — September 13, 2026
+
+The portfolio source review identified 12 direct Platform consumers. The public
+repository gitlinks below are verified at their linked source commits; private
+consumer identities and operational data are excluded from this public guide.
+These are pre-migration source pins, not deployment or release-status claims.
+This inventory does not automatically upgrade any project.
+
+| Public consumer source | Recorded Platform gitlink |
+| --- | --- |
+| [dust-wave-opportunity-radar](https://github.com/aindaco1/dust-wave-opportunity-radar/tree/d0fa2ca83b80fa0a022d8832a1365178ebdaf566/shared/dust-wave-platform) | `499252079bdb86f6cd92fb0d08aabbc1153aff34` |
+| [pool](https://github.com/aindaco1/pool/tree/e8e19c36e88b75cb639186de225ee6eefe56147a/shared/dust-wave-platform) | `85165a16ac6923b438514bdce0a9957c1804db5f` |
+| [store](https://github.com/aindaco1/store/tree/3ef837e8cf709472f16289eb7857171014637705/shared/dust-wave-platform) | `ae380c43a16af352ae946f47dd1b7aa4e5b093f0` |
+| [dust-wave-new](https://github.com/aindaco1/dust-wave-new/tree/ba416c499123e72bf0c4cc6e14476035c81b6fd1/shared/dust-wave-platform) | `af2a5e5e4b65f218e627652b8243feb9704c48a1` |
+| [scheduler](https://github.com/aindaco1/scheduler/tree/1701eb22421407111ea7a6aba7374caf4141e29c/shared/dust-wave-platform) | `af2a5e5e4b65f218e627652b8243feb9704c48a1` |
+| [film](https://github.com/aindaco1/film/tree/e7e1b18d2f9c816e37ac80099a125758ed73488a/shared/dust-wave-platform) | `af2a5e5e4b65f218e627652b8243feb9704c48a1` |
+| [rss-feed-digest](https://github.com/aindaco1/rss-feed-digest/tree/9d901d7067a7b720e6fa7ea74e6939bc3cfa3785/shared/dust-wave-platform) | `af2a5e5e4b65f218e627652b8243feb9704c48a1` |
+| [dust-wave-podcast](https://github.com/aindaco1/dust-wave-podcast/tree/20f7bcabe033e02f1b2833daf78da0c4a775883f/shared/dust-wave-platform) | `af2a5e5e4b65f218e627652b8243feb9704c48a1` |
+| [auto-subtitle](https://github.com/aindaco1/auto-subtitle/tree/2a8bf5467f8baa5a7cd6dfa0021289f2d149ab28/shared/dust-wave-platform) | `6da7db044f668a481d4bac2e5c2c8d78d17a3d2d` |
+| [github-repo-scan](https://github.com/aindaco1/github-repo-scan/tree/59f937e9c252bcf610ff646b951e2d7c58efac0c/shared/dust-wave-platform) | `499252079bdb86f6cd92fb0d08aabbc1153aff34` |
+| [podcast-visualizer](https://github.com/aindaco1/podcast-visualizer/tree/9140a979b5853a458a454b5118d8d0b6dd38c5cc/shared/dust-wave-platform) | `6da7db044f668a481d4bac2e5c2c8d78d17a3d2d` |
+
+Use the [capability guide](capabilities.md) to select existing entries before
+starting a project. Retain the historical release evidence below separately.
+
 ## Recorded adoption snapshot
 
 The following values were recorded on **2026-08-06**. Documentation provenance
