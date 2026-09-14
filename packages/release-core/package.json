@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/release-core",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "exports": {
     "./cache-policy": {
@@ -38,6 +38,14 @@
     "./dependency-audit": {
       "types": "./src/dependency-audit.d.ts",
       "default": "./src/dependency-audit.js"
+    },
+    "./backup-planning": {
+      "types": "./src/backup-planning.d.ts",
+      "default": "./src/backup-planning.js"
+    },
+    "./backup-receipts": {
+      "types": "./src/backup-receipts.d.ts",
+      "default": "./src/backup-receipts.js"
     }
   },
   "engines": {

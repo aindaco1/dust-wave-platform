@@ -52,3 +52,33 @@ fix, process implementation, deployment or provider action is performed here.
 See the [public exports](package.json), [source contracts](src/), and
 [behavior tests](test/). Follow the shared
 [consumer adoption guide](../../docs/consumer-adoption.md) when updating a pin.
+
+## Backup planning and receipt inspection
+
+`backup-planning` exports `planSnapshotRetention` and `evidenceAgeCheck`. Supply
+consumer-verified records with unique snapshot names, valid `Date` instances,
+archive sizes and an explicit retention policy. The planner preserves the newest
+snapshot, then one snapshot per UTC day, ISO week and month; ties preserve input
+order. Release snapshots are retained unless explicitly disabled. Inputs are not
+mutated. Plans contain no execution authority and never read or delete files.
+
+Evidence classification accepts an injected clock, uses the first present
+timestamp field, treats an invalid timestamp as failure, and clamps future
+timestamps to age zero. Missing/stale optional evidence warns; required evidence
+fails. This preserves existing consumers and does not certify a receipt itself.
+
+`backup-receipts` is an explicit **Node-only, read-only** entry reusing
+`file-integrity` hashing. `readRetentionReceipt(directory)` returns an `ok` union
+with the original reason codes for missing/invalid/unencrypted/date-invalid,
+unsafe-path, symlink or checksum failures. It requires a timestamp but permits
+any basename archive extension. `inspectEncryptedSnapshot(directory)` requires
+a real directory, a safe output name and `.tar.gz.age` or `.tar.gz.gpg`, but
+does not require a timestamp; it throws descriptive errors. Unexpected filesystem
+errors and structurally invalid parsed JSON can throw in both profiles, as in
+the characterized consumers. `requireBackupDirectory(value, label)` validates
+and resolves a real non-symlinked directory.
+
+These checks are observations, not race-free capabilities. Consumers retain
+root/discovery policy, acknowledgement text, encryption/decryption, device
+separation, copy/delete execution and immediate revalidation before mutation.
+No shared helper uploads, copies, removes, decrypts or restores a snapshot.

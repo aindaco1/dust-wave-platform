@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.38.0 - 2026-09-14
+
+- Share characterized backup retention selection, evidence-age classification and read-only encrypted receipt inspection, preserving consumer execution authority.
+
 ## 0.37.0 - 2026-09-14
 
 - Publish typed admin client, tabs, dirty-controls, unsaved-change and Turnstile entries.
