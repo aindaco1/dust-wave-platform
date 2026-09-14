@@ -15,11 +15,19 @@ the packages the project needs. There is no shared application runtime.
 | Local Markdown links and ATX anchors | `test-core/documentation` (Node only) | File discovery, required guides, content checks, malformed-link and root-boundary policy |
 | SQLite-backed D1 unit tests | `test-core/sqlite-d1` (injected SQLite connection) | Runtime, migrations, foreign keys, fixtures, connection lifetime and real D1 integration tests |
 | Immutable consumer pin assertions | `test-core/consumer-pin` (Node only) | Expected commit, exact versions, lockfile entries and rollback |
+| Backup retention and readiness | `release-core/backup-planning`, `backup-receipts` (receipts: Node only) | Discovery, deletion, copying, encryption, acknowledgements and recovery |
+| One bounded Notion request | `worker-core/notion` | Version, schemas, authorization, retry and error presentation |
+| Lazy first-frame video posters | `site-shell/video-first-frame-poster-browser` | URL-base policy, media, global name, CSP and placement |
 | Reliable npm audit evidence | `release-core/dependency-audit` (Node only) | Process adapter, directories, scopes, minimum severity and release decision |
 | Static site foundations | `design-core`, `site-shell`, `build-core`, `media-core` | Jekyll wiring, layouts, content, routes and publishing |
 | Captions, alignment and local product videos | `timed-text`, `product-video-core` | Models, media, transcript policy, app integration and output acceptance |
 
 ## Starting a project
+
+Use the [tested minimal recipes](../examples/recipes/README.md) for a Worker/admin
+preview, scheduled digest preview, or Jekyll site. Each installs only selected
+packages, checks the exact staged gitlink and lockfile, and keeps deployment local
+to the new consumer.
 
 For a static site with a Worker, select design/site-shell foundations and only
 the Worker/admin entries used by its routes. Keep Jekyll integration in the

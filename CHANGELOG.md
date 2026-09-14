@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.38.0 - 2026-09-14
+
+- Add fresh-checkout starter recipes for Worker/admin and scheduled previews plus a Jekyll build using the independently pinned template. CI verifies exact pins, narrow installs, behavior and drift rejection.
+
+- Share lazy first-frame video posters in Site Shell 0.3.0 with explicit page/document-base URL policy and consumer-owned global/cache names.
+
+- Add one-attempt Notion JSON transport with bounded response streaming, explicit API version, cancellation and fail-closed redirects; retry and error-presentation policy remains with each consumer.
+
+- Share characterized backup retention selection, evidence-age classification and read-only encrypted receipt inspection, preserving consumer execution authority.
+
 ## 0.37.0 - 2026-09-14
 
 - Publish typed admin client, tabs, dirty-controls, unsaved-change and Turnstile entries.

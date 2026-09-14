@@ -32,3 +32,20 @@ jobs:
         run: npm ci
       - name: Run security gates and tests
         run: npm run check
+
+  jekyll-recipe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: '3.2'
+      - name: Build a new Jekyll consumer from pinned sources
+        run: npm run test:recipes:jekyll

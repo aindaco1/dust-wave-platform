@@ -1,0 +1,8 @@
+node_modules/
+_site/
+.sass-cache/
+.jekyll-cache/
+.bundle/
+vendor/
+.dev.vars
+.env

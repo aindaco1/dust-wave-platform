@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/platform-workspace",
-  "version": "0.37.0",
+  "version": "0.38.0",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -10,7 +10,9 @@
     "check": "npm run security:secrets && npm run security:audit && npm test",
     "security:secrets": "node scripts/scan-tracked-secrets.mjs",
     "security:audit": "node scripts/audit-dependencies.mjs",
-    "test": "node --test packages/*/test/*.test.js"
+    "test": "node --test packages/*/test/*.test.js && npm run test:recipes",
+    "test:recipes": "node scripts/test-recipes.mjs",
+    "test:recipes:jekyll": "node scripts/test-recipes.mjs --jekyll"
   },
   "engines": {
     "node": ">=20.9"

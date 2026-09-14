@@ -140,3 +140,25 @@ See the [public exports](package.json), [source contracts](src/), and
 ## Email delivery defaults
 
 `automaticEmailHeaders(headers)` preserves existing headers and adds `Auto-Submitted: auto-generated` when absent. `prepareResendEmail(payload, { replyTo })` also supplies a missing reply address. Existing explicit reply addresses and unsubscribe controls take precedence. Content, sender, recipients and attachments are preserved; invalid multiline header values fail closed. Apply these helpers before an outbox payload is frozen, never to an already attempted message. They do not send, suppress, retry, generate text, or decide marketing consent.
+
+## Notion request boundary
+
+`notion` exports `notionRequest<T>` and `NotionResponseError`. Supply an API-relative
+path, token, explicit API version and optional request init. One request is sent
+to the fixed Notion `/v1/` origin; redirects are returned as HTTP errors and never
+followed. Credentials and the JSON content type are owned by the helper. Timeout
+(default 30 seconds) remains active through streamed response consumption; the
+response cap defaults to 2,000,000 bytes. An optional caller signal is combined
+with the deadline. Empty successful bodies yield `{}`; invalid JSON, network
+errors, cancellation and over-limit bodies throw without retry.
+
+HTTP errors carry only status and Retry-After by default. An optional
+`errorMessage({ status, text })` callback preserves a consumer's existing error
+presentation; treat its bounded provider text as untrusted and keep private
+details out of logs. The helper neither infers retry safety nor replays a
+request, especially a write with an uncertain outcome. Consumers own method,
+body, source IDs, schema, retries, deduplication and reconciliation.
+
+This uses the existing bounded response reader and Web Platform abort signals.
+`provider-fetch`'s existing headers-only timeout cannot bound response streaming,
+so it is not used as a replacement for the full-response deadline here.
