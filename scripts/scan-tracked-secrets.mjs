@@ -25,7 +25,7 @@ const RULES = Object.freeze([
   },
   {
     label: "GitHub access token",
-    pattern: /\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b/g
+    pattern: /\b(?:ghs_[A-Za-z0-9._-]{36,}|gh[pour]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b/g
   },
   {
     label: "Cloudflare global API key",
