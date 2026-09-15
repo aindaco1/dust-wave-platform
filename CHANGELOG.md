@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Detect variable-length GitHub App installation tokens in the tracked-secret scanner, including JWT dots, underscores, and hyphens. Existing token formats and value-free diagnostics remain supported.
+
 ## 0.38.0 - 2026-09-14
 
 - Add fresh-checkout starter recipes for Worker/admin and scheduled previews plus a Jekyll build using the independently pinned template. CI verifies exact pins, narrow installs, behavior and drift rejection.

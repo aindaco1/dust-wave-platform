@@ -88,6 +88,23 @@ test("detects private key material", () => {
   }]);
 });
 
+test("detects classic and stateless GitHub tokens without disclosing any part", () => {
+  const tokens = [
+    ["ghs", "A".repeat(36)].join("_"),
+    ...[480, 1000].map((size) => ["ghs", "12345", [
+      "eyJ" + "a".repeat(33), "b_c-".repeat(size / 4), "d_e-".repeat(16)
+    ].join(".")].join("_")),
+    ["ghp", "A".repeat(36)].join("_"),
+    ["github", "pat", "A".repeat(60)].join("_")
+  ];
+  for (const token of tokens) {
+    const findings = scanTextForTrackedSecrets(`before\ncredential=${token}\nafter`, "fixture.txt");
+    assert.deepEqual(findings, [{ file: "fixture.txt", line: 2, label: "GitHub access token" }]);
+    assert.equal(JSON.stringify(findings).includes(token), false);
+  }
+  assert.deepEqual(scanTextForTrackedSecrets("ghs_test ghp_fixture github_pat_example"), []);
+});
+
 test("finds an injected local secret in history without returning its value", () => {
   const root = mkdtempSync(join(tmpdir(), "dustwave-secret-audit-"));
   const secret = ["owner", "secret", "C".repeat(24)].join("-");
