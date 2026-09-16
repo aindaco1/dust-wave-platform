@@ -17,7 +17,8 @@ calculation policy throws rather than silently selecting a rate or behavior.
 The provider entry contains bounded Zip-Tax and New Mexico GRT lookups plus
 address, street-parser, and provider-source normalization. Provider bases
 require HTTPS except for the explicit localhost allowance. Redirects are
-rejected, and response sizes and deadlines are bounded. Consumers retain
+rejected with `tax_provider_redirect`: transport uses Worker-compatible manual
+redirect mode and rejects every 3xx response without forwarding credentials. Response sizes and deadlines are bounded. Consumers retain
 provider choice, credentials, taxability, fallback,
 retry, checkout, storage, and deployment policy.
 

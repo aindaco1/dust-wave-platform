@@ -139,7 +139,7 @@ export function normalizeTaxProviderSource(value) {
 async function providerFetch(url, init, options) {
   let response;
   try {
-    response = await fetchWithTimeout(url, { ...init, redirect: 'error' }, positive(options.timeoutMs, 'timeoutMs'), {
+    response = await fetchWithTimeout(url, { ...init, redirect: 'manual' }, positive(options.timeoutMs, 'timeoutMs'), {
       fetchTarget: options.fetchTarget
     });
   } catch (error) {
@@ -149,6 +149,11 @@ async function providerFetch(url, init, options) {
         : `${options.failureLabel} failed`,
       error?.name === 'AbortError' ? 'tax_provider_timeout' : 'tax_provider_unavailable'
     );
+  }
+  // Workers support manual/follow, not the Fetch standard's error mode.
+  // Reject redirects explicitly before reading any body or forwarding credentials.
+  if (response.status >= 300 && response.status < 400) {
+    throw new TaxProviderError('Tax provider redirects are not allowed', 'tax_provider_redirect');
   }
   let text;
   try {

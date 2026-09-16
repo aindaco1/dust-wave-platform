@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.39.1 - 2026-09-16
+
+- Tax Core 0.3.1 uses Cloudflare-compatible manual redirect handling and rejects every 3xx response before reading its body. Live New Mexico GRT and ZIP.TAX lookups no longer fail before sending their request in the Worker runtime; credentials are never forwarded to a redirect destination.
+- Regression coverage recreates Cloudflare's supported redirect modes and verifies redirect rejection. Pool adopts the corrected provider transport; other consumers remain independently pinned.
+
 ## 0.39.0 - 2026-09-16
 
 - Admin Shell 0.12.0 provides one classic-browser/module editor codec, correct nested bold/italic rendering, local image preview caching and sandboxed-preview thumbnails, and optional image descriptions with advisory notices. Empty text placeholders remain distinct from malformed content.

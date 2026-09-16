@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/tax-core",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "bin": {
     "dustwave-update-nm-grt-starter": "./bin/update-nm-grt-starter.mjs"
   },
