@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "type": "module",
   "exports": {
     "./api-client": {
@@ -36,7 +36,12 @@
       "types": "./src/unsaved-changes.d.ts",
       "default": "./src/unsaved-changes.js"
     },
-    "./workflow-progress": "./src/workflow-progress.js"
+    "./workflow-progress": "./src/workflow-progress.js",
+    "./editor-codec-browser": "./src/editor-codec-browser.js",
+    "./editor-media": "./src/editor-media.js",
+    "./editor-media-browser": "./src/editor-media-browser.js",
+    "./feedback": "./src/feedback.js",
+    "./feedback-browser": "./src/feedback-browser.js"
   },
   "engines": {
     "node": ">=20.9"

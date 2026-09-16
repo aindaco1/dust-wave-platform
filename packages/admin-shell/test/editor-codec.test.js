@@ -6,6 +6,7 @@ import {
   editorElementToMarkdown,
   markdownToEditorHtml,
   RICH_TEXT_POLICY,
+  renderEditorInlineMarkdown,
   sanitizeClipboardHtml,
   TIMED_TEXT_POLICY
 } from "../src/editor-codec.js";
@@ -56,4 +57,28 @@ test("timed-text mode strips headings, lists, and links but retains emphasis", (
     { DOMParser }
   );
   assert.equal(html, "Caption<strong>One</strong><br>Two<br>");
+});
+
+for (const [markdown, expected] of [
+  ['**Dinosaurs ... *enough said***', '<strong>Dinosaurs ... <em>enough said</em></strong>'],
+  ['**before *inside* after**', '<strong>before <em>inside</em> after</strong>'],
+  ['*before **inside** after*', '<em>before <strong>inside</strong> after</em>'],
+  ['***both***', '<strong><em>both</em></strong>'],
+]) test(`nested emphasis renders and round-trips: ${markdown}`, () => {
+  const html = markdownToEditorHtml(markdown, { ...RICH_TEXT_POLICY, blockMode: false });
+  assert.equal(html, expected);
+  assert.equal(editorElementToMarkdown(editor(html)), markdown);
+});
+
+
+test("link formatting cannot rewrite URL attributes and Worker policy rejects unsafe URLs", () => {
+  const html = renderEditorInlineMarkdown('**[A *link*](https://example.test/a_b_c?q=**ok**)&safe**');
+  assert.match(html, /href="https:\/\/example.test\/a_b_c\?q=\*\*ok\*\*"/);
+  assert.match(html, /<em>link<\/em>/);
+  const rejected = [];
+  assert.equal(renderEditorInlineMarkdown('[unsafe](../admin)', {
+    allowLinks: true, isSafeHref: href => href.startsWith('https://'),
+    onUnsafeHref: href => rejected.push(href), discardUnsafeLinks: true
+  }), 'unsafe');
+  assert.deepEqual(rejected, ['../admin']);
 });
