@@ -32,7 +32,7 @@ test('performs the characterized Zip-Tax lookup with bounded credentials and add
   assert.match(observed.url, /^https:\/\/api\.zip-tax\.com\/request\/v60\?/u);
   assert.match(observed.url, /address=123%20Main%20St%2C%20Denver/u);
   assert.equal(observed.init.headers['X-API-KEY'], 'zip-test-key');
-  assert.equal(observed.init.redirect, 'error');
+  assert.equal(observed.init.redirect, 'manual');
   assert.ok(observed.init.signal instanceof AbortSignal);
 });
 
@@ -112,4 +112,39 @@ test('returns bounded provider guidance but not response payloads on Zip-Tax fai
       && error.message.length === 512
       && !('payload' in error)
   );
+});
+
+
+test('supports Cloudflare fetch redirect modes for live New Mexico quotes', async () => {
+  const result = await lookupNewMexicoGrt({
+    street: parseNewMexicoStreetAddress('123 Main St'),
+    city: 'Corrales',
+    postalCode: '87048',
+    fetchTarget: async (_url, init) => {
+      if (!['follow', 'manual'].includes(init.redirect)) {
+        throw new TypeError('Cloudflare fetch only supports follow or manual redirects');
+      }
+      return json({ results: [{ success: true, tax_rate: '7.5625', location_code: '29-504' }] });
+    }
+  });
+  assert.equal(result.tax_rate, '7.5625');
+  assert.equal(result.location_code, '29-504');
+});
+
+test('rejects redirect responses without following them or exposing credentials', async () => {
+  for (const status of [300, 301, 302, 303, 304, 305, 306, 307, 308, 399]) {
+    let calls = 0;
+    await assert.rejects(lookupZipTax({
+      apiKey: 'private-key',
+      address: 'private-address',
+      fetchTarget: async (_url, init) => {
+        calls += 1;
+        assert.equal(init.redirect, 'manual');
+        return new Response(null, { status, headers: { location: 'https://other.example/private-address' } });
+      }
+    }), (error) => error instanceof TaxProviderError
+      && error.code === 'tax_provider_redirect'
+      && !error.message.includes('private-'));
+    assert.equal(calls, 1);
+  }
 });
