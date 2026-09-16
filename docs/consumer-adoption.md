@@ -124,3 +124,22 @@ When refreshing this table, verify the consumer's release and recorded gitlink,
 include the verification date and evidence, and distinguish shipped adoption
 from a local pointer update or passing Platform tests. Consumer pull requests
 remain authoritative for migration, deployment, and rollback evidence.
+
+
+## Pool editor and feedback migration (2026-09-16)
+
+Platform 0.39.0 publishes Admin Shell 0.12.0 and Design Core 0.3.0. The Pool
+migration branch `codex/admin-preview-feedback` replaces local inline Markdown,
+thumbnail/sandbox substitution, blank text and alt-description mechanics with
+shared functions; it uses shared bilingual feedback through a campaign field
+adapter and opts into shared editor layout mixins. The consumer retains GitHub
+uploads, API routes, campaign policy, Ruby/Jekyll filters, and publication authority.
+Consumer unit and browser tests cover nested emphasis, canonical saved asset paths,
+local image previews before deployment, optional alt text, readable English/Spanish
+errors, and panel containment. Platform tests cover the neutral policies separately.
+
+The Pool pull request records the final immutable pin, deployment, and validation.
+Rollback reverts that consumer change and restores Platform
+`da7bd21ad77e936342d7d67948da88a25f56782c` (Admin Shell 0.11.0, Design Core 0.2.0)
+together with its local adapters. No content or storage migration is required.
+Other consumers retain their independent pins and deployments.

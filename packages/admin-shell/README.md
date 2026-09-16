@@ -92,3 +92,50 @@ authoritative.
 See the [public exports](package.json), [source contracts](src/), and
 [behavior tests](test/). Follow the shared
 [consumer adoption guide](../../docs/consumer-adoption.md) when updating a pin.
+
+
+## Editor rendering, media, and feedback (0.12.0)
+
+`editor-codec` and the classic `editor-codec-browser` entry use one implementation
+(`DustWaveAdminShellEditorCodec`). Nested bold/italic spans render and round-trip
+through the editor. Existing rich-text and timed-text policies remain available.
+Optional `isSafeHref`, `onUnsafeHref`, `discardUnsafeLinks`, and `externalLinks`
+let a Worker adapter retain its URL rules and report unsafe links without
+changing the browser policy. HTML sanitization and storage remain the consumer's
+responsibility; the renderer accepts only its existing inline formatting tags.
+
+`editor-media` / `editor-media-browser` expose `DustWaveAdminShellEditorMedia`:
+
+- `createImagePreviewCache()` maps canonical uploaded paths to tab-local object
+  URLs. `remember(path, File)` rejects missing paths/non-images, revokes a replaced
+  URL, and returns its preview record. `clear()` revokes every URL; call on logout
+  or teardown. Never serialize object URLs into saved content.
+- `imageThumbnail(record, options)` caches a bounded WebP data thumbnail on the
+  record. The default maximum edge is 960 pixels; decode/canvas failures return
+  an empty string. Invalid size options throw. Consumers inject DOM APIs in tests.
+- `applyPreviewMedia(sanitizedHtml, replacements, options)` replaces mapped media
+  with image thumbnails inside opaque sandbox previews. Failed or non-image local
+  media receives consumer-supplied placeholder text. It does not sanitize arbitrary
+  HTML or weaken an iframe's sandbox. Original server content stays unchanged.
+- `isEmptyTextBlock(block, options)` recognizes only blank text placeholders with
+  allowed keys. Unknown fields, raw HTML, and other content types remain subject
+  to consumer validation.
+- `normalizeImageAccessibility(image, options)` preserves explicit decorative
+  state and returns cleaned alt text plus advisory `normalized`/`recommended`
+  notices. Missing descriptions never produce a save/publish error. Consumers
+  supply their text cleaner, length limit, and validation policy.
+
+`feedback` / `feedback-browser` expose `DustWaveAdminShellFeedback`. `message`
+provides English/Spanish defaults, regional locale fallback, interpolation, and
+an optional translation callback. `formatIssue` recognizes common validation
+reasons; callers supply localized field names and domain context. Unknown reasons
+return an empty string. `createRequestError` uses the consumer's `resolveIssue`
+adapter and safe localized request/status fallbacks instead of displaying raw
+provider diagnostics. It retains the original response in `error.rawData`, a
+localized display copy in `error.data`, and `error.status`. Do not log private
+response data without the consumer's redaction policy. These helpers never send
+requests, choose authorization, or change backend validation outcomes.
+
+Pool characterizes its browser editor, Worker preview, before/after-save media
+previews, validation, and responsive layout independently. Other consumers adopt
+these additive entries through their own pinned upgrades.

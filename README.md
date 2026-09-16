@@ -25,10 +25,10 @@ repository contribution rules.
 | `@dustwave/inventory-core` | [Inventory snapshots, counts, and expiring reservations](packages/inventory-core/README.md) | `0.1.0`|
 | `@dustwave/worker-core` | [Worker HTTP, security, providers, sessions, logging, and outbox mechanics](packages/worker-core/README.md) | `0.15.0`|
 | `@dustwave/shipping-core` | [Shipping profiles, quotes, USPS transport, and country data](packages/shipping-core/README.md) | `0.2.0`|
-| `@dustwave/admin-shell` | [Unstyled admin clients, session/UI controls, editors, and share assets](packages/admin-shell/README.md) | `0.11.0`|
+| `@dustwave/admin-shell` | [Unstyled admin clients, session/UI controls, editors, and share assets](packages/admin-shell/README.md) | `0.12.0`|
 | `@dustwave/tax-core` | [Destination normalization, manual calculation, and provider transport](packages/tax-core/README.md) | `0.3.0`|
 | `@dustwave/test-core` | [Browser Storage setup and overflow assertions](packages/test-core/README.md) | `0.2.0`|
-| `@dustwave/design-core` | [Compile-time Sass foundations, forms, layout, and components](packages/design-core/README.md) | `0.2.0`|
+| `@dustwave/design-core` | [Compile-time Sass foundations, forms, layout, and components](packages/design-core/README.md) | `0.3.0`|
 | `@dustwave/site-shell` | [Classic browser navigation, announcements, forms, and cart display](packages/site-shell/README.md) | `0.3.0`|
 | `@dustwave/build-core` | [Allowlisted generated CSS/JavaScript minification](packages/build-core/README.md) | `0.2.0`|
 | `@dustwave/release-core` | [Release normalization, integrity, provider, and accessibility evidence](packages/release-core/README.md) | `0.4.0`|

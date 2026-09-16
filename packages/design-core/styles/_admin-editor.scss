@@ -1,0 +1,35 @@
+// Opt-in editor mechanics; consumers retain selectors, tokens and breakpoints.
+@mixin admin-editor-contained-control {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@mixin admin-editor-fluid-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+@mixin admin-editor-wrap-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@mixin admin-editor-wrap-button {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+@mixin admin-editor-open-panel-layer($layer: 10) {
+  z-index: $layer;
+}
+
+@mixin admin-editor-block-spacing($gap: 8px) {
+  margin-bottom: $gap;
+}
+
+@mixin admin-editor-preview-media {
+  max-width: 100%;
+  height: auto;
+}

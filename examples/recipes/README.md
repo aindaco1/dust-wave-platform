@@ -6,7 +6,7 @@ application generator. Copy one into a new consumer; keep its policies there.
 
 | Recipe | Runtime packages | What the fixture exercises |
 | --- | --- | --- |
-| [Worker/admin](worker-admin/) | Worker Core 0.15.0, Admin Shell 0.11.0 | Deny-by-default authorization, CSRF header wiring, bounded JSON and typed client errors |
+| [Worker/admin](worker-admin/) | Worker Core 0.15.0, Admin Shell 0.12.0 | Deny-by-default authorization, CSRF header wiring, bounded JSON and typed client errors |
 | [Scheduled digest](scheduled-digest/) | Digest Core 0.1.0 | Scheduled preview creation, escaping, and failure before saving |
 | [Jekyll site](jekyll-site/) | Site Shell 0.3.0 | Template rendering, selected browser asset publication and exclusion of tooling |
 
@@ -21,7 +21,7 @@ In a new, empty project directory with Node 22 or 24 and Git installed:
 ```sh
 git init
 git submodule add https://github.com/aindaco1/dust-wave-platform.git shared/dust-wave-platform
-git -C shared/dust-wave-platform checkout --detach v0.38.0
+git -C shared/dust-wave-platform checkout --detach v0.39.0
 cp -R shared/dust-wave-platform/examples/recipes/worker-admin/. .
 git -C shared/dust-wave-platform rev-parse HEAD > platform-commit.txt
 git add .gitmodules shared/dust-wave-platform platform-commit.txt

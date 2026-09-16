@@ -45,3 +45,17 @@ records why Liquid includes and Ruby plugins remain outside Platform and why
 the Jekyll Template has its own ownership and explicit upgrade workflow.
 See the [characterization tests](test/styles.test.js) and the
 [consumer adoption guide](../../docs/consumer-adoption.md).
+
+
+## Admin editor containment (0.3.0)
+
+Import `admin-editor` for opt-in mixins derived from Pool's editor fixes:
+`admin-editor-contained-control`, `admin-editor-fluid-grid`,
+`admin-editor-wrap-text`, `admin-editor-wrap-button`,
+`admin-editor-open-panel-layer($layer: 10)`,
+`admin-editor-block-spacing($gap: 8px)`, and `admin-editor-preview-media`.
+They emit declarations only where included. Consumers choose selectors, panel
+state, stacking context, typography, color, and spacing policy. This keeps long
+filenames and form controls contained, open settings panels above adjacent media,
+and preview images within the viewport without introducing shared product CSS.
+Pool's English/Spanish browser tests cover desktop, tablet, and mobile geometry.

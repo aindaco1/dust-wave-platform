@@ -6,6 +6,7 @@ import test from "node:test";
 const PACKAGE_URL = new URL("../package.json", import.meta.url);
 
 const EXPECTED_EXPORTS = {
+  "./styles/admin-editor": "./styles/_admin-editor.scss",
   "./styles/base": "./styles/_base.scss",
   "./styles/buttons": "./styles/_buttons.scss",
   "./styles/content-blocks": "./styles/_content-blocks.scss",

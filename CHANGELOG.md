@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.39.0 - 2026-09-16
+
+- Admin Shell 0.12.0 provides one classic-browser/module editor codec, correct nested bold/italic rendering, local image preview caching and sandboxed-preview thumbnails, and optional image descriptions with advisory notices. Empty text placeholders remain distinct from malformed content.
+- Shared admin feedback converts validation and request failures to readable English/Spanish with consumer-supplied field names. Original response diagnostics remain available on the error object.
+- Design Core 0.3.0 adds opt-in editor containment, wrapping, panel stacking, spacing, and responsive media mixins; consumers retain their selectors and visual design.
+- Pool adopts the shared functions through its domain adapters. Other consumers remain independently pinned.
 
 - Detect variable-length GitHub App installation tokens in the tracked-secret scanner, including JWT dots, underscores, and hyphens. Existing token formats and value-free diagnostics remain supported.
 

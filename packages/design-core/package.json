@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/design-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "files": [
     "styles"
@@ -13,7 +13,8 @@
     "./styles/layout": "./styles/_layout.scss",
     "./styles/mixins": "./styles/_mixins.scss",
     "./styles/modal": "./styles/_modal.scss",
-    "./styles/utilities": "./styles/_utilities.scss"
+    "./styles/utilities": "./styles/_utilities.scss",
+    "./styles/admin-editor": "./styles/_admin-editor.scss"
   },
   "sideEffects": [
     "**/*.scss"
