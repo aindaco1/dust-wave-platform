@@ -20,7 +20,7 @@ export interface DialogueBoundaryDecision {
   action: "merge" | "keep";
 }
 
-export const DIALOGUE_REFLOW_POLICY_VERSION: "dialogue-reflow-v1";
+export const DIALOGUE_REFLOW_POLICY_VERSION: "dialogue-reflow-v2";
 export const DEFAULT_DIALOGUE_REFLOW_POLICY: Readonly<DialogueReflowPolicy>;
 
 export function reflowDialogueCues(
