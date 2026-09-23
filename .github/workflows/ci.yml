@@ -14,6 +14,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  native:
+    runs-on: macos-26
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        fluidaudio: ['0.15.5', '0.15.6', '0.15.7']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Characterize each consumer's FluidAudio version
+        env:
+          FLUIDAUDIO_VERSION: ${{ matrix.fluidaudio }}
+        run: |
+          bash scripts/test-native-version.sh "$FLUIDAUDIO_VERSION"
+
   test:
     strategy:
       matrix:
