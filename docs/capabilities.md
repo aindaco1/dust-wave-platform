@@ -14,6 +14,7 @@ the packages the project needs. There is no shared application runtime.
 | Digest presentation | `digest-core` | Newsletter selection, templates, recipients and sending |
 | Local Markdown links and ATX anchors | `test-core/documentation` (Node only) | File discovery, required guides, content checks, malformed-link and root-boundary policy |
 | SQLite-backed D1 unit tests | `test-core/sqlite-d1` (injected SQLite connection) | Runtime, migrations, foreign keys, fixtures, connection lifetime and real D1 integration tests |
+| Advisory semantic evaluation | `test-core/jev` | Candidate allowlists, render capture, requirements, calibration, credentials, spending caps, evidence storage and test gates |
 | Immutable consumer pin assertions | `test-core/consumer-pin` (Node only) | Expected commit, exact versions, lockfile entries and rollback |
 | Backup retention and readiness | `release-core/backup-planning`, `backup-receipts` (receipts: Node only) | Discovery, deletion, copying, encryption, acknowledgements and recovery |
 | One bounded Notion request | `worker-core/notion` | Version, schemas, authorization, retry and error presentation |

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.40.0 - 2026-09-22
+
+- Test Core 0.3.0 adds an opt-in Jev choice evaluator and bounded Cloudflare
+  transport. Consumers retain fixtures, rubrics, credentials, calibration,
+  spending and release decisions. Reports are advisory; malformed or partial
+  responses never pass. No existing test or runtime entry invokes the model.
+
 ## 0.39.1 - 2026-09-16
 
 - Tax Core 0.3.1 uses Cloudflare-compatible manual redirect handling and rejects every 3xx response before reading its body. Live New Mexico GRT and ZIP.TAX lookups no longer fail before sending their request in the Worker runtime; credentials are never forwarded to a redirect destination.

@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/test-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "exports": {
     ".": {
@@ -18,6 +18,10 @@
     "./sqlite-d1": {
       "types": "./src/sqlite-d1.d.ts",
       "default": "./src/sqlite-d1.js"
+    },
+    "./jev": {
+      "types": "./src/jev.d.ts",
+      "default": "./src/jev.js"
     }
   },
   "engines": {
