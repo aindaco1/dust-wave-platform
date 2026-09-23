@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Extract shared local speech and Apple generation adapters into `native/`, with
+  compatibility coverage for the three existing FluidAudio versions. Keep each
+  consumer's prompts, formatting rules, model installation, and release authority.
+- Add a read-only native consumer pin check and native CI matrix. No existing
+  JavaScript package version or timed-text/Jev policy changes.
+
 ## 0.40.0 - 2026-09-22
 
 - Test Core 0.3.0 adds an opt-in Jev choice evaluator and bounded Cloudflare

@@ -1,4 +1,6 @@
 node_modules/
+native/.build/
+native/.swiftpm/
 .DS_Store
 coverage/
 *.log

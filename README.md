@@ -38,6 +38,12 @@ repository contribution rules.
 
 ## Development
 
+The separately scoped [native Swift package](native/README.md) shares local
+speech and Apple generation mechanics across Record, CutNotes, Auto Subtitle,
+and Podcast Visualizer. Product policies, data, model installation, and releases
+stay with each app. Native consumers use exact gitlinks; they add no dependency
+to the Node/Worker packages. See [ADR 0004](docs/adr/0004-native-speech-and-apple-generation.md).
+
 Use Node.js 20.9 or newer; CI uses Node.js 22 and 24. From the repository root:
 
 ```bash

@@ -6,6 +6,12 @@ models, storage, templates, routes, secrets, content, and deployment authority.
 
 ## Pinning and ownership
 
+Native macOS consumers use the same immutable gitlink with a SwiftPM path
+dependency on `native/`. Preserve the consumer's exact FluidAudio declaration
+and lockfile. Run `node scripts/check-native-consumers.mjs --root /path/to/checkouts`
+to verify a coordinated cohort before building and evaluating each app. Native
+behavior and rollback are documented in the [package guide](../native/README.md).
+
 Each consumer pins this repository as `shared/dust-wave-platform` and imports an exact package version. Submodule pointers are updated independently on consumer release branches. A consumer must never import another consumer's application code or storage.
 
 Package releases are immutable. Read the package's README and public exports
