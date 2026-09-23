@@ -1,6 +1,7 @@
 # `@dustwave/test-core`
 
-Test-framework-neutral browser Storage setup and mobile overflow assertions.
+Test-framework-neutral browser Storage setup, mobile overflow assertions and
+opt-in semantic evaluation.
 Consumers inject runner adapters and retain fixtures, pages, viewports,
 product assertions, browser installation, and runner configuration.
 
@@ -44,6 +45,32 @@ reproduce D1 query-batch results, sessions, dump, durability or all metadata:
 timing/size are zero placeholders and sessions/dump throw. Keep real Worker/D1
 integration checks. Shared SQLite behavior tests skip only when Node lacks the
 builtin; the Node 22/24 CI lanes run them.
+
+## Advisory Jev evaluation
+
+The opt-in `jev` entry creates atomic choice questions, validates complete Jev
+responses, routes near ties/unknown models to review, and collects advisory
+batch evidence. Cases may include an optional `reference` string for comparisons;
+questions explicitly prohibit crediting source facts absent from the candidate.
+`callCloudflareJev` makes one request with a timeout through body
+consumption, bounded response streaming, rejected redirects and sanitized errors.
+It reuses Worker Core's bounded response reader. No credentials are discovered
+or stored by this entry. Cache and gateway logging are disabled in the request;
+these headers do not establish the provider's retention policy.
+
+Consumers own source allowlists, synthetic fixtures, render capture, rubrics,
+credential acquisition, cost estimates/caps, calibration labels, evidence storage
+and release policy. `evaluateJevCases` validates the entire batch and explicit
+question budget before requests, saves raw answers through `onProgress`, stops
+on the first error, and never retries. Omit `call` for a request preview, which
+stays incomplete. A completed report means evaluation completed, not that cases
+passed. `releaseAccepted` always remains false. `minimumMargin` and recognized
+`models` are supplied by the consumer; no threshold is claimed to be calibrated.
+
+Request payloads are capped at 32,000 UTF-8 bytes. Model context/cost policies
+remain consumer-owned. Empty/malformed answers, mismatched question keys,
+invalid probabilities/usage and unfinished provider results cannot become passes.
+This is development tooling; importing it does not add model calls to consumers.
 
 ## Reference
 

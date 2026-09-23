@@ -27,7 +27,7 @@ repository contribution rules.
 | `@dustwave/shipping-core` | [Shipping profiles, quotes, USPS transport, and country data](packages/shipping-core/README.md) | `0.2.0`|
 | `@dustwave/admin-shell` | [Unstyled admin clients, session/UI controls, editors, and share assets](packages/admin-shell/README.md) | `0.12.0`|
 | `@dustwave/tax-core` | [Destination normalization, manual calculation, and provider transport](packages/tax-core/README.md) | `0.3.1`|
-| `@dustwave/test-core` | [Browser Storage setup and overflow assertions](packages/test-core/README.md) | `0.2.0`|
+| `@dustwave/test-core` | [Browser test helpers and advisory evaluation](packages/test-core/README.md) | `0.3.0`|
 | `@dustwave/design-core` | [Compile-time Sass foundations, forms, layout, and components](packages/design-core/README.md) | `0.3.0`|
 | `@dustwave/site-shell` | [Classic browser navigation, announcements, forms, and cart display](packages/site-shell/README.md) | `0.3.0`|
 | `@dustwave/build-core` | [Allowlisted generated CSS/JavaScript minification](packages/build-core/README.md) | `0.2.0`|
