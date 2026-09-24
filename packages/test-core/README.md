@@ -67,6 +67,12 @@ stays incomplete. A completed report means evaluation completed, not that cases
 passed. `releaseAccepted` always remains false. `minimumMargin` and recognized
 `models` are supplied by the consumer; no threshold is claimed to be calibrated.
 
+The minimum margin is inclusive and compared using the canonical decimal values
+of the supplied probabilities and threshold. For example, `0.48 - 0.38` meets
+`0.10`; the immediately lower decimal value still routes to review. Raw
+probabilities and the ordinary floating-point `margin` remain unchanged in
+reports. Ties, uncertain choices and unknown models always require review.
+
 Request payloads are capped at 32,000 UTF-8 bytes. Model context/cost policies
 remain consumer-owned. Empty/malformed answers, mismatched question keys,
 invalid probabilities/usage and unfinished provider results cannot become passes.
