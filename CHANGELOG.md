@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.40.2 - 2026-09-24
+
+- Test Core 0.3.1 compares Jev's inclusive minimum margin using exact canonical
+  decimal values. A mathematical .10 gap no longer becomes a review because of
+  binary subtraction. Values below the threshold, ties, uncertain answers and
+  unknown models remain review; raw evidence and consumer policies are unchanged.
+- Podcast Visualizer characterized the recorded .48/.38 boundary response and
+  adjacent values. Consumers adopt this patch through independent pins; no app
+  generation, native or timed-text behavior changes.
+
 ## 0.40.1 - 2026-09-23
 
 - Timed Text 0.11.2 keeps an earlier source boundary when a greedy merge would
