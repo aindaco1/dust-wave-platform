@@ -1,7 +1,11 @@
 // Extracted from the characterized crash relay. Product formatting and provider authentication are injected.
 export function createGitHubIssueReporter({ request, issueTitle, issueBody, groupingSummary,
-  checkDailyIssueLimit, shouldUpdateIssue, owner, repository, defaultLabels }) {
+  checkDailyIssueLimit, shouldUpdateIssue, owner, repository, defaultLabels,
+  markers = { state: 'crash-report-state', fingerprint: 'crash-fingerprint' } }) {
   if (!owner || !repository) throw new TypeError('A fixed issue destination is required');
+  for (const name of [markers.state, markers.fingerprint]) {
+    if (!/^[a-z][a-z0-9-]{0,79}$/.test(name)) throw new TypeError('Invalid issue marker');
+  }
   const githubRequest = request;
   function repoConfig(env) {
     return { owner: String(env.GITHUB_OWNER || owner), repo: String(env.GITHUB_REPO || repository) };
@@ -10,15 +14,15 @@ export function createGitHubIssueReporter({ request, issueTitle, issueBody, grou
     return String(env.CRASH_LABELS || defaultLabels).split(',').map(label => label.trim()).filter(Boolean);
   }
 function stateMarker(state) {
-  return `<!-- crash-report-state:${btoa(JSON.stringify(state))} -->`;
+  return `<!-- ${markers.state}:${btoa(JSON.stringify(state))} -->`;
 }
 
 function fingerprintMarker(fingerprint) {
-  return `<!-- crash-fingerprint:${fingerprint} -->`;
+  return `<!-- ${markers.fingerprint}:${fingerprint} -->`;
 }
 
 function parseState(body, fingerprint) {
-  const marker = String(body || '').match(/<!-- crash-report-state:([A-Za-z0-9+/=]+) -->/);
+  const marker = String(body || '').match(new RegExp(`<!-- ${markers.state}:([A-Za-z0-9+/=]+) -->`));
   if (!marker) {
     return {
       fingerprint,
