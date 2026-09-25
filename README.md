@@ -31,7 +31,8 @@ repository contribution rules.
 | `@dustwave/design-core` | [Compile-time Sass foundations, forms, layout, and components](packages/design-core/README.md) | `0.3.0`|
 | `@dustwave/site-shell` | [Classic browser navigation, announcements, forms, and cart display](packages/site-shell/README.md) | `0.3.0`|
 | `@dustwave/build-core` | [Allowlisted generated CSS/JavaScript minification](packages/build-core/README.md) | `0.2.0`|
-| `@dustwave/release-core` | [Release normalization, integrity, provider, and accessibility evidence](packages/release-core/README.md) | `0.4.0`|
+| `@dustwave/desktop-core` | [Reviewed report transport, serialized relay and Tauri progress](packages/desktop-core/README.md) | `0.1.0`|
+| `@dustwave/release-core` | [Release normalization, integrity, provider, and accessibility evidence](packages/release-core/README.md) | `0.5.0`|
 | `@dustwave/media-core` | [Site-media paths/catalogs and audio processor contracts](packages/media-core/README.md) | `0.4.0`|
 | `@dustwave/product-video-core` | [Local declarative capture and alpha-video rendering](packages/product-video-core/README.md) | `0.1.0`|
 | `@dustwave/timed-text` | [Transcription, alignment, confidence, editorial, presentation, and chapters](packages/timed-text/README.md) | `0.11.2`|

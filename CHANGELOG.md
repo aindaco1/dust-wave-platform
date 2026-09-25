@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.41.0 - 2026-09-25
+
+- Desktop Swift 0.2.0 shares Sparkle lifecycle, framework-free launch policy,
+  bounded reviewed-report transport and receipt checks. Consumers retain their
+  exact characterized Sparkle versions, launch/busy policy and XPC boundaries.
+- Desktop Core 0.1.0 extracts reviewed-report serialization, retry receipts and
+  GitHub issue reconciliation behind injected product/provider adapters; adds
+  bounded JavaScript reviewed-send and Tauri download progress mechanics.
+- Release Core 0.5.0 shares Tauri manifest assembly and GitHub asset naming.
+- Consumers pin and validate independently. No app release or relay deployment
+  is performed by this source migration.
+
 ## 0.40.2 - 2026-09-24
 
 - Test Core 0.3.1 compares Jev's inclusive minimum margin using exact canonical
