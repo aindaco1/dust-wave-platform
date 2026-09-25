@@ -36,6 +36,10 @@ repository contribution rules.
 | `@dustwave/product-video-core` | [Local declarative capture and alpha-video rendering](packages/product-video-core/README.md) | `0.1.0`|
 | `@dustwave/timed-text` | [Transcription, alignment, confidence, editorial, presentation, and chapters](packages/timed-text/README.md) | `0.11.2`|
 
+## Desktop and display tooling
+
+[`desktop/`](desktop/README.md) shares signed Sparkle updates and reviewed diagnostic transport for macOS 13+ consumers, independently of the speech package. [`tools/macos-display`](tools/macos-display/README.md) is separately GPL-3.0 licensed, test-only display tooling; never bundle it in an app.
+
 ## Development
 
 The separately scoped [native Swift package](native/README.md) shares local

@@ -63,3 +63,15 @@ jobs:
           ruby-version: '3.2'
       - name: Build a new Jekyll consumer from pinned sources
         run: npm run test:recipes:jekyll
+
+  desktop:
+    runs-on: xcode-27
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Characterize desktop updates and reviewed diagnostics
+        run: swift test --package-path desktop
+      - name: Test display fixture lifecycle
+        run: python3 -m unittest discover -s tools/macos-display -p 'test_*.py'
