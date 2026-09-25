@@ -80,3 +80,24 @@ jobs:
         run: bash scripts/test-desktop-version.sh "$SPARKLE_VERSION"
       - name: Test display fixture lifecycle
         run: python3 -m unittest discover -s tools/macos-display -p 'test_*.py'
+      - name: Test shared Apple support
+        run: swift test --package-path support
+      - name: Build support for the iOS 17 simulator minimum
+        run: >-
+          xcodebuild -scheme DustWaveSupport -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath "$RUNNER_TEMP/support-ios" IPHONEOS_DEPLOYMENT_TARGET=17.0
+          CODE_SIGNING_ALLOWED=NO build
+        working-directory: support
+
+  qt:
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Install Qt
+        run: brew list qt >/dev/null || brew install qt
+      - name: Build Sparkle bridge and test bounded report delivery
+        run: |
+          cmake -S qt -B qt/build -DCMAKE_PREFIX_PATH="$(brew --prefix qt)"
+          cmake --build qt/build --parallel 3
+          ctest --test-dir qt/build --output-on-failure

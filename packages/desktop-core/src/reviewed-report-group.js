@@ -33,7 +33,10 @@ export class ReviewedReportGroup {
       const report = this.adapter.validate(await request.json());
       const fingerprint = await this.adapter.fingerprint(report);
       const relayReport = this.adapter.relayReport(report);
-      const saved = await this.ctx.storage.get('group') ?? { state: null, receipts: {}, pending: {} };
+      const saved = await this.ctx.storage.get('group') ?? {
+        state: await this.adapter.initialState?.(report, fingerprint, this.storageIndex()) ?? null,
+        receipts: {}, pending: {}
+      };
       const retained = this.adapter.receiptRetentionMS ? await this.ctx.storage.get(`receipt:${report.id}`) : null;
       const previousIssue = this.adapter.receiptRetentionMS
         ? (retained?.expires > Date.now() ? retained.number : null)

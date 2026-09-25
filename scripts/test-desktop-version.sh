@@ -9,6 +9,8 @@ temporary_root="$(mktemp -d "${TMPDIR:-/tmp}/dustwave-desktop-test.XXXXXX")"
 trap 'rm -rf "$temporary_root"' EXIT
 rsync -a --exclude .build --exclude .swiftpm --exclude Package.resolved \
     "$root/desktop/" "$temporary_root/desktop/"
+rsync -a --exclude .build --exclude .swiftpm --exclude Package.resolved \
+    "$root/support/" "$temporary_root/support/"
 python3 - "$temporary_root/desktop/Package.swift" "$version" <<'PY'
 from pathlib import Path
 import sys

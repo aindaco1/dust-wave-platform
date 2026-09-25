@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.42.0 - 2026-09-25
+
+- Apple Support 0.1.0 extracts Foundation-only bounded delivery, matching receipts and MetricKit stack projection. Desktop Swift 0.3.0 re-exports the original diagnostics API.
+- Qt 0.1.0 adds explicit reviewed-byte delivery and a checksum-pinned Sparkle 2.10.0 bridge. Product UI, consent, storage and release authority remain consumer-owned.
+- Desktop Core 0.2.0 supports injected legacy issue markers and an optional initial grouping state, preserving default behavior for existing relays.
+
 ## 0.41.0 - 2026-09-25
 
 - Desktop Swift 0.2.0 shares Sparkle lifecycle, framework-free launch policy,
