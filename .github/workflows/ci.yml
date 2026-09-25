@@ -67,11 +67,16 @@ jobs:
   desktop:
     runs-on: xcode-27
     timeout-minutes: 10
+    strategy:
+      matrix:
+        sparkle: ['2.9.5', '2.9.6', '2.10.0']
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
       - name: Characterize desktop updates and reviewed diagnostics
-        run: swift test --package-path desktop
+        env:
+          SPARKLE_VERSION: ${{ matrix.sparkle }}
+        run: bash scripts/test-desktop-version.sh "$SPARKLE_VERSION"
       - name: Test display fixture lifecycle
         run: python3 -m unittest discover -s tools/macos-display -p 'test_*.py'

@@ -11,6 +11,7 @@ quick-start commands.
   rollback evidence, and the dated adoption snapshot.
 - [Choose an existing primitive](capabilities.md): capability lookup, project
   starting points and reusable pin assertions.
+- [Desktop adoption](desktop-adoption.md): signed updater and reviewed-report boundaries, consumer policies and rollback.
 - [Reuse review status](reuse-review.md): completed release batches, deferred
   candidates and the checklist for resuming the paused work.
 - [Package references](../README.md#packages): the catalog links to each
@@ -24,6 +25,8 @@ quick-start commands.
 - [ADR 0001: shared repository boundary](adr/0001-shared-repository-boundary.md)
 - [ADR 0002: design-system and Jekyll boundary](adr/0002-design-system-and-jekyll-boundary.md)
 - [ADR 0003: reusable product-video boundary](adr/0003-product-video-boundary.md)
+- [ADR 0004: native speech and Apple generation](adr/0004-native-speech-and-apple-generation.md)
+- [ADR 0005: desktop update and diagnostics boundary](adr/0005-desktop-update-and-diagnostics.md)
 
 Each ADR records a distinct decision. Preserve its historical context and link
 implementation guidance to the appropriate package or consumer guide.

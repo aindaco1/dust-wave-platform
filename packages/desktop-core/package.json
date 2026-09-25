@@ -1,0 +1,13 @@
+{
+  "name": "@dustwave/desktop-core",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./update-progress": "./src/update-progress.js",
+    "./report-client": "./src/report-client.js",
+    "./reviewed-report-group": "./src/reviewed-report-group.js",
+    "./github-issues": "./src/github-issues.js"
+  },
+  "engines": { "node": ">=20.9" },
+  "license": "MIT"
+}

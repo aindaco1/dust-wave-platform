@@ -1,0 +1,10 @@
+The issue reporter and reviewed-report group originate in Dust Wave's
+crash relay additions to ASCII VJ Remix (first introduced in f140083 and
+6750fb7, then characterized and extended by the consumer tests).
+
+Copyright (c) 2026 Alonso Indacochea.
+The author authorized these original additions under Platform's MIT license
+on 2026-09-25. No upstream ASCILINE renderer or application code is included.
+
+The JavaScript reviewed-report sender also preserves the MIT Auto Subtitle
+client contract. Swift source notices are retained separately in desktop/.

@@ -2,6 +2,12 @@
 
 Shared release primitives for consumer-owned release adapters.
 
+The `tauri-updater` entry shares GitHub asset-name normalization and Tauri
+manifest assembly. Callers supply exact versions, notes, publication dates and
+signed platform entries; artifact selection, signature verification and
+publication remain consumer-owned. ASCII VJ Remix and Social retain their
+independent updater-manifest characterization tests.
+
 ## Normalization and failure semantics
 
 `@dustwave/release-core` contains small release mechanisms with injected consumer
