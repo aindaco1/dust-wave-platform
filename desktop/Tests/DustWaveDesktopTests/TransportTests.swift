@@ -46,6 +46,22 @@ final class TransportTests: XCTestCase {
             newRequest: URLRequest(url: URL(string: "https://redirect.invalid")!)) { XCTAssertNil($0) }
     }
 
+    func testConsumerCanRejectStatusBeforeReadingAnOversizedBody() async throws {
+        enum Rejection: Error { case status }
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [ReportProtocol.self]
+        var request = URLRequest(url: URL(string: "https://example.invalid/4097")!)
+        request.httpMethod = "POST"
+        do {
+            _ = try await BoundedReportTransport().send(request,
+                maximumResponseBytes: 4096, configuration: configuration) { response in
+                XCTAssertEqual(response.statusCode, 429)
+                throw Rejection.status
+            }
+            XCTFail("rejected response accepted")
+        } catch Rejection.status {} catch { XCTFail("body error replaced consumer rejection: \(error)") }
+    }
+
     func testReceiptAdaptersRetainUUIDAndLegacyExactStringContracts() throws {
         let id = UUID().uuidString.lowercased()
         func data(_ action: String, id: String) throws -> Data {

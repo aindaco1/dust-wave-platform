@@ -8,7 +8,8 @@ public enum ReportTransportError: Error, Sendable {
 /// timeout, accepted status codes and receipt policy. Never follows redirects.
 public final class BoundedReportTransport: NSObject, URLSessionTaskDelegate, Sendable {
     public func send(_ request: URLRequest, maximumResponseBytes: Int,
-                     configuration: URLSessionConfiguration = .ephemeral) async throws -> (Data, HTTPURLResponse) {
+                     configuration: URLSessionConfiguration = .ephemeral,
+                     validateResponse: @Sendable (HTTPURLResponse) throws -> Void = { _ in }) async throws -> (Data, HTTPURLResponse) {
         guard maximumResponseBytes > 0, let url = request.url, url.scheme == "https", url.host != nil,
               url.user == nil, url.password == nil, url.fragment == nil, url.query == nil,
               request.httpMethod == "POST" else { throw ReportTransportError.invalidRequest }
@@ -21,6 +22,7 @@ public final class BoundedReportTransport: NSObject, URLSessionTaskDelegate, Sen
         defer { session.invalidateAndCancel() }
         let (bytes, response) = try await session.bytes(for: request)
         guard let response = response as? HTTPURLResponse else { throw ReportTransportError.invalidResponse }
+        try validateResponse(response)
         var data = Data()
         for try await byte in bytes {
             guard data.count < maximumResponseBytes else { throw ReportTransportError.responseTooLarge }

@@ -39,10 +39,11 @@ public final class ReviewedReportClient: NSObject, URLSessionTaskDelegate, @unch
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = data
         do {
-            let (body, response) = try await BoundedReportTransport().send(request,
-                maximumResponseBytes: 8192, configuration: configuration)
-            guard response.statusCode == 200,
-                  response.expectedContentLength <= 8192 else { throw ReportDeliveryError.unconfirmed }
+            let (body, _) = try await BoundedReportTransport().send(request,
+                maximumResponseBytes: 8192, configuration: configuration) { response in
+                guard response.statusCode == 200,
+                      response.expectedContentLength <= 8192 else { throw ReportDeliveryError.unconfirmed }
+            }
             return try ReportReceipt.decode(body, reportID: reportID)
         } catch { throw ReportDeliveryError.unconfirmed }
     }
