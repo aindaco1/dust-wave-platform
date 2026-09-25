@@ -10,11 +10,12 @@
 
 class Reply final : public QNetworkReply {
 public:
-    Reply(const QNetworkRequest &request, QByteArray body, int status, QObject *parent)
+    Reply(const QNetworkRequest &request, QByteArray body, int status, bool stall, QObject *parent)
         : QNetworkReply(parent), m_body(std::move(body)) {
         setRequest(request); setUrl(request.url());
         setAttribute(QNetworkRequest::HttpStatusCodeAttribute, status);
         open(QIODevice::ReadOnly);
+        if (stall) return;
         QTimer::singleShot(0, this, [this] {
             emit readyRead();
             if (!isFinished()) { setFinished(true); emit finished(); }
@@ -42,10 +43,11 @@ public:
     QList<QByteArray> sent;
     QList<QNetworkRequest> requests;
     int status = 200;
+    bool stall = false;
 protected:
     QNetworkReply *createRequest(Operation, const QNetworkRequest &request, QIODevice *data) override {
         sent.append(data->readAll()); requests.append(request);
-        return new Reply(request, response, status, this);
+        return new Reply(request, response, status, stall, this);
     }
 };
 class ReviewedReportClientTest : public QObject {
@@ -105,6 +107,20 @@ private slots:
         for (const auto &url : {"http://example.invalid", "https://user@example.invalid", "https://example.invalid?q=1", "https://example.invalid/#fragment"})
             client.send("{}", "id", {QUrl(url), "Test"});
         QCOMPARE(failure.count(), 4); QVERIFY(network.sent.isEmpty());
+    }
+    void absoluteDeadlineEndsAStalledRequest() {
+        Network network; network.stall = true;
+        DustWave::ReviewedReportClient client(&network, nullptr);
+        QSignalSpy failure(&client, &DustWave::ReviewedReportClient::failed);
+        DustWave::ReviewedReportClient::Options options{QUrl("https://example.invalid/reports"), "Test"};
+        options.timeoutMilliseconds = 10;
+        client.send("frozen", "id", options);
+        QTRY_COMPARE(failure.count(), 1);
+        QVERIFY(!client.busy());
+        network.stall = false; network.status = 503;
+        client.send("frozen", "id", options);
+        QTRY_COMPARE(failure.count(), 2);
+        QCOMPARE(network.sent, QList<QByteArray>({"frozen", "frozen"}));
     }
 };
 QTEST_GUILESS_MAIN(ReviewedReportClientTest)

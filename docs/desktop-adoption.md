@@ -17,9 +17,17 @@ introduced.
 | ASCII VJ Remix | Tauri progress/manifest and relay mechanics | Launch/manual UI, Rust report collection, fixed schemas/routes and deployment |
 | Social | Tauri progress/manifest | Vue UI, Rust version recheck and restart, local health/export |
 
-Grainery, OwlSwitch and Road Notice's app code are outside this migration.
-The relay's existing Road Notice route remains compatible and covered by its
-unchanged contract tests.
+Grainery remains excluded. The 0.42 expansion adds Road Notice's diagnostics
+through `support/` (no updater change) and OwlSwitch through `qt/`. OwlSwitch's
+consumer-owned relay adopts its historical issue markers/counts through an
+optional initialization adapter and durable serialization. Existing shared
+relay routes and their defaults remain compatible.
+
+Desktop Swift 0.3.0 re-exports `DustWaveSupport` without changing existing
+imports. Consumers advancing their pin must include the sibling `support/`
+directory in source archives. Road Notice uses `platform-support.json` and
+passes that filename to the same pin checker; OwlSwitch records `qtVersion`
+and exact JS versions in `platform-desktop.json`.
 
 Consumers retain exact Sparkle declarations and Swift lockfile revisions:
 2.9.5, 2.9.6 or 2.10.0. The shared package accepts only that bounded range.
@@ -29,6 +37,12 @@ identities, signing, entitlements, installation consent and releases stay local.
 The relay retains its routes, class names, bindings, storage keys, migrations,
 fingerprints, receipts and operator controls. Its adapters supply product
 formatting and GitHub authentication. There is no new service or data migration.
+
+The preceding paragraph describes the original shared ASCII relay. OwlSwitch's
+separate relay adds per-ID and per-fingerprint Durable Objects while retaining
+its endpoint, sanitization, rate-limit KV and historical issue index. After
+deployment, roll back app pins independently; retain the new durable namespaces
+when rolling back worker code so receipt history is not deleted.
 
 ## Migration and rollback
 

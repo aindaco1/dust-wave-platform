@@ -32,3 +32,12 @@ not claim semantic similarity, unique users or a proven common root cause.
 
 Run `node --test packages/desktop-core/test/*.test.js` and root `npm test`.
 See [desktop adoption](../../docs/desktop-adoption.md) for ownership and rollback.
+
+Issue reporters may inject validated `markers.state` and `markers.fingerprint`
+names to preserve a legacy issue format. Defaults retain the original ASCII
+relay markers. A group adapter may implement `initialState(report, fingerprint,
+index)` to adopt a provider-confirmed legacy aggregate before its first durable
+increment. It runs only when no group state exists; failures propagate and no
+new report count is committed. Consumers must verify the exact issue marker,
+seed the supplied index, validate legacy counts and preserve maintainer text.
+Do not swallow provider errors and create a replacement issue on uncertainty.

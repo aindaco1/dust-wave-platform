@@ -4,6 +4,7 @@
 #include <QNetworkRequest>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QTimer>
 #include <cmath>
 #include <memory>
 
@@ -34,6 +35,10 @@ void ReviewedReportClient::send(const QByteArray &bytes, const QString &reportID
     request.setAttribute(QNetworkRequest::CacheSaveControlAttribute, false);
     m_busy = true;
     QNetworkReply *reply = m_network->post(request, bytes);
+    auto *deadline = new QTimer(reply);
+    deadline->setSingleShot(true);
+    connect(deadline, &QTimer::timeout, reply, &QNetworkReply::abort);
+    deadline->start(options.timeoutMilliseconds);
     // Bound the reply's buffering as well as our accumulated response.
     reply->setReadBufferSize(options.maximumResponseBytes + 1);
     struct Response { QByteArray bytes; bool oversized = false; };
@@ -41,10 +46,14 @@ void ReviewedReportClient::send(const QByteArray &bytes, const QString &reportID
     auto read = [reply, response, limit = options.maximumResponseBytes] {
         if (response->oversized) return;
         response->bytes.append(reply->read(limit + 1 - response->bytes.size()));
-        if (response->bytes.size() > limit) { response->oversized = true; reply->abort(); }
+        if (response->bytes.size() > limit) {
+            response->oversized = true;
+            if (!reply->isFinished()) reply->abort();
+        }
     };
     connect(reply, &QIODevice::readyRead, this, read);
-    connect(reply, &QNetworkReply::finished, this, [this, reply, response, read, reportID, url] {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, deadline, response, read, reportID, url] {
+        deadline->stop();
         read();
         m_busy = false;
         const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();

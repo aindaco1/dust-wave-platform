@@ -11,6 +11,8 @@ model installation, storage, or product formatting policy. See
 
 `desktop/` provides signed macOS updates through Sparkle and a compatible diagnostics facade over `support/`. Product policy, report schemas, endpoints and GitHub delivery stay with consumers. See `desktop/README.md`. Run `swift test --package-path desktop` for its changes.
 
+`qt/` is the CMake exception for bounded Qt report delivery and a small macOS Sparkle bridge. Keep product UI, report persistence and installation policy outside it. Run its CTest suite and the consumer's updater policy tests.
+
 ## Boundaries
 
 - Consumer repositories retain their domain models, storage, templates, routes, and deployment authority.
