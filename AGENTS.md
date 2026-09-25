@@ -7,6 +7,8 @@ Foundation Models adapters for macOS consumers. It owns no app, networking,
 model installation, storage, or product formatting policy. See
 `docs/adr/0004-native-speech-and-apple-generation.md`.
 
+`desktop/` is a second, independent SwiftPM package for signed updates and explicitly reviewed diagnostic transport. It depends on Sparkle only; product policy, report schemas, endpoints and GitHub delivery stay with consumers. See `desktop/README.md`. Run `swift test --package-path desktop` for its changes.
+
 ## Boundaries
 
 - Consumer repositories retain their domain models, storage, templates, routes, and deployment authority.
