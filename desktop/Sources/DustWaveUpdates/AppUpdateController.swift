@@ -11,20 +11,27 @@ import Sparkle
     private var observations = Set<AnyCancellable>()
     private var policy = LaunchUpdateCheckPolicy()
     private let started: Bool
+    private let busyErrorDomain: String
+    private let busyErrorMessage: String
     private var pendingInstall: (() -> Void)?
     public var busy = false {
         didSet {
             if !busy, let install = pendingInstall { pendingInstall = nil; install() }
         }
     }
-    public init(startingUpdater: Bool = true) {
+    public init(startingUpdater: Bool = true, checkingOnLaunch: Bool = false,
+                busyErrorDomain: String = "DustWave.Updates",
+                busyErrorMessage: String = "Finish the current operation, then check for updates.") {
         started = startingUpdater
+        self.busyErrorDomain = busyErrorDomain
+        self.busyErrorMessage = busyErrorMessage
         super.init()
         controller = SPUStandardUpdaterController(startingUpdater: startingUpdater, updaterDelegate: self, userDriverDelegate: nil)
         controller.updater.publisher(for: \.canCheckForUpdates)
             .sink { [weak self] in self?.canCheckForUpdates = $0 }.store(in: &observations)
         controller.updater.publisher(for: \.automaticallyChecksForUpdates)
             .sink { [weak self] in self?.automaticallyChecksForUpdates = $0 }.store(in: &observations)
+        if checkingOnLaunch { checkOnLaunch() }
     }
     public func setAutomaticChecks(_ enabled: Bool) { controller.updater.automaticallyChecksForUpdates = enabled }
     public func checkOnLaunch() {
@@ -37,8 +44,8 @@ import Sparkle
         controller.checkForUpdates(nil)
     }
     public func updater(_ updater: SPUUpdater, mayPerform updateCheck: SPUUpdateCheck) throws {
-        if busy { throw NSError(domain: "DustWave.Updates", code: 1,
-            userInfo: [NSLocalizedDescriptionKey: "Finish the current operation, then check for updates."]) }
+        if busy { throw NSError(domain: busyErrorDomain, code: 1,
+            userInfo: [NSLocalizedDescriptionKey: busyErrorMessage]) }
     }
     public func updater(_ updater: SPUUpdater, shouldPostponeRelaunchForUpdate item: SUAppcastItem,
                         untilInvokingBlock installHandler: @escaping () -> Void) -> Bool {
