@@ -35,6 +35,11 @@ model inference, network request, storage operation, or editorial approval.
 
 ## Editorial grouping, dialogue, and lineage
 
+Timed Text 0.11.2 records dialogue policy `dialogue-reflow-v2`. A one-cue
+look-ahead can keep an earlier boundary so a short ending fits within the
+existing bounds. Consumers persisting this identifier must retain read support
+for v1 revisions; existing approved outputs must never be regrouped on load.
+
 The editorial extensions normalize English display text, regroup timed words,
 and reflow adjacent same-speaker dialogue under bounded readability policies.
 They validate immutable review lineage and never rewrite dialogue, infer a

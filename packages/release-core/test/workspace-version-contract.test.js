@@ -35,6 +35,22 @@ test('workspace version matches the top changelog release', () => {
   assert.equal(topRelease[1], workspace.version);
 });
 
+test('recipe package pins and lock entries match the workspace before committing', () => {
+  const recipes = path.join(root, 'examples', 'recipes');
+  for (const entry of fs.readdirSync(recipes, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const directory = path.join(recipes, entry.name);
+    const pins = JSON.parse(fs.readFileSync(path.join(directory, 'platform-packages.json'), 'utf8'));
+    const lock = JSON.parse(fs.readFileSync(path.join(directory, 'package-lock.json'), 'utf8'));
+    for (const [name, version] of Object.entries(pins)) {
+      const manifest = JSON.parse(fs.readFileSync(path.join(root, 'packages', name, 'package.json'), 'utf8'));
+      assert.equal(version, manifest.version, `${entry.name}: ${name} pin`);
+      assert.equal(lock.packages[`shared/dust-wave-platform/packages/${name}`]?.version,
+        version, `${entry.name}: ${name} lock entry`);
+    }
+  }
+});
+
 test('README package versions match package manifests', () => {
   const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
   const readmeVersions = new Map();

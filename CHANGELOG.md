@@ -1,12 +1,28 @@
 # Changelog
 
-## Unreleased
+## 0.40.2 - 2026-09-24
+
+- Test Core 0.3.1 compares Jev's inclusive minimum margin using exact canonical
+  decimal values. A mathematical .10 gap no longer becomes a review because of
+  binary subtraction. Values below the threshold, ties, uncertain answers and
+  unknown models remain review; raw evidence and consumer policies are unchanged.
+- Podcast Visualizer characterized the recorded .48/.38 boundary response and
+  adjacent values. Consumers adopt this patch through independent pins; no app
+  generation, native or timed-text behavior changes.
+
+## 0.40.1 - 2026-09-23
+
+- Timed Text 0.11.2 keeps an earlier source boundary when a greedy merge would
+  strand a short ending at a word, character or duration limit. Explicit keeps,
+  speakers, pauses, text and source timings remain protected.
+- Dialogue policy is now `dialogue-reflow-v2`. Consumers that persist the policy
+  identifier must continue accepting v1 revisions without regrouping them.
 
 - Extract shared local speech and Apple generation adapters into `native/`, with
   compatibility coverage for the three existing FluidAudio versions. Keep each
   consumer's prompts, formatting rules, model installation, and release authority.
-- Add a read-only native consumer pin check and native CI matrix. No existing
-  JavaScript package version or timed-text/Jev policy changes.
+- Add a read-only native consumer pin check and native CI matrix. Native
+  consumers retain their existing FluidAudio pins; Jev policy is unchanged.
 
 ## 0.40.0 - 2026-09-22
 

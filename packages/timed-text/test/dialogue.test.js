@@ -78,6 +78,41 @@ test("rejects unknown fields and invalid injected policies", () => {
   }), /boundary decision 1/);
 });
 
+test("looks ahead before a greedy merge strands a short ending at a hard limit", () => {
+  for (const [input, policy] of [
+    [[cue(0, 400, "Please keep"), cue(400, 800, "the words"), cue(800, 1200, "together.")],
+      { ...DEFAULT_DIALOGUE_REFLOW_POLICY, orphanWordCount: 1, targetWordsPerCue: 3, maximumWordsPerCue: 4 }],
+    [[cue(0, 400, "Keep our"), cue(400, 800, "words"), cue(800, 1200, "together.")],
+      { ...DEFAULT_DIALOGUE_REFLOW_POLICY, orphanWordCount: 1, maximumCharactersPerCue: 20 }],
+    [[cue(0, 400, "Please keep"), cue(400, 800, "the words"), cue(800, 1200, "together.")],
+      { ...DEFAULT_DIALOGUE_REFLOW_POLICY, orphanWordCount: 1, maximumCueDurationMs: 1000 }]
+  ]) {
+    const snapshot = structuredClone(input);
+    const output = reflowDialogueCues(input, { durationMs: 1200, policy });
+    assert.deepEqual(output, [input[0], { ...input[1], endsAtMs: 1200,
+      textMarkdown: input[1].textMarkdown + " " + input[2].textMarkdown }]);
+    assert.deepEqual(input, snapshot);
+  }
+});
+
+test("orphan avoidance preserves explicit keeps, pauses, speakers and short openings", () => {
+  const policy = { ...DEFAULT_DIALOGUE_REFLOW_POLICY, orphanWordCount: 1, targetWordsPerCue: 3, maximumWordsPerCue: 4 };
+  const input = [cue(0, 400, "Please keep"), cue(400, 800, "the words"), cue(800, 1200, "together.")];
+  for (const [cues, boundaryDecisions] of [
+    [input, [{ afterCueIndex: 1, action: "keep" }]],
+    [[...input.slice(0, 2), { ...input[2], speakerLabel: "speaker-02" }], []],
+    [[...input.slice(0, 2), { ...input[2], startsAtMs: 1800, endsAtMs: 2200 }], []]
+  ]) {
+    const output = reflowDialogueCues(cues, { durationMs: 2200, policy, boundaryDecisions });
+    assert.deepEqual(output.map((row) => row.textMarkdown), ["Please keep the words", "together."]);
+    assert.deepEqual(output.at(-1), cues.at(-1));
+  }
+  const opening = [cue(0, 400, "Please"), cue(400, 800, "keep all these words"), cue(800, 1200, "together.")];
+  assert.deepEqual(reflowDialogueCues(opening, { durationMs: 1200,
+    policy: { ...policy, maximumWordsPerCue: 5 } }).map((row) => row.textMarkdown),
+    ["Please keep all these words", "together."]);
+});
+
 test("reflows the maximum cue count in one bounded pass", () => {
   const input = Array.from({ length: 10_000 }, (_, index) => (
     cue(index * 2, index * 2 + 1, `word${index}`)

@@ -4,6 +4,18 @@ const CHOICES = ['pass', 'fail', 'uncertain'];
 const object = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const sameKeys = (value, keys) => object(value) && Object.keys(value).sort().join('\0') === [...keys].sort().join('\0');
 
+// Compare the canonical decimal values without subtracting binary floats or
+// widening the policy with an epsilon. Keep the raw float margin as evidence.
+function meetsMinimumMargin(first, second, minimum) {
+  const parts = [first, second, minimum].map((value) => {
+    const [mantissa, exponent = '0'] = String(value).split('e');
+    return { integer: BigInt(mantissa.replace('.', '')), exponent: Number(exponent) - (mantissa.split('.')[1]?.length ?? 0) };
+  });
+  const scale = Math.min(...parts.map((part) => part.exponent));
+  const [a, b, required] = parts.map((part) => part.integer * 10n ** BigInt(part.exponent - scale));
+  return a - b >= required;
+}
+
 /** Consumers own the candidate allowlist and source-based, atomic requirements. */
 export function createJevRequest(candidate, requirements, { reference } = {}) {
   if (typeof candidate !== 'string' || !candidate.trim() || !object(requirements) || !Object.keys(requirements).length) {
@@ -56,7 +68,7 @@ export function judgeJevResponse(raw, questions, { minimumMargin, models } = {})
     }
     const ranked = Object.values(p).sort((a, b) => b - a);
     const margin = ranked[0] - ranked[1];
-    const decision = !models.includes(result.model) || margin <= 0 || margin < minimumMargin || answer.choice === 'uncertain'
+    const decision = !models.includes(result.model) || margin <= 0 || !meetsMinimumMargin(ranked[0], ranked[1], minimumMargin) || answer.choice === 'uncertain'
       ? 'review' : answer.choice;
     return [key, { choice: answer.choice, probabilities: p, margin, decision }];
   }));

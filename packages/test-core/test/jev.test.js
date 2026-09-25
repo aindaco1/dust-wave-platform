@@ -34,6 +34,31 @@ test('near ties, exact ties, uncertainty and unknown models route to review', ()
   assert.equal(judgeJevResponse(value, questions, policy).findings.meaning.decision, 'review');
 });
 
+test('inclusive decimal margins preserve exact equality and reject the adjacent value below it', () => {
+  const samples = [
+    [0.48, 0.38, 0.14, 0.1, 'pass'],
+    [0.38, 0.48, 0.14, 0.1, 'fail'],
+    [0.5, 0.4, 0.1, 0.1, 'pass'],
+    [0.6, 0.3, 0.1, 0.3, 'pass'],
+    [0.4799999999999999, 0.38, 0.1400000000000001, 0.1, 'review'],
+    [0.48, 0.38000000000000006, 0.13999999999999996, 0.1, 'review'],
+    [0.48000000000000004, 0.38, 0.13999999999999996, 0.1, 'pass'],
+    [0.48, 0.38, 0.14, 0.10000000000000002, 'review'],
+    [0.48, 0.38, 0.14, 0.09999999999999999, 'pass'],
+    [0.50000001, 0.49999999, 0, 2e-8, 'pass'],
+    [0.50000001, 0.49999999, 0, 2.0000000000000004e-8, 'review'],
+    [0.51, 0.49, 0, Number.MIN_VALUE, 'pass']
+  ];
+  for (const [pass, fail, uncertain, minimumMargin, expected] of samples) {
+    const value = raw({ pass, fail, uncertain });
+    value.answers.meaning.choice = pass > fail ? 'pass' : 'fail';
+    const finding = judgeJevResponse(value, questions, { ...policy, minimumMargin }).findings.meaning;
+    assert.equal(finding.decision, expected, JSON.stringify({ pass, fail, minimumMargin }));
+    assert.deepEqual(finding.probabilities, { pass, fail, uncertain });
+    assert.equal(finding.margin, Math.abs(pass - fail));
+  }
+});
+
 test('rejects partial, malformed, contradictory or failed provider evidence', () => {
   const bad = [null, { success: false }, { result: { state: 'Pending' } }, { ...raw(), usage: {} }, { ...raw(), answers: {} },
     raw({ pass: '0.9', fail: 0.09, uncertain: 0.01 }), raw({ pass: NaN, fail: 0.1, uncertain: 0 }),

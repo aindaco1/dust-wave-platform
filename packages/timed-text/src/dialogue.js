@@ -6,7 +6,7 @@ const SENTENCE_END = /[.!?]["'’”\)\]]*$/u;
 const CONTINUATION_END = /[,;:\-–—]["'’”\)\]]*$/u;
 const STARTS_LOWERCASE = /^[^\p{L}]*\p{Ll}/u;
 
-export const DIALOGUE_REFLOW_POLICY_VERSION = "dialogue-reflow-v1";
+export const DIALOGUE_REFLOW_POLICY_VERSION = "dialogue-reflow-v2";
 
 export const DEFAULT_DIALOGUE_REFLOW_POLICY = Object.freeze({
   orphanWordCount: 3,
@@ -31,9 +31,18 @@ export function reflowDialogueCues(value, {
   let current = { ...cues[0] };
   for (let nextIndex = 1; nextIndex < cues.length; nextIndex += 1) {
     const next = cues[nextIndex];
-    if (canMerge(current, next, normalizedPolicy, decisions.get(nextIndex - 1))) {
-      current.endsAtMs = next.endsAtMs;
-      current.textMarkdown = `${current.textMarkdown} ${next.textMarkdown}`;
+    const merged = { ...current, endsAtMs: next.endsAtMs,
+      textMarkdown: `${current.textMarkdown} ${next.textMarkdown}` };
+    const following = cues[nextIndex + 1];
+    // Keep an existing boundary when filling this cue would strand a short
+    // ending that fits with the next cue. Never bypass a keep or a hard bound.
+    const strandsEnding = following
+      && wordCount(current.textMarkdown) > normalizedPolicy.orphanWordCount
+      && wordCount(following.textMarkdown) <= normalizedPolicy.orphanWordCount
+      && canMerge(next, following, normalizedPolicy, decisions.get(nextIndex))
+      && !canMerge(merged, following, normalizedPolicy, decisions.get(nextIndex));
+    if (!strandsEnding && canMerge(current, next, normalizedPolicy, decisions.get(nextIndex - 1))) {
+      current = merged;
     } else {
       reflowed.push(current);
       current = { ...next };
