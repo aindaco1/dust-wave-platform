@@ -42,6 +42,12 @@ formatting and GitHub authentication. There is no new service or data migration.
    adapters, manifests and locks. No other consumer changes, deletion of
    Durable Object namespaces, or user-data migration is required.
 
+Each migrated repository records its immutable commit, package versions and
+retained Sparkle revision in `platform-desktop.json`. Run
+`node shared/dust-wave-platform/scripts/check-desktop-consumer.mjs` from the
+consumer root. The check verifies both the staged gitlink and initialized
+checkout; it never fetches or updates dependencies.
+
 Source tests, hosted CI, signed artifacts, installed updater acceptance and
 deployed GitHub delivery are distinct evidence. This guide specifies the
 migration contract; consumer PRs record its verification.
