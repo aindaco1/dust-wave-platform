@@ -1,5 +1,7 @@
 import Foundation
 
+// Shared by explicitly reviewed iOS and macOS report clients.
+
 public enum ReportTransportError: Error, Sendable {
     case invalidRequest, invalidResponse, responseTooLarge
 }

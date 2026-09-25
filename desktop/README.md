@@ -1,6 +1,11 @@
-# Dust Wave Desktop 0.2.0
+# Dust Wave Desktop 0.3.0
 
 A separately scoped macOS 13+ Swift package. No speech, AI, media or Node runtime.
+
+`DustWaveDiagnostics` now re-exports the Foundation-only `DustWaveSupport` package
+without changing existing consumer APIs. Native macOS incident projection stays
+here; iOS clients use `support/` directly and do not resolve Sparkle. Source
+archives and matrix tests must include both sibling package directories.
 
 - `DustWaveUpdatePolicy`: framework-free launch-check policy for consumer core targets.
 - `DustWaveUpdates`: Record's Sparkle integration with Auto Subtitle's once-per-launch policy and busy-operation guard. Consumers retain exact Sparkle 2.9.5, 2.9.6 or 2.10.0 declarations and lockfiles. Sparkle owns HTTPS feed retrieval, Ed25519 verification, replacement and relaunch. The consumer supplies its feed, key, signed bundle and explicit startup decision. Installations remain user-driven.

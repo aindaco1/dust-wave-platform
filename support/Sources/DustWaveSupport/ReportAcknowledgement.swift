@@ -1,5 +1,7 @@
 import Foundation
 
+// Wire policies are supplied by each consumer.
+
 /// Receipt validation shared by clients with different retained wire contracts.
 /// This proves acknowledgement, not that an issue represents a unique person or cause.
 public struct ReportAcknowledgement: Decodable, Equatable, Sendable {

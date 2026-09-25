@@ -4,9 +4,9 @@ let package = Package(name: "DustWaveDesktop", platforms: [.macOS(.v13)], produc
     .library(name: "DustWaveUpdates", targets: ["DustWaveUpdates"]),
     .library(name: "DustWaveUpdatePolicy", targets: ["DustWaveUpdatePolicy"]),
     .library(name: "DustWaveDiagnostics", targets: ["DustWaveDiagnostics"])
-], dependencies: [.package(url: "https://github.com/sparkle-project/Sparkle", "2.9.5"..."2.10.0")], targets: [
+], dependencies: [.package(path: "../support"), .package(url: "https://github.com/sparkle-project/Sparkle", "2.9.5"..."2.10.0")], targets: [
     .target(name: "DustWaveUpdatePolicy"),
     .target(name: "DustWaveUpdates", dependencies: ["DustWaveUpdatePolicy", .product(name: "Sparkle", package: "Sparkle")]),
-    .target(name: "DustWaveDiagnostics"),
+    .target(name: "DustWaveDiagnostics", dependencies: [.product(name: "DustWaveSupport", package: "support")]),
     .testTarget(name: "DustWaveDesktopTests", dependencies: ["DustWaveUpdates", "DustWaveDiagnostics"])
 ])

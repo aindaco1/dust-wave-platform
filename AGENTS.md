@@ -7,7 +7,9 @@ Foundation Models adapters for macOS consumers. It owns no app, networking,
 model installation, storage, or product formatting policy. See
 `docs/adr/0004-native-speech-and-apple-generation.md`.
 
-`desktop/` is a second, independent SwiftPM package for signed updates and explicitly reviewed diagnostic transport. It depends on Sparkle only; product policy, report schemas, endpoints and GitHub delivery stay with consumers. See `desktop/README.md`. Run `swift test --package-path desktop` for its changes.
+`support/` is a Foundation-only SwiftPM package for iOS/macOS reviewed-report transport, receipts and bounded crash projections. It owns no subscriber, storage, schema, endpoint or consent. Run `swift test --package-path support` for its changes.
+
+`desktop/` provides signed macOS updates through Sparkle and a compatible diagnostics facade over `support/`. Product policy, report schemas, endpoints and GitHub delivery stay with consumers. See `desktop/README.md`. Run `swift test --package-path desktop` for its changes.
 
 ## Boundaries
 

@@ -80,3 +80,11 @@ jobs:
         run: bash scripts/test-desktop-version.sh "$SPARKLE_VERSION"
       - name: Test display fixture lifecycle
         run: python3 -m unittest discover -s tools/macos-display -p 'test_*.py'
+      - name: Test shared Apple support
+        run: swift test --package-path support
+      - name: Build support for the iOS 17 simulator minimum
+        run: >-
+          xcodebuild -scheme DustWaveSupport -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath "$RUNNER_TEMP/support-ios" IPHONEOS_DEPLOYMENT_TARGET=17.0
+          CODE_SIGNING_ALLOWED=NO build
+        working-directory: support

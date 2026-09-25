@@ -1,5 +1,6 @@
 import Foundation
 import CoreFoundation
+import DustWaveSupport
 
 /// A projection of a user-selected .ips file, never the raw incident or stack.
 public struct NativeCrashSummary: Codable, Equatable {

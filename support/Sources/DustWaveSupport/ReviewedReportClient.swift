@@ -1,5 +1,7 @@
 import Foundation
 
+// Preserves the original desktop reviewed-report API for existing consumers.
+
 public enum ReportDeliveryError: LocalizedError {
     case invalidReport, unconfirmed
     public var errorDescription: String? {
