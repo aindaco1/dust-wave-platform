@@ -1,2 +1,2 @@
 import "./editor-media-browser.js";
-export const { imageThumbnail, createImagePreviewCache, applyPreviewMedia, isEmptyTextBlock, normalizeImageAccessibility } = globalThis.DustWaveAdminShellEditorMedia;
+export const { createMediaRemovalControl, imageThumbnail, createImagePreviewCache, applyPreviewMedia, isEmptyTextBlock, normalizeImageAccessibility } = globalThis.DustWaveAdminShellEditorMedia;

@@ -2,6 +2,37 @@
   "use strict";
   if (scope.DustWaveAdminShellEditorMedia) return;
 
+  // Consumer callbacks own media references, pending-file cleanup, history,
+  // persistence, and localized copy. This control owns removal and upload races.
+  function createMediaRemovalControl({ document = scope.document, label, className = "", hasSelection, clearSelection } = {}) {
+    if (!label || typeof hasSelection !== "function" || typeof clearSelection !== "function") {
+      throw new TypeError("A label, hasSelection, and clearSelection are required");
+    }
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = className;
+    button.textContent = String(label);
+    let uploadTicket;
+    function refresh() { button.disabled = !hasSelection(); }
+    function changed() { uploadTicket = undefined; refresh(); }
+    button.addEventListener("click", () => {
+      if (button.disabled) return;
+      uploadTicket = undefined;
+      clearSelection();
+      refresh();
+    });
+    refresh();
+    return Object.freeze({
+      button, refresh, changed,
+      beginUpload() {
+        uploadTicket = Symbol("media-upload");
+        button.disabled = false;
+        return uploadTicket;
+      },
+      isCurrentUpload: ticket => ticket !== undefined && ticket === uploadTicket
+    });
+  }
+
   function imageThumbnail(media, { document = scope.document, Image = scope.Image, maxEdge = 960 } = {}) {
     if (!Number.isFinite(maxEdge) || maxEdge < 1 || maxEdge > 4096) throw new RangeError("maxEdge must be between 1 and 4096");
     if (!media.inlinePreview) {
@@ -81,7 +112,7 @@
   }
 
   Object.defineProperty(scope, "DustWaveAdminShellEditorMedia", {
-    value: Object.freeze({ imageThumbnail, createImagePreviewCache, applyPreviewMedia, isEmptyTextBlock, normalizeImageAccessibility }),
+    value: Object.freeze({ createMediaRemovalControl, imageThumbnail, createImagePreviewCache, applyPreviewMedia, isEmptyTextBlock, normalizeImageAccessibility }),
     configurable: false
   });
 })(globalThis);
