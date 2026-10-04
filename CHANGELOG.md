@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.43.0 - 2026-10-04
+
+- Media Core 0.5.0 adds bounded FFmpeg framehash aspect-ratio normalization.
+  Equivalent PNG density ratios compare equally while decoded pixels, dimensions,
+  real aspect changes, and animation timing remain intact. Pool owns decoding
+  and publication validation; other consumers can adopt the opt-in helper.
+
 ## 0.42.0 - 2026-09-25
 
 - Apple Support 0.1.0 extracts Foundation-only bounded delivery, matching receipts and MetricKit stack projection. Desktop Swift 0.3.0 re-exports the original diagnostics API.

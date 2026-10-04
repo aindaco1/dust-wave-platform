@@ -30,6 +30,15 @@ admin routes, publication, storage, credentials, and deployment.
 The [image-dimensions entry](src/image-dimensions.js) supplies image-header
 dimension detection without owning media transformation.
 
+## Framehash evidence
+
+The `frame-hash` entry exports `normalizeFrameHashAspectRatios(text)`. It reduces
+FFmpeg `#sar` fractions such as `11811/11811` to `1/1` and preserves all other
+framehash text. Missing or malformed aspect ratios and inputs over 8 MiB throw
+`TypeError`. Consumers own the decoder, pixel format, cryptographic hash,
+comparison, optimizer, and publication decision. Normalization never approves
+a changed pixel, frame duration, dimension, or actual aspect ratio.
+
 ## Reference
 
 See the [public exports](package.json), [source contracts](src/), and
