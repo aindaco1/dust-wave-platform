@@ -106,6 +106,18 @@ responsibility; the renderer accepts only its existing inline formatting tags.
 
 `editor-media` / `editor-media-browser` expose `DustWaveAdminShellEditorMedia`:
 
+- `createMediaRemovalControl({ label, className, hasSelection, clearSelection, document })`
+  returns a native `button` plus `refresh()`, `changed()`, `beginUpload()`, and
+  `isCurrentUpload(ticket)`. The button is disabled for an empty field; a pending
+  upload enables removal. Removing, changing the value, or starting another upload
+  invalidates earlier tickets. Apply a result only when its ticket is current,
+  then call `changed()`. On a failed upload, call `changed()` after restoring the
+  consumer preview. Use `hasSelection` to include staged replacements and
+  `clearSelection` to clear the reference and revoke pending previews while keeping
+  captions/alt text. The callback can record undo history, rerender, restore focus,
+  and announce the result. No storage, upload endpoint, asset deletion, translation,
+  CSS, or product content is owned by the control. Missing callbacks/label throw.
+  Available in Admin Shell 0.13.0 through both module and classic browser entries.
 - `createImagePreviewCache()` maps canonical uploaded paths to tab-local object
   URLs. `remember(path, File)` rejects missing paths/non-images, revokes a replaced
   URL, and returns its preview record. `clear()` revokes every URL; call on logout

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { DOMParser } from 'linkedom';
-import { createImagePreviewCache, imageThumbnail, applyPreviewMedia, isEmptyTextBlock, normalizeImageAccessibility } from '../src/editor-media.js';
+import { createMediaRemovalControl, createImagePreviewCache, imageThumbnail, applyPreviewMedia, isEmptyTextBlock, normalizeImageAccessibility } from '../src/editor-media.js';
 
 test('newly uploaded images retain tab-local previews through server-path changes and cleanup', () => {
   const revoked = [];
@@ -59,4 +59,51 @@ test('alt text is advisory and decorative state is never inferred from an empty 
   assert.equal(result.alt.length, 300);
   assert.doesNotMatch(result.alt, /<|>/);
   assert.deepEqual(result.notices, ['normalized']);
+});
+
+
+test('media removal retains caller-owned fields, clears staged media, and disables an empty control', () => {
+  const document = new DOMParser().parseFromString('<html></html>', 'text/html');
+  const block = { src: '/image.png', alt: 'Description', caption: 'Caption', pending: 'blob:replacement' };
+  let cleared = 0;
+  const control = createMediaRemovalControl({ document, label: 'Quitar imagen', className: 'remove',
+    hasSelection: () => Boolean(block.src || block.pending),
+    clearSelection: () => { block.src = ''; delete block.pending; cleared++; }
+  });
+  assert.equal(control.button.type, 'button');
+  assert.equal(control.button.textContent, 'Quitar imagen');
+  assert.equal(control.button.disabled, false);
+  control.button.click();
+  assert.deepEqual(block, { src: '', alt: 'Description', caption: 'Caption' });
+  assert.equal(control.button.disabled, true);
+  control.button.click();
+  assert.equal(cleared, 1);
+  block.src = '/replacement.png';
+  control.changed();
+  assert.equal(control.button.disabled, false);
+});
+
+test('removal, edits, and newer uploads invalidate late upload responses', () => {
+  const document = new DOMParser().parseFromString('<html></html>', 'text/html');
+  let value = '';
+  const control = createMediaRemovalControl({ document, label: 'Remove image',
+    hasSelection: () => Boolean(value), clearSelection: () => { value = ''; }
+  });
+  const first = control.beginUpload();
+  assert.equal(control.button.disabled, false);
+  control.button.click();
+  assert.equal(control.isCurrentUpload(first), false);
+  const second = control.beginUpload();
+  value = '/chosen.png';
+  control.changed();
+  assert.equal(control.isCurrentUpload(second), false);
+  const third = control.beginUpload();
+  const fourth = control.beginUpload();
+  assert.equal(control.isCurrentUpload(third), false);
+  assert.equal(control.isCurrentUpload(fourth), true);
+  assert.equal(control.isCurrentUpload(undefined), false);
+  value = '/uploaded.png';
+  control.changed();
+  assert.equal(control.button.disabled, false);
+  assert.throws(() => createMediaRemovalControl({ document, label: 'Remove' }), TypeError);
 });

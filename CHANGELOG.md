@@ -2,6 +2,11 @@
 
 ## 0.43.0 - 2026-10-04
 
+- Admin Shell 0.13.0 adds a reusable media removal control for image fields,
+  content blocks, gallery items, and posters. It exposes native button state and
+  invalidates late upload results after removal or another selection. Consumers
+  supply labels, styling, reference updates, pending-file cleanup, and save policy.
+
 - Media Core 0.5.0 adds bounded FFmpeg framehash aspect-ratio normalization.
   Equivalent PNG density ratios compare equally while decoded pixels, dimensions,
   real aspect changes, and animation timing remain intact. Pool owns decoding
