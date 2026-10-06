@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/release-core",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "type": "module",
   "exports": {
     "./cache-policy": {
@@ -53,7 +53,7 @@
     "node": ">=20.9"
   },
   "dependencies": {
-    "smol-toml": "1.7.1"
+    "smol-toml": "1.9.0"
   },
   "license": "MIT"
 }
