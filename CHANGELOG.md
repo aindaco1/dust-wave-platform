@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.43.1 - 2026-10-05
+
+- Release Core 0.5.1 pins smol-toml 1.9.0 to resolve
+  GHSA-r4xh-jqrq-34v2 while preserving the Wrangler parsing and inventory API.
+  Consumers adopt the patched tooling and immutable gitlink together.
+
 ## 0.43.0 - 2026-10-04
 
 - Admin Shell 0.13.0 adds a reusable media removal control for image fields,
