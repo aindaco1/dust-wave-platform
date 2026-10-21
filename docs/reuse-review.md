@@ -27,6 +27,13 @@ tests are added. It has two current consumers and a small observable contract.
 Subprocess management offers more reuse but carries substantially more lifecycle
 risk. Draft recovery is valuable behavior to preserve, not yet a shared API.
 
+The security follow-up also characterized the same Node-selection contract in
+Pool and Store: preserve a supported patched PATH runtime, skip vulnerable NVM
+candidates, handle spaces and fail when no acceptable runtime exists. A shared
+bootstrap helper is now a small additional candidate; runtime version floors and
+container/release policy must remain consumer-controlled. Their current copies
+stay local until an independently versioned migration is reviewed.
+
 Recent improvements that should inform Platform work:
 
 - Store's media removal/upload-race improvements have already reached shared
