@@ -74,6 +74,7 @@ export function runCapturedProcess(command, args, { cwd, env, processGroup = fal
       if (error) reject(error); else resolve(result);
     }
     function abort() {
+      if (settled) return;
       signalProcess(child, abortGraceMs ? "SIGTERM" : "SIGKILL", { processGroup: grouped });
       if (abortGraceMs) {
         // Retain group identity even if onClose removes the leader from a registry.
