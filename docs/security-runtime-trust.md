@@ -31,6 +31,10 @@ those supported major lines. CI uses explicit fixed patches. This is a tooling
 baseline, not a new runtime requirement added to already-published packages.
 Keep immutable package releases and independent consumer rollback pins.
 
+Major-only CI aliases can reuse an older cached runtime. Pin the fixed patch,
+and ensure local NVM fallbacks and cached container images cannot silently
+replace it with an older executable.
+
 Consumer runtime repairs must follow the applicable upstream release:
 
 - [Node 24.22.1](https://github.com/nodejs/node/releases/tag/v24.22.1),
@@ -82,6 +86,13 @@ custom authentication-challenge override was involved. Explicit user-level
 SSL distrust of the twelve published intermediate certificates made all twelve
 fail. This is local containment, not proof of a completed Apple-wide rollout;
 other Macs, other users and physical iOS devices require independent checks.
+
+Qt's OpenSSL backend on the same machine accepted all twelve paths even after
+the Apple user-level denials. OwlSwitch now replaces its Qt CA anchors with a
+verified current bundle and supplies that bundle to mpv with peer verification
+enabled. Test Qt, mpv, yt-dlp and Deno separately: Apple trust settings do not
+govern every helper or Qt backend. Keep this app-specific configuration in the
+consumer rather than adding it to the shared report transport.
 
 Legacy command-line clients may use `/etc/ssl/cert.pem` instead of Apple trust
 services. On the same machine, Apple's bundled Python/LibreSSL reported an
