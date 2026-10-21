@@ -33,4 +33,5 @@ model installation, storage, or product formatting policy. See
 4. Record consumer migration and rollback evidence in the consumer pull request.
 5. Do not merge a breaking change until all affected consumers have a compatible release branch.
 
-Use Node.js 20 or newer. Prefer Web Platform APIs so Worker packages remain runtime-portable.
+Use patched Node.js 22.23.4+, 24.22.1+, or 26.12.1+ on those supported major lines.
+Prefer Web Platform APIs so Worker packages remain runtime-portable.

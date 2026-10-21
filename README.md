@@ -51,7 +51,9 @@ and Podcast Visualizer. Product policies, data, model installation, and releases
 stay with each app. Native consumers use exact gitlinks; they add no dependency
 to the Node/Worker packages. See [ADR 0004](docs/adr/0004-native-speech-and-apple-generation.md).
 
-Use Node.js 20.9 or newer; CI uses Node.js 22 and 24. From the repository root:
+Use a patched supported Node.js line: 22.23.4+, 24.22.1+, or 26.12.1+.
+CI pins 22.23.4 and 24.22.1. See the [runtime trust boundary](docs/security-runtime-trust.md)
+for bundled runtimes and the October 2026 eMudhra response. From the repository root:
 
 ```bash
 npm ci
@@ -66,6 +68,6 @@ individual checks and consumer secret-audit adapters.
 
 - [Documentation index](docs/README.md): guides, architecture decisions, and document ownership.
 - [Consumer adoption](docs/consumer-adoption.md): pinning, migration, rollback, and recorded release evidence.
-- [Reuse review status](docs/reuse-review.md): completed batches and remaining work, currently paused.
+- [Reuse review status](docs/reuse-review.md): completed batches and the October 2026 candidate reassessment.
 - [Changelog](CHANGELOG.md): Platform release history.
 - [License](LICENSE): MIT terms.

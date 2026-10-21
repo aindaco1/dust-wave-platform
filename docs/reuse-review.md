@@ -1,9 +1,55 @@
 # Reuse review: completed work and deferred candidates
 
-Status recorded September 13, 2026, America/Denver (September 14 UTC).
-The portfolio reuse effort is **paused after two completed release batches**.
-No third batch has started. The candidates below are a resume plan, not
-accepted APIs or a requirement to upgrade every consumer.
+Updated October 21, 2026. Candidate review has resumed following the runtime
+security investigation. No third extraction batch has started. The candidates
+below are a review plan, not accepted APIs or a requirement to upgrade every
+consumer. The completed-batch evidence remains the September snapshot.
+
+## October reassessment
+
+The current source inventory identifies 22 direct submodule consumers. Review
+included recent Store and Pool changes and the five desktop consumers with
+embedded runtimes. It did not audit every line or establish deployment parity.
+Pool's current remote source was read without replacing its local worktree or
+untracked investigation documents. Detailed local evidence stays outside this
+public repository.
+
+| Priority | Candidate and evidence | Boundary and work before extraction |
+| --- | --- | --- |
+| 1 | **Stripe script loading:** Pool and Store's `ensureStripeJs` in `assets/js/stripe-checkout-sidecar.js` are nearly identical; their marker attributes differ. Both have a successful-load unit test. | Inject script URL, DOM/global lookup and marker policy. Characterize concurrent callers, existing tags, missing global, load failure and retry in both consumers. The current failure path retains the failed script, so a retry can attach listeners after its error has already fired; establish and fix this behavior before extraction. Keep payment APIs, pricing and confirmation local. |
+| 2 | **Editor media selection lifecycle:** Store [a24de68](https://github.com/aindaco1/store/commit/a24de68) captures the intended target before asynchronous selection and rejects detached/deleted block or gallery targets. | Extend existing admin media lifecycle only after equivalent Pool characterization for removal, reorder, replacement and cancellation. Inject target membership and attachment checks. Keep product/campaign models and picker markup local. |
+| 3 | **Node subprocess lifecycle:** Podcast Visualizer `src/process.js`, Auto Subtitle `engine/process.mjs`, and Film `scripts/managed-process.mjs` share argument-vector execution, bounded completion and cancellation concerns. | These are near-duplicates: aggregate-output limits, streamed progress, detached process groups and error mapping differ. Characterize child/grandchild cleanup, timeout, abort, spawn failure, stream bounds and signal exit in each consumer; inject those policies into a Node-only entry. |
+| 4 | **Draft recovery baseline:** Pool [PR 89](https://github.com/aindaco1/pool/pull/89) retains a browser draft's original revision and published snapshot together after reload, preserving stale/conflicted edits. | A pure baseline/conflict decision helper is plausible, but Store has no matching revision/snapshot seam in the reviewed product editor. Keep the fix in Pool until a second characterized consumer exists. Do not import campaign storage or publish authority into Platform. |
+| 5 | **Local publisher shutdown:** Store [24c0be6](https://github.com/aindaco1/store/commit/24c0be6) stops accepting new requests and allows the active catalog generation to finish during shutdown. | Characterize Pool's equivalent lifecycle before moving a drain helper. This is Node developer tooling, not a Worker primitive. Preserve consumer process and filesystem policies. |
+
+The best first extraction is the narrow Stripe loader after its missing failure
+tests are added. It has two current consumers and a small observable contract.
+Subprocess management offers more reuse but carries substantially more lifecycle
+risk. Draft recovery is valuable behavior to preserve, not yet a shared API.
+
+Recent improvements that should inform Platform work:
+
+- Store's media removal/upload-race improvements have already reached shared
+  admin primitives and its Platform 0.43 adoption. Reuse those controls before
+  introducing overlapping lifecycle helpers.
+- Pool's [protected-preview backgrounds](https://github.com/aindaco1/pool/commit/18ff5df)
+  restore campaign and progress presentation parity. The reviewed fix supplies
+  consumer template data; it does not establish a second generic asset resolver.
+- Store's shared viewport fixture and price-column overflow checks are useful
+  test techniques. Extract layout tokens only if two real consumers have the
+  same contract; retain product-row markup locally.
+- Store's canceled PaymentIntent handling, reserved ticket quantities, and
+  pay-what-you-want contributions remain commerce policy. Any reusable stale
+  response/disposal mechanism needs independent tests before separation.
+- The eMudhra work contributes the [runtime trust boundary](security-runtime-trust.md),
+  patched development/CI baseline, and signed-helper acceptance requirements.
+  Consumer CA files, code-signing entitlements and release pipelines stay local.
+
+The current Platform base already includes the Release Core TOML security fix
+from [PR 54](https://github.com/aindaco1/dust-wave-platform/pull/54). Do not
+reimplement it or synchronize all consumer pins merely for version parity.
+Consumers using that entry should adopt its immutable fixed version through
+their own migration and rollback gates.
 
 ## Completed
 
