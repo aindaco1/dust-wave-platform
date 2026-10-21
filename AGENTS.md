@@ -13,6 +13,11 @@ model installation, storage, or product formatting policy. See
 
 `qt/` is the CMake exception for bounded Qt report delivery and a small macOS Sparkle bridge. Keep product UI, report persistence and installation policy outside it. Run its CTest suite and the consumer's updater policy tests.
 
+`packages/node-core/` is the Node-only exception for subprocess lifecycle, local
+server drain and pre-Node shell bootstrap. Executable selection, environment,
+version floors, error copy and deployment authority stay in consumers. Browser
+and Worker packages must not import it.
+
 ## Boundaries
 
 - Consumer repositories retain their domain models, storage, templates, routes, and deployment authority.

@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/test-core",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "type": "module",
   "exports": {
     ".": {
@@ -22,6 +22,10 @@
     "./jev": {
       "types": "./src/jev.d.ts",
       "default": "./src/jev.js"
+    },
+    "./rendering": {
+      "types": "./src/rendering.d.ts",
+      "default": "./src/rendering.js"
     }
   },
   "engines": {

@@ -83,3 +83,10 @@ This is development tooling; importing it does not add model calls to consumers.
 See the [public exports](package.json), [source contracts](src/), and
 [behavior tests](test/). Follow the shared
 [consumer adoption guide](../../docs/consumer-adoption.md) when updating a pin.
+
+## Rendering fixtures
+
+`rendering` exports `waitForStableRendering` (bounded font readiness plus two
+animation frames) and `applyTextScale` (routed same-origin CSS under an injected
+path prefix). It accepts a Playwright-compatible page without importing Playwright.
+Consumers own viewport sizes, markup, routes, screenshots and assertions.

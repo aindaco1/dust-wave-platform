@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/site-shell",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "exports": {
     "./a11y-live-browser": "./src/a11y-live-browser.js",
@@ -9,7 +9,8 @@
     "./form-control-identity-browser": "./src/form-control-identity-browser.js",
     "./header-nav-browser": "./src/header-nav-browser.js",
     "./shipping-option-utils-browser": "./src/shipping-option-utils-browser.js",
-    "./video-first-frame-poster-browser": "./src/video-first-frame-poster-browser.js"
+    "./video-first-frame-poster-browser": "./src/video-first-frame-poster-browser.js",
+    "./script-loader-browser": "./src/script-loader-browser.js"
   },
   "engines": {
     "node": ">=20.9"
