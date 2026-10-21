@@ -151,3 +151,16 @@ requests, choose authorization, or change backend validation outcomes.
 Pool characterizes its browser editor, Worker preview, before/after-save media
 previews, validation, and responsive layout independently. Other consumers adopt
 these additive entries through their own pinned upgrades.
+
+## Async targets and draft recovery
+
+`editor-media.captureMediaTarget` retains item/target identity before asynchronous
+work. Its `index()` resolves the current position and returns -1 when detached,
+removed, replaced, canceled or no longer a nested member. Consumers inject list,
+attachment, membership and ticket checks and retain all domain mutation policy.
+
+`draft-recovery` and `draft-recovery-browser` expose `recoverDraftBaseline`.
+Revision and snapshot are opaque paired values. Unpublished stale edits preserve
+the original pair and conflict flag; only a consumer-confirmed legacy match can
+upgrade that baseline. Storage, parsing, draft content and publish authority stay
+in the consumer. Pool is the initial characterized caller of this pure decision.

@@ -6,6 +6,13 @@ the packages the project needs. There is no shared application runtime.
 
 | Need | Existing entry | Consumer-owned decisions |
 | --- | --- | --- |
+| Retryable classic SDK loading | `site-shell/script-loader-browser` | URL, marker, SDK lookup, CSP and error copy |
+| Async editor target identity | `admin-shell/editor-media` | Block/gallery models, attachment, selection tickets and mutation |
+| Paired draft baseline recovery | `admin-shell/draft-recovery` | Revision format, snapshots, storage, conflicts and publication |
+| Subprocess capture and teardown | `node-core/process` (Node only) | Executables, environment, byte/time budgets, streams, errors and process-group policy |
+| Local publisher drain | `node-core/server-drain` (Node only) | Scheduling, HTTP routes, active work and host termination policy |
+| Pre-Node runtime bootstrap | `node-core/bin/node-runtime.sh` (Bash) | Accepted version floors, search order and failure copy |
+| Stable rendering and text scaling | `test-core/rendering` | Routes, viewport sizes, product markup and layout assertions |
 | Admin fetch, tabs, dirty controls, navigation guard, Turnstile sizing | `admin-shell/api-client`, `tabs`, `dirty-controls`, `unsaved-changes`, `turnstile` (TypeScript declarations included) | Routes, CSRF token source, dirty state, confirmation text, storage availability, styling |
 | Validate incoming request bodies | `worker-core/request-validation` | Body budget, schema, authorization, route response |
 | Bound upstream response bytes or JSON | `worker-core/response-body` | Response budget and schema; upstream transport |

@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "type": "module",
   "exports": {
     "./api-client": {
@@ -41,7 +41,9 @@
     "./editor-media": "./src/editor-media.js",
     "./editor-media-browser": "./src/editor-media-browser.js",
     "./feedback": "./src/feedback.js",
-    "./feedback-browser": "./src/feedback-browser.js"
+    "./feedback-browser": "./src/feedback-browser.js",
+    "./draft-recovery": "./src/draft-recovery.js",
+    "./draft-recovery-browser": "./src/draft-recovery-browser.js"
   },
   "engines": {
     "node": ">=20.9"

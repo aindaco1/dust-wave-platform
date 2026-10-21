@@ -13,6 +13,11 @@ model installation, storage, or product formatting policy. See
 
 `qt/` is the CMake exception for bounded Qt report delivery and a small macOS Sparkle bridge. Keep product UI, report persistence and installation policy outside it. Run its CTest suite and the consumer's updater policy tests.
 
+`packages/node-core/` is the Node-only exception for subprocess lifecycle, local
+server drain and pre-Node shell bootstrap. Executable selection, environment,
+version floors, error copy and deployment authority stay in consumers. Browser
+and Worker packages must not import it.
+
 ## Boundaries
 
 - Consumer repositories retain their domain models, storage, templates, routes, and deployment authority.
@@ -33,4 +38,5 @@ model installation, storage, or product formatting policy. See
 4. Record consumer migration and rollback evidence in the consumer pull request.
 5. Do not merge a breaking change until all affected consumers have a compatible release branch.
 
-Use Node.js 20 or newer. Prefer Web Platform APIs so Worker packages remain runtime-portable.
+Use patched Node.js 22.23.4+, 24.22.1+, or 26.12.1+ on those supported major lines.
+Prefer Web Platform APIs so Worker packages remain runtime-portable.

@@ -25,11 +25,12 @@ repository contribution rules.
 | `@dustwave/inventory-core` | [Inventory snapshots, counts, and expiring reservations](packages/inventory-core/README.md) | `0.1.0`|
 | `@dustwave/worker-core` | [Worker HTTP, security, providers, sessions, logging, and outbox mechanics](packages/worker-core/README.md) | `0.15.0`|
 | `@dustwave/shipping-core` | [Shipping profiles, quotes, USPS transport, and country data](packages/shipping-core/README.md) | `0.2.0`|
-| `@dustwave/admin-shell` | [Unstyled admin clients, session/UI controls, editors, and share assets](packages/admin-shell/README.md) | `0.13.0`|
+| `@dustwave/admin-shell` | [Unstyled admin clients, session/UI controls, editors, and share assets](packages/admin-shell/README.md) | `0.14.0`|
 | `@dustwave/tax-core` | [Destination normalization, manual calculation, and provider transport](packages/tax-core/README.md) | `0.3.1`|
-| `@dustwave/test-core` | [Browser test helpers and advisory evaluation](packages/test-core/README.md) | `0.3.1`|
+| `@dustwave/test-core` | [Browser test helpers and advisory evaluation](packages/test-core/README.md) | `0.4.0`|
 | `@dustwave/design-core` | [Compile-time Sass foundations, forms, layout, and components](packages/design-core/README.md) | `0.3.0`|
-| `@dustwave/site-shell` | [Classic browser navigation, announcements, forms, and cart display](packages/site-shell/README.md) | `0.3.0`|
+| `@dustwave/site-shell` | [Classic browser navigation, announcements, forms, and cart display](packages/site-shell/README.md) | `0.4.0`|
+| `@dustwave/node-core` | [Node process lifecycle, server drain and runtime bootstrap](packages/node-core/README.md) | `0.1.0`|
 | `@dustwave/build-core` | [Allowlisted generated CSS/JavaScript minification](packages/build-core/README.md) | `0.2.0`|
 | `@dustwave/desktop-core` | [Reviewed report transport, serialized relay and Tauri progress](packages/desktop-core/README.md) | `0.2.0`|
 | `@dustwave/release-core` | [Release normalization, integrity, provider, and accessibility evidence](packages/release-core/README.md) | `0.5.1`|
@@ -51,7 +52,9 @@ and Podcast Visualizer. Product policies, data, model installation, and releases
 stay with each app. Native consumers use exact gitlinks; they add no dependency
 to the Node/Worker packages. See [ADR 0004](docs/adr/0004-native-speech-and-apple-generation.md).
 
-Use Node.js 20.9 or newer; CI uses Node.js 22 and 24. From the repository root:
+Use a patched supported Node.js line: 22.23.4+, 24.22.1+, or 26.12.1+.
+CI pins 22.23.4 and 24.22.1. See the [runtime trust boundary](docs/security-runtime-trust.md)
+for bundled runtimes and the October 2026 eMudhra response. From the repository root:
 
 ```bash
 npm ci
@@ -66,6 +69,6 @@ individual checks and consumer secret-audit adapters.
 
 - [Documentation index](docs/README.md): guides, architecture decisions, and document ownership.
 - [Consumer adoption](docs/consumer-adoption.md): pinning, migration, rollback, and recorded release evidence.
-- [Reuse review status](docs/reuse-review.md): completed batches and remaining work, currently paused.
+- [Reuse review status](docs/reuse-review.md): completed batches and the October 2026 candidate reassessment.
 - [Changelog](CHANGELOG.md): Platform release history.
 - [License](LICENSE): MIT terms.

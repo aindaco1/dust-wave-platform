@@ -73,3 +73,11 @@ URL resolution (it may request the page and then fail as media). Cleanup retains
 the donors' event behavior; it does not promise cancellation of already queued
 media events or a cache of posters across page loads. Generated posters remain
 in the page only; this entry uploads nothing and provides no media storage.
+
+## Script loading
+
+`script-loader-browser` exposes `DustWaveScriptLoader.createScriptLoader`. Each
+loader shares one pending promise and joins its consumer-marked existing tag.
+Consumers supply URL, selector, marker, SDK lookup and error copy. A load error,
+missing SDK or insertion error removes the failed tag and permits a fresh retry.
+Successful SDKs are reused. No timeout, payment policy or network bypass is added.

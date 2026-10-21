@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.44.0 - 2026-10-21
+
+- Site Shell 0.4.0 adds a single-flight classic script loader with failed-tag cleanup and retry.
+- Admin Shell 0.14.0 adds identity-based asynchronous media targets and paired draft revision/snapshot recovery.
+- Node Core 0.1.0 adds argument-vector subprocess capture, bounded output, cancellation and process-group teardown; local HTTP server drain; and sourceable runtime selection with consumer-owned version floors.
+- Test Core 0.4.0 adds stable-rendering and CSP-compatible text scaling fixtures.
+- Consumers retain SDK URLs, models, error copy, executable/environment policy, storage, deployment and release authority.
+
 ## 0.43.1 - 2026-10-05
 
 - Release Core 0.5.1 pins smol-toml 1.9.0 to resolve

@@ -1,11 +1,46 @@
-# Reuse review: completed work and deferred candidates
+# Reuse review: shared primitives and consumer migration
 
-Status recorded September 13, 2026, America/Denver (September 14 UTC).
-The portfolio reuse effort is **paused after two completed release batches**.
-No third batch has started. The candidates below are a resume plan, not
-accepted APIs or a requirement to upgrade every consumer.
+Updated October 21, 2026. The third extraction batch is implemented as an additive
+Platform 0.44.0 candidate. Consumer PRs own final checks, rollout and rollback evidence.
 
-## Completed
+## October extraction batch
+
+The review covered 22 direct submodule consumers, recent Store/Pool changes and
+five desktop consumers with embedded runtimes. It did not establish deployment
+parity or audit every line. Pool production was synchronized before this work.
+
+| Item | Shared entry | Characterized consumer adapters |
+| --- | --- | --- |
+| Stripe script loading | Site Shell `script-loader-browser` | Pool and Store preserve Clover SDK URL, marker and errors. Failed tags are removed so concurrent retry cannot hang. |
+| Async media targets | Admin Shell `editor-media.captureMediaTarget` | Store and Pool retain block/gallery identity across reorder and reject removal, replacement or detached editors. Source fields and picker UI remain local. |
+| Node subprocess lifecycle | Node Core `process` | Film retains inherited output and supervisor signals; Podcast Visualizer retains bounded privacy-safe errors and auxiliary streams; Auto Subtitle retains offline environment and JSON progress. Group cleanup reaches descendants after leader exit. |
+| Node runtime bootstrap | Node Core `bin/node-runtime.sh` | Pool and Store inject patched version floors, NVM search order and failure copy. Preserve an approved PATH runtime and fail closed otherwise. |
+| Draft recovery baseline | Admin Shell `draft-recovery` | Pool pairs original revision and published snapshot across reloads, preserving conflicts and its exact legacy-revision upgrade rule. No Store domain seam is invented. |
+| Publisher drain and rendering fixtures | Node Core `server-drain`; Test Core `rendering` | Store stops admission/scheduling while active catalog work completes; its layout tests use bounded font/frame readiness and same-origin text scaling. Viewport assertions and product markup stay local. |
+
+Before extraction, independent Pool/Store Stripe cases exposed the retained
+failed-tag bug; the local fix passed both suites. Store media identity, Pool's
+28 draft cases, both runtime-selection suites, Store active-publish drain and
+all three process adapters have consumer characterization. Additional cases
+exposed Pool's stale numeric media target and Film's TERM-resistant descendant.
+These corrections travel with the affected adapters and their regression tests.
+
+Each consumer pins a full immutable candidate commit and exact package versions.
+No existing consumer is required to adopt these optional entries. Native speech,
+Swift/Qt updater, storage, credentials, payment and product policies are unchanged.
+Release evidence is recorded only after the final candidate and affected-consumer
+gates pass; source migration alone is not a claim of production publication.
+
+Remaining project-specific improvements include Pool preview template data,
+Store ticket reservations, contributions, PaymentIntent policy and product-row
+markup. These do not establish framework-neutral shared contracts.
+
+The base includes Release Core 0.5.1's smol-toml fix from
+[PR 54](https://github.com/aindaco1/dust-wave-platform/pull/54), and the
+[runtime trust boundary](security-runtime-trust.md). Consumer CA stores, signing
+entitlements and release pipelines remain consumer-owned.
+
+## Completed earlier batches
 
 The source review covered 43 owned repositories and identified 12 direct
 Platform consumers. It combined documentation, source inventories, duplicate
@@ -42,16 +77,7 @@ this documentation update, and existing scheduled services are not paused.
 
 ## Remaining work, in recommended order
 
-1. **R12: managed subprocess mechanics.** Compare Podcast Visualizer
-   `src/process.js`, Auto Subtitle `engine/process.mjs` and Film
-   `scripts/managed-process.mjs`. Characterize argument vectors, time/output
-   limits, cancellation, child/grandchild termination, spawn failures, signal
-   exits and paths with spaces before designing a Node-only entry. Inject
-   process-tree strategy; retain executable selection, environment policy,
-   progress decoding and app-specific errors in each consumer. Add a small
-   local-tool recipe only after real consumer migrations prove the interface.
-   Swift and Rust adapters remain separate.
-2. **R13: small subtitle-format primitives.** Compare Auto Subtitle
+1. **R13: small subtitle-format primitives.** Compare Auto Subtitle
    `engine/subtitles.mjs` with Podcast Visualizer `src/ass.js`. Start with
    timestamp rounding, encoding/escaping or bounded serialization that both
    consumers actually need, using the existing Timed Text boundary. Preserve
@@ -59,12 +85,7 @@ this documentation update, and existing scheduled services are not paused.
    input behavior. A complete shared codec needs a neutral preservation
    contract and a second consumer; model, translation, file and visual policy
    remain local.
-3. **R10: Stripe browser mechanics.** Start with the single-flight script
-   loader and narrow mount/dispose behavior in Pool and Store's
-   `assets/js/stripe-checkout-sidecar.js`. Characterize both checkout-session
-   and PaymentIntent differences. Keep pricing, billing, confirmation,
-   validation order and routing in the consumer; use an optional browser entry.
-4. **R11: small cart mechanics.** Review versioned storage envelopes, event
+2. **R11: small cart mechanics.** Review versioned storage envelopes, event
    subscriptions/listener cleanup and busy/display helpers in the two
    `assets/js/cart-provider.js` files, one seam at a time. Reuse existing
    inventory/shipping/tax entries first. Campaign pledges, SKUs, quantities,

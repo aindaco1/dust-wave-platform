@@ -2,6 +2,16 @@
   "use strict";
   if (scope.DustWaveAdminShellEditorMedia) return;
 
+  // Capture object identity before async work; resolve its current position only
+  // when applying a result. The consumer supplies nested membership and lifetime.
+  function captureMediaTarget({ item, target = item, getItems, isAttached, contains = () => true, isCurrent = () => true }) {
+    if (!item || !target) return null;
+    return Object.freeze({ item, target, index() {
+      if (!isAttached() || !isCurrent() || !contains(item, target)) return -1;
+      return getItems().indexOf(item);
+    } });
+  }
+
   // Consumer callbacks own media references, pending-file cleanup, history,
   // persistence, and localized copy. This control owns removal and upload races.
   function createMediaRemovalControl({ document = scope.document, label, className = "", hasSelection, clearSelection } = {}) {
@@ -112,7 +122,7 @@
   }
 
   Object.defineProperty(scope, "DustWaveAdminShellEditorMedia", {
-    value: Object.freeze({ createMediaRemovalControl, imageThumbnail, createImagePreviewCache, applyPreviewMedia, isEmptyTextBlock, normalizeImageAccessibility }),
+    value: Object.freeze({ captureMediaTarget, createMediaRemovalControl, imageThumbnail, createImagePreviewCache, applyPreviewMedia, isEmptyTextBlock, normalizeImageAccessibility }),
     configurable: false
   });
 })(globalThis);
