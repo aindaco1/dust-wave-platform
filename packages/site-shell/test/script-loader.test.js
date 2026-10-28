@@ -37,3 +37,34 @@ test('preloaded values avoid insertion and synchronous insertion errors remain r
   f.document.head.appendChild=append;
   const retry=f.load(); f.setApi({}); f.fire('load'); await retry;
 });
+
+test('warmup and foreground callers share an instance only for matching keys/options', async () => {
+  let loads=0, creates=0, release;
+  const ready=new Promise(resolve=>{release=resolve;});
+  const prepare=globalThis.DustWaveScriptLoader.createInstanceLoader({
+    load:()=>{loads++;return ready;},
+    create:(api,key,options)=>{creates++;return {api,key,options};}
+  });
+  const first=prepare('first',{locale:'en'});
+  assert.equal(first,prepare('first',{locale:'en'}));
+  release({});
+  assert.equal(await first,await prepare('first',{locale:'en'}));
+  assert.equal(loads,1);assert.equal(creates,1);
+  assert.notEqual(await first,await prepare('first',{locale:'es'}));
+  assert.notEqual(await first,await prepare('second',{locale:'en'}));
+  assert.equal(creates,3);
+});
+test('load and initializer failures remain retryable without evicting other instances', async () => {
+  for(const phase of ['load','create']) {
+    let fail=false;
+    const prepare=globalThis.DustWaveScriptLoader.createInstanceLoader({
+      load:()=>{if(fail&&phase==='load')throw Error('unavailable');return {};},
+      create:()=>{if(fail&&phase==='create')throw Error('unavailable');return {};}
+    });
+    const first=await prepare('first');fail=true;
+    const pending=prepare('second');assert.equal(pending,prepare('second'));
+    await assert.rejects(pending,/unavailable/);
+    assert.equal(await prepare('first'),first);
+    fail=false;assert.notEqual(await prepare('second'),first);
+  }
+});

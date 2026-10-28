@@ -1,0 +1,45 @@
+name: Open tax data refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 9 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: open-tax-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Fetch and validate the public snapshot
+        id: refresh
+        run: node packages/tax-core/src/open-us-tax-updater.js --output=packages/tax-core/data/open-us-tax.json
+      - name: Verify tax calculations and fallback behavior
+        run: node --test packages/tax-core/test/*.test.js
+      - name: Upload candidate for review
+        if: always() && steps.refresh.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: open-tax-data-${{ github.run_id }}
+          path: packages/tax-core/data/open-us-tax.json
+          retention-days: 30
+      - name: Require review when rates change
+        run: |
+          if ! git diff --exit-code --quiet -- packages/tax-core/data/open-us-tax.json; then
+            echo 'Tax data changed. Review the uploaded snapshot, commit it, and release through the normal gate.' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi

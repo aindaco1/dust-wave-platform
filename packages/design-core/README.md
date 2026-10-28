@@ -38,6 +38,15 @@ The optional policy variables are:
 These values produce CSS at build time only. No JavaScript or request-time
 design configuration is added.
 
+The `forms` partial enforces a `max(16px, 1rem)` text-size minimum on text-like
+inputs, selects, and textareas at widths up to 767px or when a coarse pointer
+is available. The important declaration prevents later compact component styles
+from reintroducing Safari focus zoom. Larger root text and user zoom remain
+available; wide layouts without a coarse pointer keep their existing typography.
+Provider-hosted fields, such as Stripe Elements, need the same minimum in the
+consumer's provider appearance settings. Store's mobile form browser regression
+checks the compiled cascade at phone and tablet widths.
+
 ## Architecture and validation
 
 The [design-system and Jekyll ADR](../../docs/adr/0002-design-system-and-jekyll-boundary.md)

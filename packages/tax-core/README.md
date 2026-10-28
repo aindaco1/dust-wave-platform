@@ -36,3 +36,9 @@ and release policy.
 See the [public exports](package.json), [source contracts](src/), and
 [behavior tests](test/). Follow the shared
 [consumer adoption guide](../../docs/consumer-adoption.md) when updating a pin.
+
+## US postal and open local-tax references
+
+`address-consistency` checks known US ZIP/state combinations and suggests mailing cities without rejecting city aliases. Unknown/international destinations remain unchecked; this is not street validation. `open-us-tax` returns reviewed ZIP-level general-rate components or null for unknown, ambiguous, excluded or expired data (90 days from the upstream timestamp). It does not decide taxability, nexus or fallback.
+
+Data lives in `data/` with source metadata and license notices. Keep these server-side; do not ship the reference databases in browser bundles. `open-us-tax-updater` verifies source digest/schema, limits sizes and coverage loss, and atomically replaces an explicitly supplied output. `bin/update-us-postal.py --output PATH` refreshes the GeoNames reference. Review and release snapshot changes; downloading them does not activate consumer tax configuration. Consumer-selected output paths and release pins preserve independent rollout.

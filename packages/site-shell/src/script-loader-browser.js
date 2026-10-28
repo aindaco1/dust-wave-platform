@@ -50,7 +50,24 @@
       return result;
     };
   }
+  // Reuse an initialized SDK for the same key/options, including concurrent
+  // warmup and foreground callers. Consumers supply stable JSON options.
+  function createInstanceLoader({ load, create }) {
+    const instances = new Map();
+    return function prepare(key, options = {}) {
+      const cacheKey = JSON.stringify([key, options]);
+      if (!instances.has(cacheKey)) {
+        const pending = Promise.resolve().then(load).then(api => create(api, key, options));
+        instances.set(cacheKey, pending);
+        pending.catch(() => {
+          if (instances.get(cacheKey) === pending) instances.delete(cacheKey);
+        });
+      }
+      return instances.get(cacheKey);
+    };
+  }
+
   Object.defineProperty(scope, "DustWaveScriptLoader", {
-    value: Object.freeze({ createScriptLoader }), configurable: false
+    value: Object.freeze({ createScriptLoader, createInstanceLoader }), configurable: false
   });
 })(globalThis);

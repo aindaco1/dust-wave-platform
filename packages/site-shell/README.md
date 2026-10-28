@@ -81,3 +81,31 @@ loader shares one pending promise and joins its consumer-marked existing tag.
 Consumers supply URL, selector, marker, SDK lookup and error copy. A load error,
 missing SDK or insertion error removes the failed tag and permits a fresh retry.
 Successful SDKs are reused. No timeout, payment policy or network bypass is added.
+
+## Checkout helpers
+
+`checkout-utils-browser` exposes `DustWaveCheckoutUtils`; `checkout-utils` exports the same implementation for Workers and tests. Email validation requires a dotted domain and at most 254 characters; callers trim input. US ZIP readiness accepts ZIP5 or ZIP+4. Other countries require nonempty postal text and retain consumer validation.
+
+Debounced actions recheck readiness before calling the consumer; they do not retry errors. Latest-check generations discard superseded responses, including A/B/A edits; unavailable lookup results are empty, and canonical submission must still validate. Payment reveal scrolls only the supplied container once per reset and never focuses a field. Consumers reset on navigation and guard readiness callbacks against stale mounts.
+
+These helpers own no Stripe SDK, checkout endpoint, prices, confirmation, cancellation, storage, markup, labels or payment lifecycle. Store takes payment; Pool saves a card for later campaign settlement. Both retain independent adapters and browser acceptance tests.
+
+Checkout helpers own no Stripe SDK calls, markup, timers after disposal, storage,
+pricing, endpoints or retry policy. Consumers must clear the debounced action
+and reset the latest lookup on navigation; validate canonical requests in the
+Worker. Store and Pool retain independent payment adapters and confirmation tests.
+
+### Early SDK initialization
+
+`DustWaveScriptLoader.createInstanceLoader({ load, create })` returns
+`prepare(key, options = {})`. It shares the loading/initialization promise for an
+exact key and JSON-serialized options, including simultaneous warmup and mount
+calls. Consumers provide stable JSON option shapes, the script loader, and the
+SDK factory. A load/factory rejection evicts only that entry so a foreground
+attempt can retry. Successful instances last for the page lifetime.
+
+Consumers choose when to start (cart/checkout intent), SDK version, public key and
+locale. This helper never creates a payment session, mounts fields, reads customer
+details, or confirms payment. Pool's deferred Checkout SDK warmup and Store's
+PaymentIntent preparation remain consumer policy. Pair the helper with the
+existing script loader so a failed script tag is also removed before retry.

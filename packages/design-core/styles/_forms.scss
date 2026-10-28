@@ -1,13 +1,19 @@
 // Form and input styles
 
-// Mobile input fix (prevents zoom on iOS)
-@media screen and (max-width: 767px) {
+// Keep editable text above Safari's focus-zoom threshold, including touch tablets.
+// This minimum must survive compact component overrides; larger root text still wins.
+@media screen and (max-width: 767px), screen and (any-pointer: coarse) {
+  input:not([type]),
   input[type="text"],
   input[type="number"],
   input[type="email"],
   input[type="tel"],
-  input[type="password"] {
-    font-size: 14px;
+  input[type="password"],
+  input[type="search"],
+  input[type="url"],
+  select,
+  textarea {
+    font-size: max(16px, 1rem) !important;
   }
 }
 

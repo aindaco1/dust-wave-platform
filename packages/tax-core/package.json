@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/tax-core",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "bin": {
     "dustwave-update-nm-grt-starter": "./bin/update-nm-grt-starter.mjs"
   },
@@ -21,7 +21,10 @@
     "./provider": {
       "types": "./src/provider.d.ts",
       "default": "./src/provider.js"
-    }
+    },
+    "./address-consistency": "./src/address-consistency.js",
+    "./open-us-tax": "./src/open-us-tax.js",
+    "./open-us-tax-updater": "./src/open-us-tax-updater.js"
   },
   "license": "MIT"
 }
