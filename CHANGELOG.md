@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.46.0 - 2026-10-28
+
+- Site Shell 0.6.0 adds an injected SDK instance loader for early checkout initialization. Concurrent warmup/mount callers share an instance per key/options; failures remain retryable. Pool and Store retain separate Stripe payment/session lifecycles.
+
 ## 0.45.0 - 2026-10-27
 
 - Site Shell 0.5.0 shares email/ZIP readiness, debounced preparation, stale-response guards, detail signatures and one-time payment reveal. Consumers retain Stripe/payment policy and form markup.

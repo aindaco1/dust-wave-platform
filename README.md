@@ -29,7 +29,7 @@ repository contribution rules.
 | `@dustwave/tax-core` | [Destination normalization, manual calculation, and provider transport](packages/tax-core/README.md) | `0.4.0`|
 | `@dustwave/test-core` | [Browser test helpers and advisory evaluation](packages/test-core/README.md) | `0.4.0`|
 | `@dustwave/design-core` | [Compile-time Sass foundations, forms, layout, and components](packages/design-core/README.md) | `0.3.1`|
-| `@dustwave/site-shell` | [Classic browser navigation, announcements, forms, and cart display](packages/site-shell/README.md) | `0.5.0`|
+| `@dustwave/site-shell` | [Classic browser navigation, announcements, forms, and cart display](packages/site-shell/README.md) | `0.6.0`|
 | `@dustwave/node-core` | [Node process lifecycle, server drain and runtime bootstrap](packages/node-core/README.md) | `0.1.0`|
 | `@dustwave/build-core` | [Allowlisted generated CSS/JavaScript minification](packages/build-core/README.md) | `0.2.0`|
 | `@dustwave/desktop-core` | [Reviewed report transport, serialized relay and Tauri progress](packages/desktop-core/README.md) | `0.2.0`|

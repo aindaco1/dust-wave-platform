@@ -94,3 +94,18 @@ Checkout helpers own no Stripe SDK calls, markup, timers after disposal, storage
 pricing, endpoints or retry policy. Consumers must clear the debounced action
 and reset the latest lookup on navigation; validate canonical requests in the
 Worker. Store and Pool retain independent payment adapters and confirmation tests.
+
+### Early SDK initialization
+
+`DustWaveScriptLoader.createInstanceLoader({ load, create })` returns
+`prepare(key, options = {})`. It shares the loading/initialization promise for an
+exact key and JSON-serialized options, including simultaneous warmup and mount
+calls. Consumers provide stable JSON option shapes, the script loader, and the
+SDK factory. A load/factory rejection evicts only that entry so a foreground
+attempt can retry. Successful instances last for the page lifetime.
+
+Consumers choose when to start (cart/checkout intent), SDK version, public key and
+locale. This helper never creates a payment session, mounts fields, reads customer
+details, or confirms payment. Pool's deferred Checkout SDK warmup and Store's
+PaymentIntent preparation remain consumer policy. Pair the helper with the
+existing script loader so a failed script tag is also removed before retry.
