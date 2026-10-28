@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.0 - 2026-10-27
+
+- Site Shell 0.5.0 shares email/ZIP readiness, debounced preparation, stale-response guards, detail signatures and one-time payment reveal. Consumers retain Stripe/payment policy and form markup.
+- Tax Core 0.4.0 adds attributed US postal consistency and conservative open local-tax snapshots with explicit-output refresh utilities. Unknown, ambiguous and stale coverage remains unresolved; consumers choose fallback and taxability.
+- Design Core 0.3.1 keeps mobile/touch inputs at a minimum 16px to avoid Safari focus zoom while respecting larger text settings.
+
 ## 0.44.0 - 2026-10-21
 
 - Site Shell 0.4.0 adds a single-flight classic script loader with failed-tag cleanup and retry.
