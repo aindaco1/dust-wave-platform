@@ -68,7 +68,7 @@ class CaptureTests(unittest.TestCase):
                 'RECOVERY_AGE_IDENTITY': 'synthetic-secret', 'RECOVERY_IDENTITY_VARIABLE': 'STORE_BACKUP_AGE_IDENTITY',
                 'RECOVERY_ARCHIVE_NAME': 'store-backup.tar.gz.age', 'AWS_ACCESS_KEY_ID': 'synthetic', 'AWS_SECRET_ACCESS_KEY': 'synthetic'}
 
-    def exercise(self, local='PASS', remote='PASS', fail_upload=False):
+    def exercise(self, local='PASS', remote='PASS', fail_upload=False, capture_failure=''):
         calls, folders = [], []
         def execute(args, **kwargs):
             calls.append(args)
@@ -81,7 +81,7 @@ class CaptureTests(unittest.TestCase):
                 target.mkdir()
                 (target / 'manifest.json').write_text(json.dumps({'warningCount': 0}))
                 (target / 'store-backup.tar.gz.age').write_bytes(b'ciphertext')
-            return SimpleNamespace(returncode=1 if fail_upload and args[0] == 'aws' else 0, stdout=b'', stderr=b'')
+            return SimpleNamespace(returncode=1 if (fail_upload and args[0] == 'aws') or (capture_failure and args[0] == 'node') else 0, stdout=b'', stderr=capture_failure.encode())
         try:
             with patch.object(capture.subprocess, 'run', side_effect=execute), patch.object(capture.audit, 'verify_snapshot', return_value={'status': local}), patch.object(capture.audit, 'run_audit', return_value={'status': remote}) as audit:
                 result = capture.capture(self.env(), ['node', 'scripts/existing-backup.mjs', '--remote', '--kv-values'])
@@ -111,8 +111,15 @@ class CaptureTests(unittest.TestCase):
         self.assertEqual(result['status'], 'FAIL')
 
     def test_failed_archive_upload_does_not_publish_receipt_and_cleans_plaintext(self):
-        with self.assertRaisesRegex(ValueError, 'backup_command_failed'):
+        with self.assertRaisesRegex(ValueError, 'archive_upload_command_failed'):
             self.exercise(fail_upload=True)
+
+    def test_capture_failures_report_a_fixed_category_without_provider_output(self):
+        for detail, category in [('Unable to archive sensitive snapshot. private-customer-value', 'snapshot_archive_failed'),
+                                 ('Unable to encrypt sensitive snapshot. private-key-value', 'snapshot_encryption_failed'),
+                                 ('unknown private-customer-value', 'snapshot_capture_command_failed')]:
+            with self.subTest(category=category), self.assertRaisesRegex(ValueError, '^' + category + '$'):
+                self.exercise(capture_failure=detail)
 
     def test_production_archive_or_missing_credentials_fail_before_capture(self):
         for change in ({'RECOVERY_ARCHIVE_ACCOUNT_ID': 'b' * 32}, {'RECOVERY_AGE_IDENTITY': ''}, {'RECOVERY_ARCHIVE_URI': 's3://fixture-archive/../escape'}):
