@@ -41,7 +41,7 @@ def capture(env, capture_command):
         raise ValueError('invalid_expected_archive_name')
     evidence = {'status': 'FAIL', 'productionWrites': False, 'archiveWrites': False}
 
-    def command(args, child_env=env, timeout=300):
+    def command(args, child_env=env, timeout=300, stage='archive_verification'):
         result = subprocess.run(args, env=child_env, capture_output=True, timeout=timeout)
         if result.returncode:
             detail = (result.stderr or b'').decode(errors='replace')
@@ -49,8 +49,10 @@ def capture(env, capture_command):
                           ('KV value capture', 'kv_values_capture_failed'),
                           ('R2 object inventory', 'r2_inventory_capture_failed'),
                           ('R2 object capture', 'r2_values_capture_failed'),
-                          ('decryptability', 'snapshot_decryption_failed')]
-            raise ValueError(next((category for phrase, category in categories if phrase in detail), 'backup_command_failed'))
+                          ('decryptability', 'snapshot_decryption_failed'),
+                          ('Unable to archive sensitive snapshot', 'snapshot_archive_failed'),
+                          ('Unable to encrypt sensitive snapshot', 'snapshot_encryption_failed')]
+            raise ValueError(next((category for phrase, category in categories if phrase in detail), stage + '_command_failed'))
         return result.stdout
 
     with tempfile.TemporaryDirectory(prefix='encrypted-backup-', dir=env.get('RUNNER_TEMP')) as temporary:
@@ -59,10 +61,12 @@ def capture(env, capture_command):
         identity.write_text(env['RECOVERY_AGE_IDENTITY'] + '\n')
         identity.chmod(0o600)
         output = folder / 'snapshot'
+        print('Capturing encrypted snapshot.', flush=True)
         command([*capture_command, '--output=' + str(output), '--encryption-backend=age'],
-                {**env, identity_variable: str(identity)}, timeout=2700)
+                {**env, identity_variable: str(identity)}, timeout=2700, stage='snapshot_capture')
         receipt = json.loads((output / 'manifest.json').read_text())
         verification_env = {**env, 'RECOVERY_REQUIRE_CAPTURED_DATA': 'true', 'RECOVERY_MAX_AGE_HOURS': '4'}
+        print('Verifying captured data and local ciphertext.', flush=True)
         local = audit.verify_snapshot(receipt, output / name, verification_env, folder, command)
         if local['status'] != 'PASS':
             return {**evidence, 'error': 'local_capture_verification_failed', 'verification': local}
@@ -70,10 +74,12 @@ def capture(env, capture_command):
         run = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex
         destination = env['RECOVERY_ARCHIVE_URI'].rstrip('/') + '/' + run
         aws = ['aws', '--endpoint-url', endpoint, 's3', 'cp']
-        command(aws + [str(output / name), destination + '/' + name, '--only-show-errors'])
-        command(aws + [str(output / 'manifest.json'), destination + '/manifest.json', '--only-show-errors'])
+        print('Uploading verified ciphertext and receipt.', flush=True)
+        command(aws + [str(output / name), destination + '/' + name, '--only-show-errors'], stage='archive_upload')
+        command(aws + [str(output / 'manifest.json'), destination + '/manifest.json', '--only-show-errors'], stage='receipt_upload')
         evidence.update({'archiveWrites': True, 'snapshotWarningCount': receipt.get('warningCount', 0),
                          'snapshotDurationMs': receipt.get('durationMs', 0)})
+        print('Downloading and verifying the uploaded R2 snapshot.', flush=True)
         remote = audit.run_audit({**verification_env, 'RECOVERY_ARCHIVE_URI': destination})
         evidence.update({'status': remote['status'], 'verification': remote})
         return evidence
