@@ -12,6 +12,7 @@ import tempfile
 from urllib.parse import urlparse
 
 MAX_BYTES = 2 * 1024 ** 3
+MAX_LIST_PAGES = 10
 
 
 def safe_path(value):
@@ -23,7 +24,7 @@ def safe_path(value):
     return str(path)
 
 
-def verify_contents(archive):
+def verify_contents(archive, require_captured_data=False, require_r2=False):
     hashes, documents, expanded = {}, {}, 0
     with tarfile.open(archive, "r:gz") as source:
         for member in source:
@@ -36,7 +37,7 @@ def verify_contents(archive):
             if expanded > MAX_BYTES:
                 raise ValueError("expanded_archive_exceeds_limit")
             with source.extractfile(member) as stream:
-                if PurePosixPath(name).name in ("manifest.json", "checksums.json"):
+                if PurePosixPath(name).name in ("manifest.json", "checksums.json", "plan.json"):
                     if member.size > 16 * 1024 ** 2:
                         raise ValueError("manifest_exceeds_limit")
                     body = stream.read()
@@ -63,8 +64,31 @@ def verify_contents(archive):
     unlisted = set(hashes) - set(expected) - {root + "checksums.json"}
     missing = set(expected) - set(hashes)
     mismatched = [name for name in set(expected) & set(hashes) if expected[name] != hashes[name]]
-    return {"ok": not (unlisted or missing or mismatched), "checkedArtifacts": len(expected),
-            "unlistedFiles": len(unlisted), "missingFiles": len(missing), "checksumMismatches": len(mismatched)}
+    result = {"ok": not (unlisted or missing or mismatched), "checkedArtifacts": len(expected),
+              "unlistedFiles": len(unlisted), "missingFiles": len(missing), "checksumMismatches": len(mismatched)}
+    if require_captured_data:
+        plan = documents.get(root + "kv/plan.json", [])
+        required = [item for item in plan if item.get("valuesFile")]
+        captured = manifest.get("kvValueCapture", [])
+        def family(item):
+            return (item.get("binding"), item.get("familyId") or item.get("prefix"))
+        # Store capture entries omit binding; its plan has one STORE_STATE binding.
+        coverage = {(item.get("binding", "STORE_STATE"), item.get("familyId") or item.get("prefix"))
+                    for item in captured if item.get("complete") is True}
+        complete = (manifest.get("remote") is True and manifest.get("includesKvValues") is True
+                    and bool(required) and all(family(item) in coverage and root + safe_path(item["valuesFile"]) in expected
+                                               for item in required)
+                    and any(name.endswith(".bundle") and name.startswith(root + "git/") for name in expected))
+        result["capturedKvFamilies"] = len(required)
+        if require_r2:
+            r2 = manifest.get("r2", {})
+            complete = complete and (manifest.get("includesR2Objects") is True
+                and r2.get("completeInventory") is True and r2.get("objectsDownloaded") is True
+                and r2.get("objectsDownloadedCount") == r2.get("totalDiscoveredObjects"))
+            result["capturedR2Objects"] = r2.get("objectsDownloadedCount", 0)
+        result["captureComplete"] = bool(complete)
+        result["ok"] = result["ok"] and result["captureComplete"]
+    return result
 
 
 def receipt_age_hours(receipt, now):
@@ -75,6 +99,40 @@ def receipt_age_hours(receipt, now):
     if age < -0.02:
         raise ValueError("snapshot_timestamp_is_in_the_future")
     return max(0, age)
+
+
+def verify_snapshot(receipt, encrypted, env, folder, command, now=None):
+    """Verify local ciphertext and captured inventory without extracting files."""
+    now = now or datetime.datetime.now(datetime.timezone.utc)
+    result = {"status": "FAIL"}
+    if receipt.get("encrypted") is not True or receipt.get("archive") != env["RECOVERY_ARCHIVE_NAME"]:
+        return {**result, "error": "not_expected_encrypted_snapshot"}
+    size = encrypted.stat().st_size
+    if not 0 < size <= MAX_BYTES or size != receipt.get("archiveBytes"):
+        return {**result, "error": "archive_missing_or_size_invalid"}
+    age = receipt_age_hours(receipt, now)
+    maximum_age = float(env.get("RECOVERY_MAX_AGE_HOURS", "4"))
+    result.update({"snapshotCreatedAt": receipt["createdAt"], "ageHours": round(age, 2),
+                   "maximumAgeHours": maximum_age, "current": age <= maximum_age})
+    with encrypted.open("rb") as stream:
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+    result["archiveChecksumMatches"] = digest == receipt.get("archiveSha256")
+    if not result["archiveChecksumMatches"]:
+        return {**result, "error": "encrypted_archive_checksum_mismatch"}
+    identity, decrypted = folder / "identity.txt", folder / "backup.tar.gz"
+    try:
+        identity.write_text(env["RECOVERY_AGE_IDENTITY"] + "\n")
+        identity.chmod(0o600)
+        command(["age", "--decrypt", "--identity", str(identity), "--output", str(decrypted), str(encrypted)])
+        result["decryptable"] = True
+        result["internalIntegrity"] = verify_contents(decrypted,
+            require_captured_data=env.get("RECOVERY_REQUIRE_CAPTURED_DATA") == "true",
+            require_r2=env.get("RECOVERY_REQUIRE_R2") == "true")
+        result["status"] = "PASS" if result["current"] and result["internalIntegrity"]["ok"] else "FAIL"
+        return result
+    finally:
+        identity.unlink(missing_ok=True)
+        decrypted.unlink(missing_ok=True)
 
 
 def run_audit(env):
@@ -105,11 +163,18 @@ def run_audit(env):
         return process.stdout
 
     aws = ["aws", "--endpoint-url", env["RECOVERY_ARCHIVE_ENDPOINT"]]
-    listing = json.loads(command(aws + ["s3api", "list-objects-v2", "--bucket", uri.netloc,
-                                     "--prefix", prefix, "--max-items", "1000", "--output", "json"]))
-    if listing.get("NextToken") or listing.get("IsTruncated"):
-        return {**result, "error": "archive_inventory_exceeds_audit_limit"}
-    objects = listing.get("Contents", [])
+    objects, token, seen = [], "", set()
+    for page in range(MAX_LIST_PAGES):
+        listing = json.loads(command(aws + ["s3api", "list-objects-v2", "--bucket", uri.netloc,
+                            "--prefix", prefix, "--max-keys", "1000", "--no-paginate", "--output", "json"]
+                            + (["--continuation-token", token] if token else [])))
+        objects.extend(listing.get("Contents", []))
+        if not listing.get("IsTruncated") and not listing.get("NextToken"):
+            break
+        token = listing.get("NextContinuationToken", "")
+        if not token or token in seen or page + 1 == MAX_LIST_PAGES:
+            return {**result, "error": "archive_inventory_exceeds_audit_limit"}
+        seen.add(token)
     receipts = [item for item in objects if item["Key"].startswith(prefix) and item["Key"].endswith("/manifest.json")]
     result.update({"listedObjects": len(objects), "snapshotReceipts": len(receipts)})
     if not receipts:
@@ -123,29 +188,13 @@ def run_audit(env):
         location = "s3://" + uri.netloc + "/"
         command(aws + ["s3", "cp", location + safe_path(newest["Key"]), str(receipt_file), "--only-show-errors"])
         receipt = json.loads(receipt_file.read_text())
-        if receipt.get("encrypted") is not True or receipt.get("archive") != archive_name:
-            return {**result, "error": "not_expected_encrypted_snapshot"}
-        age = receipt_age_hours(receipt, now)
-        result.update({"snapshotCreatedAt": receipt["createdAt"], "ageHours": round(age, 2),
-                       "maximumAgeHours": maximum_age, "current": age <= maximum_age})
         archive_key = newest["Key"][:-len("manifest.json")] + archive_name
         stored = next((item for item in objects if item["Key"] == archive_key), None)
         if not stored or not 0 < stored["Size"] <= MAX_BYTES or stored["Size"] != receipt.get("archiveBytes"):
             return {**result, "error": "archive_missing_or_size_invalid"}
         encrypted = folder / archive_name
         command(aws + ["s3", "cp", location + safe_path(archive_key), str(encrypted), "--only-show-errors"])
-        with encrypted.open("rb") as stream:
-            digest = hashlib.file_digest(stream, "sha256").hexdigest()
-        result["archiveChecksumMatches"] = digest == receipt.get("archiveSha256")
-        if not result["archiveChecksumMatches"]:
-            return {**result, "error": "encrypted_archive_checksum_mismatch"}
-        identity, decrypted = folder / "identity.txt", folder / "backup.tar.gz"
-        identity.write_text(env["RECOVERY_AGE_IDENTITY"] + "\n")
-        identity.chmod(0o600)
-        command(["age", "--decrypt", "--identity", str(identity), "--output", str(decrypted), str(encrypted)])
-        result["decryptable"] = True
-        result["internalIntegrity"] = verify_contents(decrypted)
-        result["status"] = "PASS" if result["current"] and result["internalIntegrity"]["ok"] else "FAIL"
+        result.update(verify_snapshot(receipt, encrypted, env, folder, command, now))
     return result
 
 
