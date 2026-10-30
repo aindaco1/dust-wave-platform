@@ -69,6 +69,6 @@ individual checks and consumer secret-audit adapters.
 
 - [Documentation index](docs/README.md): guides, architecture decisions, and document ownership.
 - [Consumer adoption](docs/consumer-adoption.md): pinning, migration, rollback, and recorded release evidence.
-- [Reuse review status](docs/reuse-review.md): completed batches and the October 2026 candidate reassessment.
+- [Reuse review status](docs/reuse-review.md): completed batches, remaining candidates and the deferred native macOS roadmap.
 - [Changelog](CHANGELOG.md): Platform release history.
 - [License](LICENSE): MIT terms.

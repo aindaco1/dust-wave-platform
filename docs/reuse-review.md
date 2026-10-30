@@ -109,6 +109,26 @@ The following follow-ups were deliberately left outside the completed slices:
   RecordSpeech and Jekyll Template boundaries. No shared signing/publishing
   pipeline, screenplay domain model or second speech engine is planned here.
 
+## Deferred native macOS roadmap
+
+Decision recorded October 30, 2026: **on hold at the owner's request**.
+Native Mac Live Activities, including preparatory Record changes, an optional
+menu-bar fallback and any shared extraction, remain roadmap items only. Touch
+proposals are also unscheduled. No implementation or toolchain migration is
+scheduled.
+
+Revisit when a public SDK exposes the native Mac ActivityKit/WidgetKit APIs and
+a compatible runtime is established. The previously inspected Xcode 27.2 SDK
+does not meet that gate; Apple's announced 27.3 beta is a candidate to verify,
+not confirmed support. Availability prompts reassessment; implementation waits
+until the owner reprioritizes the work.
+
+The [macOS touch and Live Activities plan](macos-touch-and-live-activities-plan.md)
+owns the SDK evidence, consumer findings and execution sequence: verify a signed
+sample, pilot Record, then CutNotes, and extract only demonstrated duplication.
+Preserve existing OS support and consumer ownership. Direct-touch acceptance
+separately requires hardware that is not currently available.
+
 ## Resume checklist
 
 1. Re-read the chosen consumers' current docs, source, tests and gitlinks;
