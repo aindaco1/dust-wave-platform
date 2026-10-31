@@ -91,6 +91,12 @@ errors and structurally invalid parsed JSON can throw in both profiles, as in
 the characterized consumers. `requireBackupDirectory(value, label)` validates
 and resolves a real non-symlinked directory.
 
+`assertCopiedArchiveDigest(plannedSha256, copiedSha256)` requires exact equality
+with a valid lowercase SHA-256 digest. Pass the digest captured before copying
+and the verified destination digest before writing a success receipt. Missing,
+malformed or mismatched digests throw. Consumers own copying and cleanup of a
+newly created target after failure.
+
 These checks are observations, not race-free capabilities. Consumers retain
 root/discovery policy, acknowledgement text, encryption/decryption, device
 separation, copy/delete execution and immediate revalidation before mutation.

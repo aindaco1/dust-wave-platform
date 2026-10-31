@@ -88,3 +88,10 @@ export function inspectEncryptedSnapshot(snapshot) {
   };
 }
 
+/** Require a verified copy to match the archive selected before copying began. */
+export function assertCopiedArchiveDigest(plannedSha256, copiedSha256) {
+  if (typeof plannedSha256 !== 'string' || !/^[a-f0-9]{64}$/.test(plannedSha256) ||
+      copiedSha256 !== plannedSha256) {
+    throw new Error('Copied archive digest does not match the planned SHA-256.');
+  }
+}

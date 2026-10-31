@@ -14,3 +14,6 @@ export function inspectEncryptedSnapshot(snapshot: string): {
   archivePath: string; archiveName: string; archiveSha256: string;
   archiveBytes: number; outputName: string;
 };
+
+/** Throws for missing, malformed or mismatched SHA-256 digests. */
+export function assertCopiedArchiveDigest(plannedSha256: string, copiedSha256: string): void;

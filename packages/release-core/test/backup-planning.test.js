@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { planSnapshotRetention, validatedPruneTargets, evidenceAgeCheck } from '../src/backup-planning.js';
-import { readRetentionReceipt, retentionRootId, inspectEncryptedSnapshot } from '../src/backup-receipts.js';
+import { readRetentionReceipt, retentionRootId, inspectEncryptedSnapshot, assertCopiedArchiveDigest } from '../src/backup-receipts.js';
 import { sha256File } from '../src/file-integrity.js';
 
 const rootId = '1'.repeat(64);
@@ -103,4 +103,16 @@ test('read-only receipt profiles preserve their distinct date and filename requi
   assert.equal(readRetentionReceipt(root).reason, 'archive_checksum_mismatch'); assert.throws(() => inspectEncryptedSnapshot(root), /checksum/);
   fs.unlinkSync(file); fs.symlinkSync(manifest, file);
   assert.equal(readRetentionReceipt(root).reason, 'symbolic_link_archive'); assert.throws(() => inspectEncryptedSnapshot(root), /archive is missing/);
+});
+
+test('copied archives must match a valid planned SHA-256', () => {
+  const planned = 'a'.repeat(64);
+  assert.doesNotThrow(() => assertCopiedArchiveDigest(planned, planned));
+  for (const digest of ['b'.repeat(64), undefined, null, '', 'a'.repeat(63), 'g'.repeat(64), planned.toUpperCase(), [planned]]) {
+    assert.throws(() => assertCopiedArchiveDigest(planned, digest), /planned SHA-256/);
+    assert.throws(() => assertCopiedArchiveDigest(digest, planned), /planned SHA-256/);
+  }
+  for (const digest of [undefined, null, '', 'invalid']) {
+    assert.throws(() => assertCopiedArchiveDigest(digest, digest), /planned SHA-256/);
+  }
 });
