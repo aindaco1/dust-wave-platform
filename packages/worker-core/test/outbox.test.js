@@ -80,6 +80,9 @@ test('keeps the provider deadline fixed across retries and old processing leases
     { firstProviderAttemptAt: first, lastAttemptAt: new Date(cutoff - 1).toISOString() },
     { status: 'processing', firstAttemptAt: first },
     { status: 'processing', firstProviderAttemptAt: '', firstAttemptAt: first },
+    // An older worker can retain the new empty field and fail a later checkpoint
+    // after a previous attempt reached the provider.
+    { status: 'retry', attempts: 2, firstProviderAttemptAt: '', firstAttemptAt: first, lastError: { stage: 'persist' } },
     { status: 'retry', firstAttemptAt: first, providerPayload: {} }
   ]) {
     assert.equal(outboxProviderAttemptStart(attempted, new Date(cutoff - 1)), first);

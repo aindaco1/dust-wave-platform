@@ -118,7 +118,7 @@ export function outboxProviderAttemptStart(job, now = new Date()) {
   let first = job.firstProviderAttemptAt;
   if (first === undefined || first === '') {
     const preSendFailure = (job.lastError?.stage === 'render' && !job.providerPayload) ||
-      (job.lastError?.stage === 'persist' && (first === '' || job.attempts === 1));
+      (job.lastError?.stage === 'persist' && job.attempts === 1);
     const mayHaveSent = job.status === 'processing' || (job.status === 'retry' && !preSendFailure);
     first = mayHaveSent ? job.firstAttemptAt : '';
     if (mayHaveSent && !first) throw new OutboxRetryWindowClosed();
