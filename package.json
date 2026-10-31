@@ -11,6 +11,7 @@
     "security:secrets": "node scripts/scan-tracked-secrets.mjs",
     "security:audit": "node scripts/audit-dependencies.mjs",
     "test": "node --test packages/*/test/*.test.js scripts/*.test.mjs && npm run test:recipes",
+    "verify:inventory-expiry": "node packages/inventory-core/verification/check-expiry.mjs",
     "test:recipes": "node scripts/test-recipes.mjs",
     "test:recipes:jekyll": "node scripts/test-recipes.mjs --jekyll"
   },
