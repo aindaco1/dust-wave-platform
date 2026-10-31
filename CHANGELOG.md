@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.47.0 - 2026-10-31
+
+- Worker Core 0.16.0 adds a 23-hour pre-send cutoff for outbox retries, including jobs checkpointed by older workers.
+
 ## 0.46.0 - 2026-10-28
 
 - Site Shell 0.6.0 adds an injected SDK instance loader for early checkout initialization. Concurrent warmup/mount callers share an instance per key/options; failures remain retryable. Pool and Store retain separate Stripe payment/session lifecycles.

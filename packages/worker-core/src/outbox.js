@@ -3,11 +3,12 @@ import { sha256Hex } from './crypto.js';
 const DEFAULT_MAX_RECORD_BYTES = 8 * 1024 * 1024;
 const DEFAULT_MAX_RETRY_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_MIN_RETRY_MS = 60 * 1000;
+const PROVIDER_RETRY_WINDOW_MS = 23 * 60 * 60 * 1000;
 const TERMINAL_STATUSES = new Set(['sent', 'failed', 'ambiguous', 'expired', 'suppressed']);
 const RESERVED_RECORD_FIELDS = new Set([
   'version', 'jobId', 'kind', 'status', 'payload', 'contentHash',
   'providerPayload', 'providerId', 'attempts', 'createdAt', 'nextAttemptAt',
-  'firstAttemptAt', 'lastAttemptAt', 'expiresAt'
+  'firstAttemptAt', 'firstProviderAttemptAt', 'lastAttemptAt', 'expiresAt'
 ]);
 
 export function stableOutboxStringify(value) {
@@ -58,6 +59,7 @@ export function createOutboxJobRecord({
     createdAt: validIsoOr(existing?.createdAt, nowIso),
     nextAttemptAt: nowIso,
     firstAttemptAt: '',
+    firstProviderAttemptAt: existing?.firstProviderAttemptAt ?? '',
     lastAttemptAt: '',
     expiresAt: validIsoOr(expiresAt, '')
   };
@@ -103,6 +105,30 @@ export function classifyOutboxJob(job, {
     return { state: 'leased' };
   }
   return { state: 'ready' };
+}
+
+export class OutboxRetryWindowClosed extends Error {
+  constructor() { super('Provider retry window closed; reconcile the original delivery'); }
+}
+
+// Return the immutable timestamp to checkpoint before sending. A legacy
+// processing record may have reached the provider even without a saved error.
+export function outboxProviderAttemptStart(job, now = new Date()) {
+  const time = validDate(now, 'now');
+  let first = job.firstProviderAttemptAt;
+  if (first === undefined || first === '') {
+    const preSendFailure = (job.lastError?.stage === 'render' && !job.providerPayload) ||
+      (job.lastError?.stage === 'persist' && (first === '' || job.attempts === 1));
+    const mayHaveSent = job.status === 'processing' || (job.status === 'retry' && !preSendFailure);
+    first = mayHaveSent ? job.firstAttemptAt : '';
+    if (mayHaveSent && !first) throw new OutboxRetryWindowClosed();
+  }
+  if (first === '') return time.toISOString();
+  const startMs = parseDate(first);
+  if (startMs === null || time.getTime() < startMs || time.getTime() - startMs >= PROVIDER_RETRY_WINDOW_MS) {
+    throw new OutboxRetryWindowClosed();
+  }
+  return new Date(startMs).toISOString();
 }
 
 export function outboxRetryDelayMs(error, attempts, {

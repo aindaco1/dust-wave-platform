@@ -7,6 +7,8 @@ import {
   createOutboxJobRecord,
   createOutboxQueueState,
   normalizeOutboxEmail,
+  outboxProviderAttemptStart,
+  OutboxRetryWindowClosed,
   outboxDeliveryErrorEvidence,
   outboxRetryDelayMs,
   outboxWebhookDeliveryStatus,
@@ -54,10 +56,14 @@ test('creates a bounded durable record with injected consumer metadata', async (
     createdAt: '2027-01-01T00:00:00.000Z',
     nextAttemptAt: '2027-02-01T00:00:00.000Z',
     firstAttemptAt: '',
+    firstProviderAttemptAt: '',
     lastAttemptAt: '',
     expiresAt: ''
   });
   assert.equal(JSON.parse(created.serialized).jobId, jobId);
+  const priorStart = '2027-01-01T00:00:00.000Z';
+  const requeued = createOutboxJobRecord({ jobId, kind: 'supporter', payload: {}, existing: { firstProviderAttemptAt: priorStart } });
+  assert.equal(requeued.record.firstProviderAttemptAt, priorStart);
   assert.equal(createOutboxJobRecord({
     jobId,
     kind: 'supporter',
@@ -65,6 +71,30 @@ test('creates a bounded durable record with injected consumer metadata', async (
     now: new Date('2027-02-01T00:00:00.000Z'),
     maxRecordBytes: 10
   }).ok, false);
+});
+
+test('keeps the provider deadline fixed across retries and old processing leases', () => {
+  const first = '2026-10-01T00:00:00.000Z';
+  const cutoff = Date.parse(first) + 23 * 3_600_000;
+  for (const attempted of [
+    { firstProviderAttemptAt: first, lastAttemptAt: new Date(cutoff - 1).toISOString() },
+    { status: 'processing', firstAttemptAt: first },
+    { status: 'processing', firstProviderAttemptAt: '', firstAttemptAt: first },
+    { status: 'retry', firstAttemptAt: first, providerPayload: {} }
+  ]) {
+    assert.equal(outboxProviderAttemptStart(attempted, new Date(cutoff - 1)), first);
+    assert.throws(() => outboxProviderAttemptStart(attempted, new Date(cutoff)), OutboxRetryWindowClosed);
+  }
+  for (const firstAttemptAt of ['', 'invalid']) {
+    assert.throws(() => outboxProviderAttemptStart({ status: 'processing', firstAttemptAt }), OutboxRetryWindowClosed);
+  }
+  const late = new Date(cutoff + 1);
+  for (const unsent of [
+    { status: 'pending', createdAt: first },
+    { status: 'retry', firstProviderAttemptAt: '', firstAttemptAt: first, lastError: { stage: 'render' } },
+    { status: 'retry', firstAttemptAt: first, providerPayload: null, lastError: { stage: 'render' } },
+    { status: 'retry', firstAttemptAt: first, attempts: 1, providerPayload: {}, lastError: { stage: 'persist' } }
+  ]) assert.equal(outboxProviderAttemptStart(unsent, late), late.toISOString());
 });
 
 test('classifies terminal, due, expired, leased, and ready work deterministically', () => {

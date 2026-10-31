@@ -6,6 +6,8 @@ export function createOutboxJobRecord(input: {
 }): { ok: true; jobId: string; record: Record<string, unknown>; serialized: string } | { ok: false; jobId: string; reason: string };
 export function createOutboxQueueState(input: { hasPending: boolean; nextDueAt?: string; now?: Date }): { version: 1; hasPending: boolean; nextDueAt: string; updatedAt: string };
 export function classifyOutboxJob(job: unknown, options?: { now?: Date; leaseMs?: number; terminalStatuses?: Set<string> | string[] }): { state: string; status?: string; nextDueAt?: string };
+export class OutboxRetryWindowClosed extends Error {}
+export function outboxProviderAttemptStart(job: Record<string, unknown>, now?: Date): string;
 export function outboxRetryDelayMs(error: unknown, attempts: number, options?: { minimumMs?: number; maximumMs?: number; quotaTypes?: string[] }): number;
 export function outboxDeliveryErrorEvidence(error: unknown, options?: { stage?: string }): { type: string; statusCode: number; stage?: string };
 export function normalizeOutboxEmail(value?: unknown): string;

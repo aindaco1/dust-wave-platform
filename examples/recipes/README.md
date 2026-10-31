@@ -6,7 +6,7 @@ application generator. Copy one into a new consumer; keep its policies there.
 
 | Recipe | Runtime packages | What the fixture exercises |
 | --- | --- | --- |
-| [Worker/admin](worker-admin/) | Worker Core 0.15.0, Admin Shell 0.12.0 | Deny-by-default authorization, CSRF header wiring, bounded JSON and typed client errors |
+| [Worker/admin](worker-admin/) | Worker Core 0.16.0, Admin Shell 0.12.0 | Deny-by-default authorization, CSRF header wiring, bounded JSON and typed client errors |
 | [Scheduled digest](scheduled-digest/) | Digest Core 0.1.0 | Scheduled preview creation, escaping, and failure before saving |
 | [Jekyll site](jekyll-site/) | Site Shell 0.3.0 | Template rendering, selected browser asset publication and exclusion of tooling |
 
