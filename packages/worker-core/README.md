@@ -104,6 +104,12 @@ logging is enabled.
   queue state, terminal/due/expiry/lease classification, injected retry policy,
   redacted failure evidence, and Resend event mechanics. It performs no
   storage operation, send, or retry scheduling.
+
+`outboxProviderAttemptStart(job, now)` returns the timestamp to persist before
+the first possible send. Recheck immediately before each provider call. At
+23 hours from that timestamp it throws `OutboxRetryWindowClosed`, including
+when an old processing lease is recovered. Rendering alone does not start
+the clock. A previously attempted job with unverifiable timing stops for review.
 - [Podcast benefits](src/podcast-benefits.js): shared benefit-code mechanics;
   entitlement and redemption policy remain consumer-owned.
 
