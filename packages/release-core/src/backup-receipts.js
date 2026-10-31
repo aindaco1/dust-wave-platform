@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { sha256File } from './file-integrity.js';
@@ -28,7 +29,7 @@ export function readRetentionReceipt(directory) {
   if (!/^[a-f0-9]{64}$/.test(expectedSha256) || sha256File(archivePath) !== expectedSha256) {
     return { ok: false, reason: 'archive_checksum_mismatch' };
   }
-  return { ok: true, receipt, createdAt };
+  return { ok: true, receipt, createdAt, archiveSha256: expectedSha256, archiveBytes: archiveStat.size };
 }
 
 export function requireBackupDirectory(value, label) {
@@ -37,6 +38,12 @@ export function requireBackupDirectory(value, label) {
   const stat = fs.lstatSync(resolved);
   if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error(`${label} must be a real, non-symlinked directory.`);
   return fs.realpathSync(resolved);
+}
+
+export function retentionRootId(directory) {
+  const root = requireBackupDirectory(directory, 'Backup retention root');
+  const { dev, ino } = fs.statSync(root, { bigint: true });
+  return createHash('sha256').update(JSON.stringify([root, String(dev), String(ino)])).digest('hex');
 }
 
 function safeSnapshotName(value) {

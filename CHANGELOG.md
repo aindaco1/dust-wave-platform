@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.48.0 - 2026-10-31
+
+- Release Core 0.6.0 binds retention plans to their backup directory and verified archive hashes. Consumers validate the complete saved plan against current retention before pruning. Regenerate version 1 previews before execution.
+
 ## 0.47.0 - 2026-10-31
 
 - Worker Core 0.16.0 adds a 23-hour pre-send cutoff for outbox retries, including jobs checkpointed by older workers.

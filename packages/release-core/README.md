@@ -61,12 +61,19 @@ See the [public exports](package.json), [source contracts](src/), and
 
 ## Backup planning and receipt inspection
 
-`backup-planning` exports `planSnapshotRetention` and `evidenceAgeCheck`. Supply
-consumer-verified records with unique snapshot names, valid `Date` instances,
-archive sizes and an explicit retention policy. The planner preserves the newest
-snapshot, then one snapshot per UTC day, ISO week and month; ties preserve input
-order. Release snapshots are retained unless explicitly disabled. Inputs are not
-mutated. Plans contain no execution authority and never read or delete files.
+`planSnapshotRetention` takes an explicit retention policy, a root ID from
+`retentionRootId(directory)`, and verified records with unique names, valid
+dates, archive sizes and SHA-256 digests. The root ID hashes the canonical path,
+device and inode. The planner keeps the newest snapshot, then one per UTC day,
+ISO week and month. Ties preserve input order. Release snapshots are retained
+unless explicitly disabled.
+
+Before deleting, pass the saved version 2 plan and a fresh plan made under the
+current policy to `validatedPruneTargets(saved, current)`. It checks the root,
+policy and every reviewed archive, including kept snapshots. Every listed prune
+target must still be eligible. The result contains only those listed targets,
+even if a new eligible snapshot has appeared. Generate a fresh preview for a
+version 1 plan or after any validation failure.
 
 Evidence classification accepts an injected clock, uses the first present
 timestamp field, treats an invalid timestamp as failure, and clamps future

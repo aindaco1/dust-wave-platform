@@ -5,8 +5,9 @@ export interface BackupReceipt extends Record<string, unknown> {
 }
 /** Read-only Node API. The caller owns snapshot discovery and root validation. */
 export function readRetentionReceipt(directory: string):
-  | { ok: true; receipt: BackupReceipt; createdAt: Date }
+  | { ok: true; receipt: BackupReceipt; createdAt: Date; archiveSha256: string; archiveBytes: number }
   | { ok: false; reason: string };
+export function retentionRootId(directory: string): string;
 export function requireBackupDirectory(value: string, label: string): string;
 export function inspectEncryptedSnapshot(snapshot: string): {
   source: string; receipt: BackupReceipt; manifestPath: string;

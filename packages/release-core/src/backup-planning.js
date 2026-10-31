@@ -27,8 +27,16 @@ function retainBuckets(snapshots, count, keyFor, reason, retained) {
   }
 }
 
+function isDigest(value) {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+}
+
 /** Plan over verified snapshot metadata; never discovers, reads or deletes files. */
-export function planSnapshotRetention({ snapshots = [], retention: configured = {}, untouched = [], rootName = '', now = new Date() } = {}) {
+export function planSnapshotRetention({ snapshots = [], retention: configured = {}, untouched = [], rootId, rootName = '', now = new Date() } = {}) {
+  if (!isDigest(rootId)) throw new Error('Backup retention plan requires a root ID.');
+  for (const snapshot of snapshots) {
+    if (!isDigest(snapshot.archiveSha256)) throw new Error(`Missing verified archive hash: ${snapshot.name}.`);
+  }
   snapshots = [...snapshots].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
   const retained = new Map(snapshots.map((snapshot) => [snapshot.name, new Set()]));
   if (snapshots.length) retained.get(snapshots[0].name).add('newest');
@@ -41,19 +49,22 @@ export function planSnapshotRetention({ snapshots = [], retention: configured = 
     }
   }
 
-  const keep = snapshots.filter((snapshot) => retained.get(snapshot.name).size > 0).map((snapshot) => ({
-    name: snapshot.name,
-    createdAt: snapshot.createdAt.toISOString(),
-    archiveBytes: snapshot.archiveBytes,
-    reasons: Array.from(retained.get(snapshot.name)).sort()
-  }));
-  const prune = snapshots.filter((snapshot) => retained.get(snapshot.name).size === 0).map((snapshot) => ({
-    name: snapshot.name,
-    createdAt: snapshot.createdAt.toISOString(),
-    archiveBytes: snapshot.archiveBytes
-  }));
+  const keep = [];
+  const prune = [];
+  for (const snapshot of snapshots) {
+    const row = {
+      name: snapshot.name,
+      createdAt: snapshot.createdAt.toISOString(),
+      archiveBytes: snapshot.archiveBytes,
+      archiveSha256: snapshot.archiveSha256
+    };
+    const reasons = retained.get(snapshot.name);
+    if (reasons.size) keep.push({ ...row, reasons: [...reasons].sort() });
+    else prune.push(row);
+  }
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
+    rootId,
     plannedAt: now.toISOString(),
     rootName,
     retention: {
@@ -69,6 +80,37 @@ export function planSnapshotRetention({ snapshots = [], retention: configured = 
     containsCustomerData: false,
     executeByDefault: false
   };
+}
+
+/** Compare a saved plan against a fresh scan. Return only explicitly reviewed prune targets. */
+export function validatedPruneTargets(plan, current) {
+  if (plan?.schemaVersion !== 2 || current?.schemaVersion !== 2 ||
+      !Array.isArray(plan.keep) || !Array.isArray(plan.prune)) {
+    throw new Error('A version 2 backup retention plan is required. Generate a new preview.');
+  }
+  if (!isDigest(current.rootId) || plan.rootId !== current.rootId) {
+    throw new Error('Backup retention plan belongs to a different root.');
+  }
+  for (const key of ['daily', 'weekly', 'monthly', 'releaseSnapshots']) {
+    if (plan.retention?.[key] !== current.retention[key]) throw new Error('Backup retention policy changed.');
+  }
+
+  const verified = new Map([...current.keep, ...current.prune].map(row => [row.name, row]));
+  const eligible = new Map(current.prune.map(row => [row.name, row]));
+  const reviewed = new Set();
+  for (const row of [...plan.keep, ...plan.prune]) {
+    const live = verified.get(row?.name);
+    if (!live || !isDigest(row.archiveSha256) || row.archiveSha256 !== live.archiveSha256 ||
+        row.archiveBytes !== live.archiveBytes || row.createdAt !== live.createdAt) {
+      throw new Error(`Backup snapshot changed or failed verification: ${row?.name}.`);
+    }
+    if (reviewed.has(row.name)) throw new Error(`Duplicate backup snapshot: ${row.name}.`);
+    reviewed.add(row.name);
+  }
+  return plan.prune.map(({ name }) => {
+    if (!eligible.has(name)) throw new Error(`Backup prune target is no longer eligible: ${name}.`);
+    return eligible.get(name);
+  });
 }
 
 function ageHours(timestamp, now = new Date()) {
