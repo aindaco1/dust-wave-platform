@@ -3,18 +3,21 @@ import test from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { planSnapshotRetention, evidenceAgeCheck } from '../src/backup-planning.js';
-import { readRetentionReceipt, inspectEncryptedSnapshot } from '../src/backup-receipts.js';
+import { planSnapshotRetention, validatedPruneTargets, evidenceAgeCheck } from '../src/backup-planning.js';
+import { readRetentionReceipt, retentionRootId, inspectEncryptedSnapshot } from '../src/backup-receipts.js';
 import { sha256File } from '../src/file-integrity.js';
 
+const rootId = '1'.repeat(64);
+const archiveSha256 = 'a'.repeat(64);
+
 test('retention preserves newest and release entries while selecting ISO week and month boundaries', () => {
-  const record = (name, date, releaseSnapshot = false) => Object.freeze({ name, createdAt: new Date(date), archiveBytes: 10, releaseSnapshot });
+  const record = (name, date, releaseSnapshot = false) => Object.freeze({ name, createdAt: new Date(date), archiveBytes: 10, archiveSha256, releaseSnapshot });
   const snapshots = Object.freeze([
     record('release', '2020-01-01', true), record('latest', '2027-01-04'),
     record('same-day', '2027-01-04'), record('previous-week', '2027-01-03'), record('december', '2026-12-31')
   ]);
   const untouched = Object.freeze([{ name: 'z', reason: 'invalid' }, { name: 'a', reason: 'symlink' }]);
-  const plan = planSnapshotRetention({ snapshots, untouched, retention: { daily: 1, weekly: 2, monthly: 2 }, now: new Date('2027-01-05'), rootName: 'snapshots' });
+  const plan = planSnapshotRetention({ rootId, snapshots, untouched, retention: { daily: 1, weekly: 2, monthly: 2 }, now: new Date('2027-01-05'), rootName: 'snapshots' });
   assert.deepEqual(plan.keep.map(x => [x.name, x.reasons]), [
     ['latest', ['daily', 'monthly', 'newest', 'weekly']], ['previous-week', ['weekly']], ['december', ['monthly']], ['release', ['release']]
   ]);
@@ -22,8 +25,47 @@ test('retention preserves newest and release entries while selecting ISO week an
   assert.equal(plan.bytesEligibleForPrune, 10); assert.equal(plan.executeByDefault, false);
   assert.equal(plan.plannedAt, '2027-01-05T00:00:00.000Z');
   assert.deepEqual(untouched.map(x => x.name), ['z', 'a']);
-  assert.equal(planSnapshotRetention({ snapshots, retention: { releaseSnapshots: false } }).keep.length, 1);
-  assert.deepEqual(planSnapshotRetention().prune, []);
+  assert.equal(planSnapshotRetention({ rootId, snapshots, retention: { releaseSnapshots: false } }).keep.length, 1);
+  assert.deepEqual(planSnapshotRetention({ rootId }).prune, []);
+});
+
+test('batch validation binds the root, policy and archives and selects only still-eligible reviewed names', () => {
+  const snapshot = (name, hour) => ({ name, createdAt: new Date(Date.UTC(2026, 0, 1, hour)), archiveSha256, archiveBytes: 4 });
+  const snapshots = [snapshot('newest', 3), snapshot('first', 2), snapshot('second', 1)];
+  const plan = planSnapshotRetention({ rootId, snapshots });
+  const current = planSnapshotRetention({ rootId, snapshots: [...snapshots, snapshot('unlisted', 0)] });
+  assert.deepEqual(validatedPruneTargets(JSON.parse(JSON.stringify(plan)), current), plan.prune);
+  assert.throws(() => validatedPruneTargets({ ...plan, schemaVersion: 1 }, current), /version 2/);
+  assert.throws(() => validatedPruneTargets({ ...plan, rootId: '2'.repeat(64) }, current), /root/);
+  assert.throws(() => validatedPruneTargets({ ...plan, retention: {} }, current), /policy/);
+  assert.throws(() => validatedPruneTargets({ ...plan, prune: [...plan.prune, plan.prune[0]] }, current), /Duplicate/);
+  for (const row of [...plan.keep, ...plan.prune]) {
+    for (const digest of [undefined, 'b'.repeat(64)]) {
+      const changed = structuredClone(plan);
+      [...changed.keep, ...changed.prune].find(entry => entry.name === row.name).archiveSha256 = digest;
+      assert.throws(() => validatedPruneTargets(changed, current), /verification/);
+    }
+  }
+  const protectedNow = planSnapshotRetention({ rootId, snapshots: [snapshots[0], snapshots[1], { ...snapshots[2], releaseSnapshot: true }] });
+  assert.throws(() => validatedPruneTargets(plan, protectedNow), /no longer eligible/);
+  assert.throws(() => planSnapshotRetention({ snapshots }), /root ID/);
+  assert.throws(() => planSnapshotRetention({ rootId, snapshots: [{ ...snapshots[0], archiveSha256: '' }] }), /verified archive hash/);
+});
+
+test('root ID distinguishes same-name roots and a replacement directory at the original path', t => {
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'retention-root-'));
+  t.after(() => fs.rmSync(scratch, { recursive: true, force: true }));
+  const a = path.join(scratch, 'a', 'backups'), b = path.join(scratch, 'b', 'backups');
+  fs.mkdirSync(a, { recursive: true });
+  fs.mkdirSync(b, { recursive: true });
+  const id = retentionRootId(a);
+  assert.match(id, /^[a-f0-9]{64}$/);
+  assert.notEqual(id, retentionRootId(b));
+  fs.mkdirSync(path.join(a, 'unlisted'));
+  assert.equal(id, retentionRootId(a));
+  fs.renameSync(a, path.join(scratch, 'original'));
+  fs.mkdirSync(a);
+  assert.notEqual(id, retentionRootId(a));
 });
 
 test('evidence age uses the first present timestamp, inclusive boundary, and explicit required policy', () => {
@@ -47,7 +89,10 @@ test('read-only receipt profiles preserve their distinct date and filename requi
   fs.writeFileSync(file, 'synthetic-encrypted-fixture');
   const receipt = { encrypted: true, archive, archiveSha256: sha256File(file), outputName: 'synthetic', completedAt: '2026-09-14' };
   fs.writeFileSync(manifest, JSON.stringify(receipt));
-  assert.equal(readRetentionReceipt(root).ok, true); assert.equal(inspectEncryptedSnapshot(root).archiveBytes, 27);
+  const read = readRetentionReceipt(root);
+  assert.equal(read.ok, true);
+  assert.equal(read.archiveSha256, receipt.archiveSha256);
+  assert.equal(read.archiveBytes, 27); assert.equal(inspectEncryptedSnapshot(root).archiveBytes, 27);
   delete receipt.completedAt; fs.writeFileSync(manifest, JSON.stringify(receipt));
   assert.deepEqual(readRetentionReceipt(root), { ok: false, reason: 'invalid_created_at' });
   assert.equal(inspectEncryptedSnapshot(root).outputName, 'synthetic');
