@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.49.0 - 2026-10-31
+
+- Release Core 0.7.0 adds a fail-closed digest check that consumers run before publishing a successful off-device copy receipt. The verified copy must match the SHA-256 selected before copying began.
+
 ## 0.48.0 - 2026-10-31
 
 - Release Core 0.6.0 binds retention plans to their backup directory and verified archive hashes. Consumers validate the complete saved plan against current retention before pruning. Regenerate version 1 previews before execution.
