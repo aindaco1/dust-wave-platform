@@ -58,11 +58,13 @@
   }
 
   function formatSummaryLabel(total, count) {
-    if (!count) return emptyLabel;
-    var template = count === 1 ? oneLabel : otherLabel;
-    return template
+    var template = !count ? emptyLabel : count === 1 ? oneLabel : otherLabel;
+    var label = template
       .replace('%{count}', String(count))
       .replace('%{total}', formatMoney(total));
+    // Visible prices must remain in the name even when the empty copy omits a placeholder.
+    if (!count && priceEl && !label.includes(formatMoney(total))) label += ' ' + formatMoney(total);
+    return label;
   }
 
   function renderCartSummary(total, count) {
@@ -133,6 +135,7 @@
     bindProvider(provider);
   }
 
+  renderCartSummary(0, 0);
   try {
     var cached = JSON.parse(localStorage.getItem(cacheKey));
     if (cached && typeof cached.total === 'number') {

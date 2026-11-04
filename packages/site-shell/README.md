@@ -109,3 +109,8 @@ locale. This helper never creates a payment session, mounts fields, reads custom
 details, or confirms payment. Pool's deferred Checkout SDK warmup and Store's
 PaymentIntent preparation remain consumer policy. Pair the helper with the
 existing script loader so a failed script tag is also removed before retry.
+
+The cart icon initializes its empty summary before cache/provider readiness and
+includes the visible total in its accessible name. Empty-label translations may
+use `%{total}`; when omitted, the displayed total is appended without changing
+the consumer-owned wording.
