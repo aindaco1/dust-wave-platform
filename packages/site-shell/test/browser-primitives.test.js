@@ -99,6 +99,22 @@ test('invalid form identity policy falls back to safe generic names', async () =
   assert.equal(window.DustWaveFormControlIdentity.policy.idPrefix, 'dustwave-form-control');
 });
 
+test('empty cart names retain visible totals before a provider or cache is ready', async () => {
+  for (const emptyLabel of ['Carrito vacío.', 'Carrito vacío. %{total}']) {
+    const { window } = parseHTML(`<html><body>
+      <button id="header-cart-btn" data-cart-label-empty="${emptyLabel}">
+        <span class="site-header__cart-count" aria-hidden="true"></span>
+        <span class="site-header__cart-price" aria-hidden="true">$0</span>
+      </button></body></html>`);
+    await runClassicScript(CART_ICON_PATH, domGlobals(window, {
+      localStorage: { getItem: () => null, setItem: () => {} }
+    }));
+    const button = window.document.getElementById('header-cart-btn');
+    assert.equal(button.getAttribute('aria-label'), 'Carrito vacío. $0.00');
+    assert.equal(button.querySelector('.site-header__cart-price').textContent, '$0.00');
+  }
+});
+
 test('cart icon policy injects only provider, event, and cache identity', async () => {
   const { window } = parseHTML(`<html><head>
     <script data-dustwave-cart-icon="true"
