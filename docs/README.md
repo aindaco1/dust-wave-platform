@@ -12,6 +12,8 @@ quick-start commands.
 - [Choose an existing primitive](capabilities.md): capability lookup, project
   starting points and reusable pin assertions.
 - [Desktop adoption](desktop-adoption.md): signed updater and reviewed-report boundaries, consumer policies and rollback.
+- [Software licensing plan](software-licensing-plan.md): Cloudflare adaptation of Entitle, Store checkout integration, and optional ASCII VJ Remix paid-update groundwork.
+- [Licensing implementation record](software-licensing-implementation.md): local distribution remediation, Cloudflare/Stripe probe evidence, Resend ownership and remaining acceptance gates.
 - [macOS touch and Live Activities plan](macos-touch-and-live-activities-plan.md): deferred consumer opportunities, SDK evidence and future execution gates; implementation is on hold.
 - [Reuse review status](reuse-review.md): completed release batches, deferred
   candidates, the native macOS roadmap and the checklist for resuming the paused work.
