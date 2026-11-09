@@ -1,6 +1,6 @@
 # Software licensing, subscriptions, and private updates
 
-Updated November 8, 2026. Store's test-only licensing/billing/management and
+Updated November 9, 2026. Store's test-only licensing/billing/management and
 recovery implementation is merged; the licensing consumer is published privately.
 Deployed-source drain/capture/resume and the protected off-account encrypted
 round trip to an isolated Cloudflare restore target passed on the reviewed merged
@@ -22,6 +22,12 @@ disabled.** See the [implementation record](software-licensing-implementation.md
 for exact commits, run evidence, current boundaries, remaining gates and the next
 execution sequence. Historical checkpoints below retain their original scope;
 they do not supersede that current record.
+
+A separately authorized free [ASCII VJ Remix 1.3.3 release](https://github.com/aindaco1/ascii-vj-remix/releases/tag/v1.3.3)
+now delivers the distribution notices and corresponding sources. Its public
+installer/updater gates passed on all three platforms. Consumer-owned release
+evidence and remaining paid-launch gates are linked from the current
+implementation record; this does not enable paid licensing or scheduled capture.
 
 Server-secret hardening is merged in Store PR #128 and private licensing PR #3:
 bounded service/capture

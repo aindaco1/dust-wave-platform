@@ -1,5 +1,26 @@
 # Licensing implementation record
 
+## November 9: free ASCII VJ Remix distribution release
+
+The separately authorized free [ASCII VJ Remix 1.3.3 release](https://github.com/aindaco1/ascii-vj-remix/releases/tag/v1.3.3)
+publishes offline component notices and four corresponding-source archives with
+hash records. [PR #54](https://github.com/aindaco1/ascii-vj-remix/pull/54) merged after
+all four PR jobs passed; exact-main CI passed before tag creation. The
+[15-job release workflow](https://github.com/aindaco1/ascii-vj-remix/actions/runs/42543256824)
+passed signing/notarization, platform source/notice gates and public 1.3.2 → 1.3.3
+installer/updater tests on macOS, Windows and Linux. The immutable release source
+is `45f8f1a8e7b8cbec9e21bbf3a8d2ba2bf8c713c3`.
+
+The consumer's [release record](https://github.com/aindaco1/ascii-vj-remix/blob/main/docs/releases/RELEASE_1.3.3.md)
+owns artifact hashes, independent local acceptance, cleanup and remaining
+physical-hardware limits. This free release keeps public updates and offline
+rendering; it does not activate the licensing service or require a license.
+The VCR font's paid-redistribution evidence remains pending. **Paid Entitle sales,
+production licensing and scheduled licensing capture remain disabled.** Ordinary
+encrypted backups retain their existing schedule. No Platform runtime package or
+consumer submodule pin changed. The licensing execution sequence remains
+capacity/abuse limits, peak-memory profiling and retention/recovery objectives.
+
 ## November 8: signed native rotation acceptance and merged groundwork
 
 The compatible ASCII VJ Remix pilot passed signed native acceptance using the
