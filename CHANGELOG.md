@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.50.0 - 2026-11-17
+
+- Add `@dustwave/admin-shell` 0.15.0 block editor with shared model, toolbar,
+  composition, identity-preserving commands, slash insertion and event routing.
+  Store/Pool adapters retain codecs, media policy, drafts and publishing.
+- Keep classic-script and module consumers on one implementation; add model,
+  movement, media identity, accessibility and binding lifecycle coverage.
+
 ## 0.49.1 - 2026-11-03
 
 - Site Shell 0.6.1 includes the visible empty-cart total in its accessible name, including before the provider or cache is ready. Consumer translations remain authoritative.

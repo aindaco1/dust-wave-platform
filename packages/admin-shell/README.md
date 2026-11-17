@@ -164,3 +164,51 @@ Revision and snapshot are opaque paired values. Unpublished stale edits preserve
 the original pair and conflict flag; only a consumer-confirmed legacy match can
 upgrade that baseline. Storage, parsing, draft content and publish authority stay
 in the consumer. Pool is the initial characterized caller of this pure decision.
+
+## Block editor
+
+`block-editor` and `block-editor-browser` expose the same implementation. The
+classic entry installs `DustWaveAdminShellBlockEditor`; load it before dashboard
+code. `createBlockModel` owns the eight established block shapes, normalization,
+gallery options and provider choices. `createBlockEditor(root, options)` owns
+block composition, toolbar DOM, insert/reorder/delete/type/alignment commands,
+slash splitting, selection format detection and event routing. Existing
+`editor-codec` and `editor-media` remain the owners of rich text and upload races.
+
+The adapter supplies `getBlocks`, `setBlocks`, `renderBody` and optionally
+`onRender`, `beforeMutation`, `onMutation` and localized `t(key, fallback)` copy.
+`renderBody` retains consumer media fields, URL validation, previews and upload
+controls. Store's Markdown projection and Pool's paired draft/revision baseline,
+undo history, diary context and email restrictions remain in their adapters.
+The composer never copies blocks when rendering or reordering: asynchronous media
+operations continue to resolve the captured object through `editor-media`.
+
+```js
+import { createBlockEditor, createBlockModel } from '@dustwave/admin-shell/block-editor';
+const editor = createBlockEditor(root, {
+  model: createBlockModel(),
+  getBlocks: () => blocks,
+  setBlocks: value => { blocks = value; },
+  renderBody, // consumer's editable fields and media controls
+  onRender: () => syncDraftFields(blocks)
+});
+editor.bind({ actions: formattingAndMediaActions, input: updateAuthoredField });
+editor.render();
+// editor.destroy() removes listeners; bind() also removes any previous binding.
+```
+
+`bind` routes block commands, format/media actions and keyboard Enter, with
+consumer hooks for focus, pointer, clipboard, undo and field updates. `run`
+wraps handlers for consumers with multiple editing contexts. `beforeClick` and
+`beforeKey` may return `false` to stop dispatch. `outside` is called outside
+that context wrapper so adapters can close the specified root without changing
+an unrelated active draft. Binding does not publish or persist anything.
+
+Invalid constructor arguments throw `TypeError`; callback exceptions propagate.
+Invalid JSON throws by default; `invalidJson: 'empty'` preserves Store's tolerant
+import contract. Unknown block/provider/alignment values use established text,
+YouTube and left defaults. Model type/provider getters are evaluated on use so
+email editors can restrict their palette. Decorative-image coercion and alt
+clearing are explicit model policies; gallery images keep the existing strict
+boolean contract. Invalid movement and attempts to delete the last block return
+`false`. Each consumer can roll back its gitlink and adapter together.
