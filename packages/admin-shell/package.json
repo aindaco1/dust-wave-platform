@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "type": "module",
   "exports": {
     "./api-client": {
@@ -43,7 +43,9 @@
     "./feedback": "./src/feedback.js",
     "./feedback-browser": "./src/feedback-browser.js",
     "./draft-recovery": "./src/draft-recovery.js",
-    "./draft-recovery-browser": "./src/draft-recovery-browser.js"
+    "./draft-recovery-browser": "./src/draft-recovery-browser.js",
+    "./block-editor": "./src/block-editor.js",
+    "./block-editor-browser": "./src/block-editor-browser.js"
   },
   "engines": {
     "node": ">=20.9"
