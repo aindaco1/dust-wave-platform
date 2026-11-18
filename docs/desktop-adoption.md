@@ -65,3 +65,21 @@ checkout; it never fetches or updates dependencies.
 Source tests, hosted CI, signed artifacts, installed updater acceptance and
 deployed GitHub delivery are distinct evidence. This guide specifies the
 migration contract; consumer PRs record its verification.
+
+## Issue artifact adoption
+
+Desktop Core's [optional issue artifact writer](../packages/desktop-core/README.md#optional-github-issue-artifacts)
+mirrors consumer-selected reviewed Markdown after a confirmed issue receipt.
+Both a formatter and writer must be explicitly injected into the serialized
+group. Existing consumers and the original non-serialized ASCII intake retain
+their current behavior. Do not enable concurrent legacy intake through an
+unserialized artifact call.
+
+The relay owner retains authentication, reviewed-field selection, provider bounds,
+rate budgets, deployment and synthetic acceptance. Keep the full issue body as
+the delivery fallback during preview adoption. Artifact history is supplemental;
+it does not replace durable report counts/receipts or guarantee every report has
+a version. Preserve the new `artifact:` records during independent rollback so
+uncertain creates cannot be repeated on re-enablement. Consumer PRs must record
+their old/new immutable pins, package versions, characterization and live
+delivery evidence before claiming adoption.

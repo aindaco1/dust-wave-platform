@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ReviewedReportGroup } from '../src/reviewed-report-group.js';
 import { createGitHubIssueReporter } from '../src/github-issues.js';
+import { createGitHubIssueArtifactWriter } from '../src/github-issue-artifacts.js';
 
 function memoryStorage() {
   const values = new Map();
@@ -90,4 +91,111 @@ test('initial aggregate adoption runs once and survives subsequent retries', asy
   await new ReviewedReportGroup(ctx, {}, adapter, dependencies).fetch(request('one'));
   await new ReviewedReportGroup(ctx, {}, adapter, dependencies).fetch(request('two'));
   assert.deepEqual(counts, [20, 21]); assert.equal(initializations, 1);
+});
+
+function artifactGroup(options = {}) {
+  const ctx = { storage: memoryStorage() };
+  const calls = [];
+  let artifact;
+  const adapter = { validate: x => x, fingerprint: async () => 'same', repository: 'app',
+    relayReport: report => ({ app: { version: '1.0', os: 'test', arch: 'test' }, report }),
+    issueArtifact: (report, fp, state) => ({ name: 'Reviewed snapshot', body: `${report.id}: ${fp}, count ${state.count}` }) };
+  const dependencies = { owner: 'example', updateAggregateState: reporter({}).updateAggregateState,
+    submit: async () => ({ action: 'updated', issueNumber: 7 }),
+    writeIssueArtifact: createGitHubIssueArtifactWriter({ request: async (_env, path, init) => {
+      const saved = await ctx.storage.get('group');
+      assert.deepEqual(saved.pending, {}, 'receipt must be committed before artifact publication');
+      assert.ok(Object.keys(saved.receipts).length);
+      calls.push({ path, method: init.method });
+      if (init.method === 'GET') return path.includes('?') ? (artifact ? [artifact] : []) : { artifact };
+      artifact = { number: 3, type: 'generic', ...JSON.parse(init.body) };
+      return artifact;
+    } }), ...options };
+  const make = () => new ReviewedReportGroup(ctx, {}, adapter, dependencies);
+  const request = id => new Request('https://example.invalid/reports', { method: 'POST', body: JSON.stringify({ id }) });
+  return { ctx, calls, adapter, dependencies, make, request, artifact: () => artifact };
+}
+
+test('optional artifacts follow durable receipts, serialize versions and skip duplicate IDs across restart', async () => {
+  const f = artifactGroup();
+  assert.equal((await f.make().fetch(f.request('one'))).status, 200);
+  const restarted = f.make();
+  const receipts = await Promise.all(['one', 'two', 'three'].map(id => restarted.fetch(f.request(id)).then(r => r.json())));
+  assert.deepEqual(receipts.map(r => r.action), ['duplicate', 'updated', 'updated']);
+  assert.deepEqual(f.calls.map(c => c.method), ['GET', 'POST', 'GET', 'PATCH', 'GET', 'PATCH']);
+  assert.match(f.artifact().body, /three: same, count 3/);
+  assert.equal((await f.ctx.storage.get('group')).state.count, 3);
+});
+
+test('an artifact failure or formatter failure cannot reject, recount or leak a confirmed report', async t => {
+  const errors = [];
+  t.mock.method(console, 'error', value => errors.push(value));
+  for (const failurePoint of ['writer', 'formatter']) {
+    let attempts = 0;
+    const fail = () => { attempts++; throw Object.assign(new Error('private payload, provider text and credentials'),
+      { status: 403, providerOperation: 'POST', providerReason: 'integration_access' }); };
+    const f = artifactGroup(failurePoint === 'writer' ? { writeIssueArtifact: fail } : {});
+    if (failurePoint === 'formatter') f.adapter.issueArtifact = fail;
+    const response = await f.make().fetch(f.request('one'));
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { ok: true, reportId: 'one', action: 'updated', issueNumber: 7 });
+    const duplicate = await f.make().fetch(f.request('one'));
+    assert.equal((await duplicate.json()).action, 'duplicate');
+    assert.equal((await f.ctx.storage.get('group')).state.count, 1);
+    assert.equal(attempts, 1);
+  }
+  assert.deepEqual(errors, Array.from({ length: 2 }, () => ({ code: 'issue-artifact-failed',
+    providerStatus: 403, providerOperation: 'POST', providerReason: 'integration_access' })));
+});
+
+test('artifacts require both explicit opt-ins and a confirmed issue, and may be declined per report', async () => {
+  for (const mode of ['no-writer', 'no-formatter', 'declined', 'unconfirmed', 'limited']) {
+    const f = artifactGroup();
+    if (mode === 'no-writer') delete f.dependencies.writeIssueArtifact;
+    if (mode === 'no-formatter') delete f.adapter.issueArtifact;
+    if (mode === 'declined') f.adapter.issueArtifact = () => null;
+    if (mode === 'unconfirmed') f.dependencies.submit = async () => ({ action: 'pending', status: 503 });
+    if (mode === 'limited') f.dependencies.submit = async () => ({ action: 'limited', status: 429 });
+    const response = await f.make().fetch(f.request('one'));
+    assert.equal(response.status, mode === 'unconfirmed' ? 503 : mode === 'limited' ? 429 : 200);
+    assert.equal(f.calls.length, 0);
+    assert.equal(await f.ctx.storage.get('artifact:7:same'), undefined);
+  }
+});
+
+test('formatter cannot override the fixed destination or mutate durable aggregate state', async () => {
+  const f = artifactGroup();
+  f.adapter.issueArtifact = (_report, _fp, state) => {
+    state.count = 999;
+    return { name: 'Selected content', body: 'Reviewed only', owner: 'other', repository: 'other', issueNumber: 999, key: 'other' };
+  };
+  await f.make().fetch(f.request('one'));
+  assert.ok(f.calls.every(call => call.path.startsWith('/repos/example/app/issues/7/artifacts')));
+  assert.match(f.artifact().body, /^<!-- dustwave-issue-artifact:same -->/);
+  assert.equal((await f.ctx.storage.get('group')).state.count, 1);
+});
+
+test('receipt retention and failed receipt persistence keep their original delivery semantics', async t => {
+  t.mock.method(console, 'error', () => {});
+  const retained = artifactGroup({ writeIssueArtifact: async (_env, _doc, record) => {
+    assert.equal((await retained.ctx.storage.get('receipt:one')).number, 7);
+    await record.put({ marker: 'fixture' });
+  } });
+  retained.adapter.receiptRetentionMS = 86400000;
+  retained.ctx.storage.getAlarm = async () => 1;
+  assert.equal((await retained.make().fetch(retained.request('one'))).status, 200);
+  assert.equal((await (await retained.make().fetch(retained.request('one'))).json()).action, 'duplicate');
+  assert.equal((await retained.ctx.storage.get('group')).state.count, 1);
+
+  const failed = artifactGroup();
+  const put = failed.ctx.storage.put;
+  failed.ctx.storage.put = async (key, value) => {
+    if (key === 'group' && value.receipts.one) throw new Error('receipt write failed');
+    return put(key, value);
+  };
+  assert.equal((await failed.make().fetch(failed.request('one'))).status, 502);
+  assert.equal(failed.calls.length, 0);
+  failed.ctx.storage.put = put;
+  assert.equal((await failed.make().fetch(failed.request('one'))).status, 200);
+  assert.equal((await failed.ctx.storage.get('group')).state.count, 1);
 });

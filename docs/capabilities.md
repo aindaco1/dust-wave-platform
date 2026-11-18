@@ -18,6 +18,7 @@ the packages the project needs. There is no shared application runtime.
 | Bound upstream response bytes or JSON | `worker-core/response-body` | Response budget and schema; upstream transport |
 | Hash text or bytes, compare text digests | `worker-core/crypto` | Encoding choice and authorization policy; synchronous empty-token rejection remains separate |
 | Provider transport, headers and outbox state | `worker-core/provider-fetch`, `github`, `resend`, `email`, `outbox` | Credentials, delivery policy, records, retries and deployment |
+| Reviewed issue delivery and optional versioned Markdown diagnostics | `desktop-core/github-issues`, `reviewed-report-group`, `github-issue-artifacts` | Reviewed fields, formatting, authentication, durable storage, adoption and deployment |
 | Digest presentation | `digest-core` | Newsletter selection, templates, recipients and sending |
 | Local Markdown links and ATX anchors | `test-core/documentation` (Node only) | File discovery, required guides, content checks, malformed-link and root-boundary policy |
 | SQLite-backed D1 unit tests | `test-core/sqlite-d1` (injected SQLite connection) | Runtime, migrations, foreign keys, fixtures, connection lifetime and real D1 integration tests |
