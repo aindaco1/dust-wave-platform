@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 
 MAX_BYTES = 2 * 1024 ** 3
 MAX_LIST_PAGES = 10
+MAX_METADATA_BYTES = 16 * 1024 ** 2
 
 
 def tool_environment(env, tool):
@@ -52,6 +53,9 @@ def verify_contents(archive, require_captured_data=False, require_r2=False):
                     # Object keys can end in manifest.json or any other metadata filename.
                     hashes[name] = hashlib.file_digest(stream, "sha256").hexdigest()
                 elif require_r2 and archive_path.endswith("/r2/download-keys.txt"):
+                    # The checksums document must already contain every key plus its digest.
+                    if member.size > MAX_METADATA_BYTES:
+                        raise ValueError("inventory_exceeds_limit")
                     digest = hashlib.sha256()
                     keys = set()
                     while line := stream.readline(65536):
@@ -69,7 +73,7 @@ def verify_contents(archive, require_captured_data=False, require_r2=False):
                     inventories[name] = keys
                     hashes[name] = digest.hexdigest()
                 elif PurePosixPath(name).name in ("manifest.json", "checksums.json", "plan.json"):
-                    if member.size > 16 * 1024 ** 2:
+                    if member.size > MAX_METADATA_BYTES:
                         raise ValueError("manifest_exceeds_limit")
                     body = stream.read()
                     hashes[name] = hashlib.sha256(body).hexdigest()

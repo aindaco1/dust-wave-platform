@@ -74,6 +74,12 @@ class CapturedDataTests(unittest.TestCase):
                 self.assertEqual(result['ok'], expected)
                 self.assertNotIn('nested/manifest.json', json.dumps(result))
 
+    def test_inventory_obeys_the_existing_metadata_bound(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(capture.audit, 'MAX_METADATA_BYTES', 2048):
+            archive = self.make_archive(folder, inventory=['x' * 2048])
+            with self.assertRaisesRegex(ValueError, 'inventory_exceeds_limit'):
+                capture.audit.verify_contents(archive, require_r2=True)
+
     def test_archive_inventory_paginates_without_silently_ignoring_later_snapshots(self):
         env = CaptureTests().env()
         pages = [{'Contents': [], 'IsTruncated': True, 'NextContinuationToken': 'next'}, {'Contents': []}]
