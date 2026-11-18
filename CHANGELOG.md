@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.51.1 - 2026-11-18
+
+- Worker Core 0.16.1, Tax Core 0.4.1 and Shipping Core 0.2.1 apply each GitHub,
+  tax and USPS request deadline through its response body. The public raw Fetch
+  helper still releases its timer at headers. Consumers retain quote and retry policy.
+- Desktop Core 0.3.1 repairs pending report state after an interrupted receipt save.
+  Admin Shell 0.15.1 preserves the active editor binding when an older cleanup runs.
+- Recovery verification checks each required R2 object against the checksummed
+  inventory. Capture and verification scope credentials to the subprocess using them.
+- The scheduled open-tax refresh uses the same patched Node 24 version as CI.
+
 ## 0.51.0 - 2026-11-18
 
 - Desktop Core 0.3.0 adds an opt-in GitHub issue artifact writer for versioned
