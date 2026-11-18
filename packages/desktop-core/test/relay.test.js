@@ -199,3 +199,46 @@ test('receipt retention and failed receipt persistence keep their original deliv
   assert.equal((await failed.make().fetch(failed.request('one'))).status, 200);
   assert.equal((await failed.ctx.storage.get('group')).state.count, 1);
 });
+
+test('retained duplicate repairs interrupted alarm and group saves across restart', async t => {
+  t.mock.method(console, 'error', () => {});
+  for (const boundary of ['alarm', 'group']) {
+    let submits = 0, artifacts = 0, fail = true;
+    const fixture = artifactGroup({
+      submit: async () => { submits++; return { action: 'updated', issueNumber: 7 }; },
+      writeIssueArtifact: async () => { artifacts++; }
+    });
+    fixture.adapter.receiptRetentionMS = 60000;
+    const storage = fixture.ctx.storage;
+    let alarm = boundary === 'group' ? 123 : null;
+    storage.getAlarm = async () => alarm;
+    storage.setAlarm = async when => {
+      if (boundary === 'alarm' && fail) throw new Error('alarm unavailable');
+      alarm = when;
+    };
+    const put = storage.put;
+    storage.put = async (key, value) => {
+      if (boundary === 'group' && fail && key === 'group' && !value.pending.one) throw new Error('save interrupted');
+      return put(key, value);
+    };
+    const send = () => fixture.make().fetch(fixture.request('one'));
+    assert.equal((await send()).status, 502);
+    const receipt = await storage.get('receipt:one');
+    assert.equal((await storage.get('group')).pending.one, true);
+    fail = false;
+    const retry = await (await send()).json();
+    assert.equal(retry.action, 'duplicate');
+    assert.equal(retry.issueNumber, 7);
+    const group = await storage.get('group');
+    assert.deepEqual(group.pending, {});
+    assert.equal(group.state.count, 1);
+    assert.deepEqual(await storage.get('receipt:one'), receipt);
+    assert.ok(alarm);
+    if (boundary === 'group') assert.equal(alarm, 123);
+    assert.equal(submits, 1);
+    assert.equal(artifacts, 0);
+    await put('receipt:one', { ...receipt, expires: 0 });
+    assert.equal((await (await send()).json()).action, 'updated');
+    assert.equal(submits, 2);
+  }
+});
