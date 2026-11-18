@@ -1,4 +1,4 @@
-import { fetchWithTimeout } from '../../worker-core/src/provider-fetch.js';
+import { fetchProviderResponse } from '../../worker-core/src/provider-response.js';
 
 const MAX_MAIL_CLASSES = 32;
 const MAX_ACCESS_TOKEN_LENGTH = 8_192;
@@ -198,7 +198,7 @@ export function createUspsRateClient({
       };
     }
 
-    const body = await response.json().catch(() => null);
+    const body = response.body;
     const amount = getUspsPriceFromResponse(body);
     if (!(Number.isFinite(amount) && amount >= 0)) {
       return {
@@ -250,7 +250,7 @@ export function createUspsRateClient({
       throw new Error(`USPS OAuth failed with ${response.status}`);
     }
 
-    const body = await response.json().catch(() => null);
+    const body = response.body;
     const token = String(body?.access_token || '').trim();
     const expiresInSeconds = Number(body?.expires_in);
     if (!token || token.length > MAX_ACCESS_TOKEN_LENGTH) {
@@ -271,7 +271,12 @@ export function createUspsRateClient({
 
   async function fetchJsonWithTimeout(config, url, init) {
     try {
-      return await fetchWithTimeout(url, init, config.timeoutMs, { fetchTarget });
+      return await fetchProviderResponse(url, init, config.timeoutMs, fetchTarget, async (response, signal) => {
+        // A rejected status (including 401) needs no body before applying existing policy.
+        const body = response.ok ? await response.json().catch(() => null) : null;
+        signal.throwIfAborted();
+        return { ok: response.ok, status: response.status, body };
+      });
     } catch (error) {
       if (error?.name === 'AbortError') {
         armBackoff(config.failureCooldownMs, 'USPS request timed out');

@@ -11,7 +11,8 @@ table, fallback/free quote shapes, and standard/signature option selection.
 Consumers inject origin country, fallback cents, free-shipping state, and
 configured option IDs. Selection and catalog arrays are bounded before loops.
 The USPS entry accepts consumer-resolved configuration, owns a bounded
-in-memory token/quote/cache-backoff lifecycle, aborts provider timeouts, and
+in-memory token/quote/cache-backoff lifecycle, applies a separate deadline through
+the successful body of each token and rate request, and
 refreshes once after a 401. Provider credentials never appear in result/error
 shapes. The canonical shipping-country YAML is copied to framework-owned
 consumer data only through an explicit-output check/write command, keeping

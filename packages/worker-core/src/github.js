@@ -1,4 +1,4 @@
-import { fetchWithTimeout } from './provider-fetch.js';
+import { fetchProviderResponse } from './provider-response.js';
 
 const DEFAULT_API_BASE = 'https://api.github.com';
 const DEFAULT_TIMEOUT_MS = 10_000;
@@ -34,13 +34,12 @@ export function createGitHubClient(options = {}) {
   const repoBase = `${apiBase}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
 
   async function request(path, init = {}) {
-    let response;
     try {
-      response = await fetchWithTimeout(
+      return await fetchProviderResponse(
         `${repoBase}${path}`,
         { redirect: 'manual', ...init, headers: { ...headers, ...init.headers } },
         timeoutMs,
-        { fetchTarget }
+        fetchTarget, readResponse
       );
     } catch (error) {
       return {
@@ -50,7 +49,9 @@ export function createGitHubClient(options = {}) {
         error: error?.name === 'AbortError' ? 'GitHub request timed out' : 'Unable to reach GitHub'
       };
     }
+  }
 
+  async function readResponse(response) {
     if (response.status >= 300 && response.status < 400) {
       await response.body?.cancel().catch(() => {});
       return {
