@@ -41,7 +41,9 @@ def capture(env, capture_command):
         raise ValueError('invalid_expected_archive_name')
     evidence = {'status': 'FAIL', 'productionWrites': False, 'archiveWrites': False}
 
-    def command(args, child_env=env, timeout=300, stage='archive_verification'):
+    def command(args, child_env=None, timeout=300, stage='archive_verification'):
+        if child_env is None:
+            child_env = audit.tool_environment(env, args[0])
         result = subprocess.run(args, env=child_env, capture_output=True, timeout=timeout)
         if result.returncode:
             detail = (result.stderr or b'').decode(errors='replace')
@@ -62,8 +64,10 @@ def capture(env, capture_command):
         identity.chmod(0o600)
         output = folder / 'snapshot'
         print('Capturing encrypted snapshot.', flush=True)
+        source_env = {key: value for key, value in env.items() if not key.startswith(('AWS_', 'RECOVERY_'))}
+        source_env[identity_variable] = str(identity)
         command([*capture_command, '--output=' + str(output), '--encryption-backend=age'],
-                {**env, identity_variable: str(identity)}, timeout=2700, stage='snapshot_capture')
+                source_env, timeout=2700, stage='snapshot_capture')
         receipt = json.loads((output / 'manifest.json').read_text())
         verification_env = {**env, 'RECOVERY_REQUIRE_CAPTURED_DATA': 'true', 'RECOVERY_MAX_AGE_HOURS': '4'}
         print('Verifying captured data and local ciphertext.', flush=True)

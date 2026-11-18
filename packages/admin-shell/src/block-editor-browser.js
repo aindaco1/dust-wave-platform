@@ -491,8 +491,13 @@
         }
         if (control instanceof view.HTMLElement && control.isContentEditable && event.key === 'Enter' && slash?.(control)) event.preventDefault();
       }));
-      unbind = () => { listeners.forEach(remove => remove()); unbind = null; };
-      return unbind;
+      function cleanup() {
+        if (unbind !== cleanup) return;
+        listeners.forEach(remove => remove());
+        unbind = null;
+      }
+      unbind = cleanup;
+      return cleanup;
     }
     return Object.freeze({ render, mutate, insertSlash, syncChrome, activate, bind, destroy() { unbind?.(); } });
   }

@@ -30,7 +30,7 @@ preserves explicit request error status/code fields. JSON readers accept only
 objects; scalar helpers keep the independently characterized Podcast
 normalization and failure semantics. The provider-fetch entry owns one timeout
 and abort signal around an injected or global Fetch implementation, always
-clears its timer, and never retries. The policy-injected CORS/JSON helper
+returns the raw response at headers, clears its timer, and never retries. The policy-injected CORS/JSON helper
 reflects only an exact origin from the consumer's comma-separated allow-list
 matches and lets consumers supply their own method, request-header, base
 response, and private response policies. Podcast retains routes, schemas, CSRF
@@ -44,6 +44,7 @@ workflow dispatch, Contents API operations, directory listing, and atomic
 multi-file commits. It validates repository-relative paths, branch refs,
 workflow names, input counts, file sizes, and response sizes; never returns
 credentials or raw network errors; and never retries or force-updates a branch.
+Each GitHub request keeps its deadline through the response body.
 It uses the edge-runtime-compatible manual redirect mode and rejects every 3xx
 response before reading or following its location.
 Consumers retain repository selection, publish mode, content schemas, paths,
@@ -56,6 +57,9 @@ characterized Pool, Store, and Podcast operations. It accepts injected API
 version, user agent, fetch, and redacted observation policy; it never returns
 the API key or request body to observers. Network failures and Stripe-directed
 or status-derived retryability are classified but never retried automatically.
+The observer's `success` field records the HTTP status. A successful response
+with an empty or unreadable body resolves to `{}` and has no observed object ID.
+Callers must validate the object and its status before acting on a payment.
 Invalid object IDs fail before a request, malformed webhook timestamps fail
 closed, observer failures cannot change payment behavior, and provider error
 messages are whitespace-normalized and bounded. Consumers retain keys,

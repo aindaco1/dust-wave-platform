@@ -1,4 +1,4 @@
-import { fetchWithTimeout } from '../../worker-core/src/provider-fetch.js';
+import { fetchProviderResponse } from '../../worker-core/src/provider-response.js';
 import { readBoundedText } from '../../worker-core/src/request-validation.js';
 
 const ZIP_TAX_API_BASE = 'https://api.zip-tax.com';
@@ -137,12 +137,11 @@ export function normalizeTaxProviderSource(value) {
 }
 
 async function providerFetch(url, init, options) {
-  let response;
   try {
-    response = await fetchWithTimeout(url, { ...init, redirect: 'manual' }, positive(options.timeoutMs, 'timeoutMs'), {
-      fetchTarget: options.fetchTarget
-    });
+    return await fetchProviderResponse(url, { ...init, redirect: 'manual' }, positive(options.timeoutMs, 'timeoutMs'),
+      options.fetchTarget, (response, signal) => readProviderResponse(response, signal, options));
   } catch (error) {
+    if (error instanceof TaxProviderError) throw error;
     throw new TaxProviderError(
       error?.name === 'AbortError'
         ? `${options.failureLabel} timed out`
@@ -150,6 +149,9 @@ async function providerFetch(url, init, options) {
       error?.name === 'AbortError' ? 'tax_provider_timeout' : 'tax_provider_unavailable'
     );
   }
+}
+
+async function readProviderResponse(response, signal, options) {
   // Workers support manual/follow, not the Fetch standard's error mode.
   // Reject redirects explicitly before reading any body or forwarding credentials.
   if (response.status >= 300 && response.status < 400) {
@@ -159,6 +161,7 @@ async function providerFetch(url, init, options) {
   try {
     text = await readBoundedText(response, positive(options.maxResponseBytes, 'maxResponseBytes'), 'Tax provider response');
   } catch {
+    signal.throwIfAborted();
     throw new TaxProviderError('Tax provider response is too large', 'tax_provider_response_too_large');
   }
   let payload = {};

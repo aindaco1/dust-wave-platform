@@ -13,6 +13,16 @@ from urllib.parse import urlparse
 
 MAX_BYTES = 2 * 1024 ** 3
 MAX_LIST_PAGES = 10
+MAX_METADATA_BYTES = 16 * 1024 ** 2
+
+
+def tool_environment(env, tool):
+    # age reads its identity from the private file. Only the AWS CLI needs network configuration.
+    runtime = {"PATH", "HOME", "TMPDIR", "TMP", "TEMP", "LANG", "XDG_CONFIG_HOME"}
+    network = {"HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY", "SSL_CERT_FILE", "SSL_CERT_DIR",
+               "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE"}
+    return {key: value for key, value in env.items() if key in runtime or key.startswith("LC_")
+            or (tool == "aws" and (key.startswith("AWS_") or key.upper() in network))}
 
 
 def safe_path(value):
@@ -26,6 +36,7 @@ def safe_path(value):
 
 def verify_contents(archive, require_captured_data=False, require_r2=False):
     hashes, documents, expanded = {}, {}, 0
+    inventories = {}
     with tarfile.open(archive, "r:gz") as source:
         for member in source:
             name = safe_path(member.name)
@@ -37,8 +48,32 @@ def verify_contents(archive, require_captured_data=False, require_r2=False):
             if expanded > MAX_BYTES:
                 raise ValueError("expanded_archive_exceeds_limit")
             with source.extractfile(member) as stream:
-                if PurePosixPath(name).name in ("manifest.json", "checksums.json", "plan.json"):
-                    if member.size > 16 * 1024 ** 2:
+                archive_path = "/" + name
+                if "/r2/objects/" in archive_path:
+                    # Object keys can end in manifest.json or any other metadata filename.
+                    hashes[name] = hashlib.file_digest(stream, "sha256").hexdigest()
+                elif require_r2 and archive_path.endswith("/r2/download-keys.txt"):
+                    # The checksums document must already contain every key plus its digest.
+                    if member.size > MAX_METADATA_BYTES:
+                        raise ValueError("inventory_exceeds_limit")
+                    digest = hashlib.sha256()
+                    keys = set()
+                    while line := stream.readline(65536):
+                        digest.update(line)
+                        if keys is None:
+                            continue
+                        if len(line) == 65536:  # Bound individual inventory entries.
+                            keys = None
+                            continue
+                        key = line.removesuffix(b"\n").decode("utf-8")
+                        if not key or key in keys:
+                            keys = None
+                        else:
+                            keys.add(key)
+                    inventories[name] = keys
+                    hashes[name] = digest.hexdigest()
+                elif PurePosixPath(name).name in ("manifest.json", "checksums.json", "plan.json"):
+                    if member.size > MAX_METADATA_BYTES:
                         raise ValueError("manifest_exceeds_limit")
                     body = stream.read()
                     hashes[name] = hashlib.sha256(body).hexdigest()
@@ -66,7 +101,7 @@ def verify_contents(archive, require_captured_data=False, require_r2=False):
     mismatched = [name for name in set(expected) & set(hashes) if expected[name] != hashes[name]]
     result = {"ok": not (unlisted or missing or mismatched), "checkedArtifacts": len(expected),
               "unlistedFiles": len(unlisted), "missingFiles": len(missing), "checksumMismatches": len(mismatched)}
-    if require_captured_data:
+    if require_captured_data or require_r2:
         plan = documents.get(root + "kv/plan.json", [])
         required = [item for item in plan if item.get("valuesFile")]
         captured = manifest.get("kvValueCapture", [])
@@ -82,10 +117,17 @@ def verify_contents(archive, require_captured_data=False, require_r2=False):
         result["capturedKvFamilies"] = len(required)
         if require_r2:
             r2 = manifest.get("r2", {})
+            prefix = root + "r2/objects/"
+            verified = {name[len(prefix):] for name in hashes
+                        if name.startswith(prefix) and hashes[name] == expected.get(name)}
+            inventory = root + "r2/download-keys.txt"
+            counts = (r2.get("totalDiscoveredObjects"), r2.get("objectsDownloadedCount"))
             complete = complete and (manifest.get("includesR2Objects") is True
                 and r2.get("completeInventory") is True and r2.get("objectsDownloaded") is True
-                and r2.get("objectsDownloadedCount") == r2.get("totalDiscoveredObjects"))
-            result["capturedR2Objects"] = r2.get("objectsDownloadedCount", 0)
+                and inventory in expected and hashes.get(inventory) == expected[inventory]
+                and inventories.get(inventory) == verified
+                and all(type(count) is int and count == len(verified) for count in counts))
+            result["capturedR2Objects"] = len(verified)
         result["captureComplete"] = bool(complete)
         result["ok"] = result["ok"] and result["captureComplete"]
     return result
@@ -157,7 +199,7 @@ def run_audit(env):
         return {**result, "error": "invalid_snapshot_age_limit"}
 
     def command(args):
-        process = subprocess.run(args, env=env, capture_output=True, timeout=300)
+        process = subprocess.run(args, env=tool_environment(env, args[0]), capture_output=True, timeout=300)
         if process.returncode:
             raise ValueError("archive_read_or_decryption_failed")
         return process.stdout

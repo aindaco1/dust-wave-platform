@@ -43,6 +43,11 @@ export class ReviewedReportGroup {
         ? (retained?.expires > Date.now() ? retained.number : null)
         : saved.receipts[report.id];
       if (previousIssue) {
+        if (retained && saved.pending[report.id]) {
+          await this.ensureReceiptAlarm();
+          delete saved.pending[report.id];
+          await this.ctx.storage.put('group', saved);
+        }
         return Response.json({ ok: true, reportId: report.id, action: 'duplicate', issueNumber: previousIssue, fingerprint });
       }
       if (!saved.pending[report.id]) {
@@ -74,7 +79,7 @@ export class ReviewedReportGroup {
       }
       if (this.adapter.receiptRetentionMS) {
         await this.ctx.storage.put(`receipt:${report.id}`, { number: result.issueNumber, expires: Date.now() + this.adapter.receiptRetentionMS });
-        if (await this.ctx.storage.getAlarm() === null) await this.ctx.storage.setAlarm(Date.now() + 86400000);
+        await this.ensureReceiptAlarm();
         saved.receipts = {};
       } else { saved.receipts[report.id] = result.issueNumber; }
       delete saved.pending[report.id];
@@ -108,6 +113,10 @@ export class ReviewedReportGroup {
       console.error(reviewedRelayFailure(error, this.adapter.failureCode));
       return Response.json({ error: 'Report could not be submitted; retry later' }, { status: 502 });
     }
+  }
+
+  async ensureReceiptAlarm() {
+    if (await this.ctx.storage.getAlarm() === null) await this.ctx.storage.setAlarm(Date.now() + 86400000);
   }
 
   storageIndex() {

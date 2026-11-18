@@ -2,6 +2,27 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { createGitHubClient } from '../src/github.js';
+import { delayedJson } from './fixtures/delayed-json.js';
+
+test('bounds a content read through the last response byte', async () => {
+  let calls = 0;
+  const result = await client(async (_, { signal }) => {
+    calls++;
+    return delayedJson({ encoding: 'base64', content: 'YWJj', sha: 'fixture' }, signal);
+  }, { timeoutMs: 5 }).getTextFile('data.json');
+  assert.equal(result.code, 'github_timeout');
+  assert.equal(calls, 1);
+});
+
+test('a timeout after write acceptance returns uncertainty without a second write', async () => {
+  const methods = [];
+  const result = await client(async (_, { method, signal }) => {
+    methods.push(method);
+    return delayedJson({ commit: { sha: 'fixture' } }, signal);
+  }, { timeoutMs: 5 }).putTextFile('data.json', '{}', 'Fixture write');
+  assert.equal(result.code, 'github_timeout');
+  assert.deepEqual(methods, ['PUT']);
+});
 
 function client(fetchTarget, overrides = {}) {
   return createGitHubClient({

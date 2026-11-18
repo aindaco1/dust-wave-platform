@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { createUspsRateClient } from '../src/usps.js';
+import { delayedJson } from '../../worker-core/test/fixtures/delayed-json.js';
 
 const baseConfig = {
   enabled: true,
@@ -35,6 +36,22 @@ function clientWith(fetchTarget, options = {}) {
     ],
     fetchTarget,
     ...(options.now ? { now: options.now } : {})
+  });
+}
+
+for (const slowStage of ['token', 'rate']) {
+  test(`applies the per-request timeout during the USPS ${slowStage} body and uses backoff`, async () => {
+    const calls = [];
+    const client = clientWith(async (url, { signal }) => {
+      const stage = url.endsWith('/token') ? 'token' : 'rate';
+      calls.push(stage);
+      const payload = stage === 'token' ? { access_token: 'test', expires_in: 3600 } : { totalBasePrice: 4.5 };
+      return stage === slowStage ? delayedJson(payload, signal) : Response.json(payload);
+    }, { config: { timeoutMs: 5 } });
+    const quote = () => client.quote({}, { country: 'US', postalCode: '80205' }, shipment);
+    assert.equal((await quote()).valid, false);
+    assert.equal((await quote()).valid, false);
+    assert.deepEqual(calls, slowStage === 'token' ? ['token'] : ['token', 'rate']);
   });
 }
 

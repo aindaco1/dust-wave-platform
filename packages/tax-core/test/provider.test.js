@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { delayedJson } from '../../worker-core/test/fixtures/delayed-json.js';
 
 import {
   TaxProviderError,
@@ -16,6 +17,13 @@ function json(value, status = 200, headers = {}) {
     headers: { 'content-type': 'application/json', ...headers }
   });
 }
+
+test('classifies an expired body deadline as a tax timeout', async () => {
+  await assert.rejects(lookupZipTax({
+    apiKey: 'fixture', address: 'fixture', timeoutMs: 5,
+    fetchTarget: async (_, { signal }) => delayedJson({ metadata: { response: { code: 100 } } }, signal)
+  }), { code: 'tax_provider_timeout' });
+});
 
 test('performs the characterized Zip-Tax lookup with bounded credentials and address', async () => {
   let observed;

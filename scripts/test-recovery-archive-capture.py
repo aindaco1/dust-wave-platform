@@ -16,7 +16,7 @@ spec.loader.exec_module(capture)
 
 
 class CapturedDataTests(unittest.TestCase):
-    def make_archive(self, folder, product='store', incomplete=None):
+    def make_archive(self, folder, product='store', incomplete=None, inventory=None, objects=(), counts=(1, 1)):
         family = {'binding': 'STORE_STATE', 'prefix': 'orders:'} if product == 'store' else {'binding': 'PLEDGES', 'familyId': 'pledges'}
         captured = {**family, 'complete': True, 'keys': 1}
         if product == 'store':
@@ -24,12 +24,16 @@ class CapturedDataTests(unittest.TestCase):
         plan = [{**family, 'valuesFile': 'kv/values.json'}]
         manifest = {'version': 2, 'remote': True, 'includesKvValues': True, 'kvValueCapture': [captured],
                     'includesR2Objects': True, 'r2': {'completeInventory': True, 'objectsDownloaded': True,
-                        'objectsDownloadedCount': 1, 'totalDiscoveredObjects': 1}}
+                        'objectsDownloadedCount': counts[0], 'totalDiscoveredObjects': counts[1]}}
         if incomplete == 'metadata': manifest['includesKvValues'] = False
         if incomplete == 'family': manifest['kvValueCapture'] = []
         if incomplete == 'r2': manifest['r2']['completeInventory'] = False
         contents = {'manifest.json': json.dumps(manifest).encode(), 'kv/plan.json': json.dumps(plan).encode(),
                     'kv/values.json': b'{"fixture":"synthetic"}', 'git/source.bundle': b'git fixture'}
+        if inventory is not None:
+            contents['r2/download-keys.txt'] = ''.join(key + '\n' for key in inventory).encode()
+        for key in objects:
+            contents['r2/objects/' + key] = b'opaque object data'
         if incomplete == 'values': contents.pop('kv/values.json')
         if incomplete == 'git': contents.pop('git/source.bundle')
         contents['checksums.json'] = json.dumps({'artifacts': [
@@ -46,9 +50,35 @@ class CapturedDataTests(unittest.TestCase):
         for product in ('store', 'pool'):
             for missing in (None, 'metadata', 'family', 'values', 'git', 'r2'):
                 with self.subTest(product=product, missing=missing), tempfile.TemporaryDirectory() as folder:
-                    result = capture.audit.verify_contents(self.make_archive(folder, product, missing),
+                    result = capture.audit.verify_contents(self.make_archive(folder, product, missing,
+                        inventory=['item'], objects=['item']),
                         require_captured_data=True, require_r2=product == 'store')
                     self.assertEqual(result['ok'], missing is None or (product == 'pool' and missing == 'r2'))
+
+    def test_r2_evidence_matches_actual_checksummed_objects(self):
+        cases = [
+            (None, [], (1, 1), False),
+            ([], [], (0, 0), True),
+            (['missing'], [], (1, 1), False),
+            (['one'], ['other'], (1, 1), False),
+            (['one', 'one'], ['one'], (1, 1), False),
+            (['one'], ['one'], (True, 1), False),
+            (['one'], ['one'], (1, 1.0), False),
+            (['one'], ['one', 'extra'], (1, 1), False),
+            (['nested/manifest.json', 'a b'], ['a b', 'nested/manifest.json'], (2, 2), True),
+        ]
+        for inventory, objects, counts, expected in cases:
+            with self.subTest(inventory=inventory, objects=objects, counts=counts), tempfile.TemporaryDirectory() as folder:
+                archive = self.make_archive(folder, inventory=inventory, objects=objects, counts=counts)
+                result = capture.audit.verify_contents(archive, require_captured_data=True, require_r2=True)
+                self.assertEqual(result['ok'], expected)
+                self.assertNotIn('nested/manifest.json', json.dumps(result))
+
+    def test_inventory_obeys_the_existing_metadata_bound(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(capture.audit, 'MAX_METADATA_BYTES', 2048):
+            archive = self.make_archive(folder, inventory=['x' * 2048])
+            with self.assertRaisesRegex(ValueError, 'inventory_exceeds_limit'):
+                capture.audit.verify_contents(archive, require_r2=True)
 
     def test_archive_inventory_paginates_without_silently_ignoring_later_snapshots(self):
         env = CaptureTests().env()
@@ -68,23 +98,31 @@ class CaptureTests(unittest.TestCase):
                 'RECOVERY_AGE_IDENTITY': 'synthetic-secret', 'RECOVERY_IDENTITY_VARIABLE': 'STORE_BACKUP_AGE_IDENTITY',
                 'RECOVERY_ARCHIVE_NAME': 'store-backup.tar.gz.age', 'AWS_ACCESS_KEY_ID': 'synthetic', 'AWS_SECRET_ACCESS_KEY': 'synthetic'}
 
-    def exercise(self, local='PASS', remote='PASS', fail_upload=False, capture_failure=''):
+    def exercise(self, local='PASS', remote='PASS', fail_upload=False, capture_failure='', product='store', environments=None):
         calls, folders = [], []
+        identity_name = product.upper() + '_BACKUP_AGE_IDENTITY'
+        recipient = product.upper() + '_BACKUP_ENCRYPTION_RECIPIENT'
+        env = {**self.env(), 'RECOVERY_IDENTITY_VARIABLE': identity_name, recipient: 'synthetic',
+               'CLOUDFLARE_API_TOKEN': 'synthetic', 'GH_TOKEN': 'synthetic', 'AWS_SESSION_TOKEN': 'synthetic',
+               'AWS_DEFAULT_REGION': 'auto', 'HTTPS_PROXY': 'synthetic', 'SSL_CERT_FILE': 'synthetic'}
+        env['RECOVERY_ARCHIVE_NAME'] = product + '-backup.tar.gz.age'
         def execute(args, **kwargs):
             calls.append(args)
+            if environments is not None:
+                environments.append(set(kwargs['env']))
             if args[0] == 'node':
                 target = Path(next(arg.split('=', 1)[1] for arg in args if arg.startswith('--output=')))
                 folders.append(target.parent)
-                identity = Path(kwargs['env']['STORE_BACKUP_AGE_IDENTITY'])
+                identity = Path(kwargs['env'][identity_name])
                 self.assertEqual(identity.stat().st_mode & 0o777, 0o600)
                 self.assertEqual(identity.read_text().strip(), 'synthetic-secret')
                 target.mkdir()
                 (target / 'manifest.json').write_text(json.dumps({'warningCount': 0}))
-                (target / 'store-backup.tar.gz.age').write_bytes(b'ciphertext')
+                (target / env['RECOVERY_ARCHIVE_NAME']).write_bytes(b'ciphertext')
             return SimpleNamespace(returncode=1 if (fail_upload and args[0] == 'aws') or (capture_failure and args[0] == 'node') else 0, stdout=b'', stderr=capture_failure.encode())
         try:
             with patch.object(capture.subprocess, 'run', side_effect=execute), patch.object(capture.audit, 'verify_snapshot', return_value={'status': local}), patch.object(capture.audit, 'run_audit', return_value={'status': remote}) as audit:
-                result = capture.capture(self.env(), ['node', 'scripts/existing-backup.mjs', '--remote', '--kv-values'])
+                result = capture.capture(env, ['node', 'scripts/existing-backup.mjs', '--remote', '--kv-values'])
                 if local == 'PASS' and not fail_upload:
                     self.assertEqual(audit.call_args.args[0]['RECOVERY_REQUIRE_CAPTURED_DATA'], 'true')
                     self.assertNotEqual(audit.call_args.args[0]['RECOVERY_ARCHIVE_URI'], self.env()['RECOVERY_ARCHIVE_URI'])
@@ -100,6 +138,21 @@ class CaptureTests(unittest.TestCase):
         self.assertTrue(calls[2][-2].endswith('/manifest.json'))
         self.assertNotIn('synthetic-secret', json.dumps(calls))
         self.assertFalse(result['productionWrites'])
+
+    def test_capture_and_upload_receive_stage_credentials(self):
+        for product in ('store', 'pool'):
+            with self.subTest(product=product):
+                environments = []
+                self.exercise(product=product, environments=environments)
+                source, *uploads = environments
+                source_keys = {'CLOUDFLARE_API_TOKEN', 'GH_TOKEN', product.upper() + '_BACKUP_ENCRYPTION_RECIPIENT',
+                               product.upper() + '_BACKUP_AGE_IDENTITY'}
+                archive_keys = {'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN', 'AWS_DEFAULT_REGION'}
+                self.assertTrue(source_keys <= source)
+                self.assertFalse((archive_keys | {'RECOVERY_AGE_IDENTITY'}) & source)
+                for upload in uploads:
+                    self.assertTrue(archive_keys | {'HTTPS_PROXY', 'SSL_CERT_FILE'} <= upload)
+                    self.assertFalse((source_keys | {'RECOVERY_AGE_IDENTITY'}) & upload)
 
     def test_incomplete_local_capture_is_never_uploaded(self):
         result, calls = self.exercise(local='FAIL')

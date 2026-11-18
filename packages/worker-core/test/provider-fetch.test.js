@@ -2,6 +2,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { fetchWithTimeout } from '../src/provider-fetch.js';
+import { delayedJson } from './fixtures/delayed-json.js';
+
+test('raw response callers retain ownership of a body after headers arrive', async () => {
+  const response = await fetchWithTimeout('https://example.invalid', {}, 5, {
+    fetchTarget: async (_, { signal }) => delayedJson('complete', signal)
+  });
+  assert.equal(await response.json(), 'complete');
+});
 
 test('passes a managed abort signal to an injected fetch target', async () => {
   const expected = new Response(null, { status: 204 });
