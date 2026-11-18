@@ -15,6 +15,15 @@ MAX_BYTES = 2 * 1024 ** 3
 MAX_LIST_PAGES = 10
 
 
+def tool_environment(env, tool):
+    # age reads its identity from the private file. Only the AWS CLI needs network configuration.
+    runtime = {"PATH", "HOME", "TMPDIR", "TMP", "TEMP", "LANG", "XDG_CONFIG_HOME"}
+    network = {"HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY", "SSL_CERT_FILE", "SSL_CERT_DIR",
+               "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE"}
+    return {key: value for key, value in env.items() if key in runtime or key.startswith("LC_")
+            or (tool == "aws" and (key.startswith("AWS_") or key.upper() in network))}
+
+
 def safe_path(value):
     if not isinstance(value, str) or not value or "\\" in value:
         raise ValueError("unsafe_archive_path")
@@ -186,7 +195,7 @@ def run_audit(env):
         return {**result, "error": "invalid_snapshot_age_limit"}
 
     def command(args):
-        process = subprocess.run(args, env=env, capture_output=True, timeout=300)
+        process = subprocess.run(args, env=tool_environment(env, args[0]), capture_output=True, timeout=300)
         if process.returncode:
             raise ValueError("archive_read_or_decryption_failed")
         return process.stdout

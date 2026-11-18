@@ -99,6 +99,15 @@ class ArchiveVerificationTests(unittest.TestCase):
 
             def execute(args, **kwargs):
                 calls.append(args)
+                keys = set(kwargs['env'])
+                self.assertTrue({'PATH', 'TMPDIR'} <= keys)
+                self.assertFalse({'RECOVERY_AGE_IDENTITY', 'CLOUDFLARE_API_TOKEN'} & keys)
+                aws_keys = {'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN', 'AWS_REGION', 'AWS_CA_BUNDLE'}
+                if args[0] == 'aws':
+                    self.assertTrue(aws_keys | {'https_proxy'} <= keys)
+                else:
+                    self.assertFalse((aws_keys | {'https_proxy'}) & keys)
+                    self.assertTrue(Path(args[3]).is_file())
                 if "list-objects-v2" in args:
                     return SimpleNamespace(returncode=0, stdout=json.dumps({"Contents": objects}).encode())
                 if args[0] == "aws":
@@ -113,7 +122,9 @@ class ArchiveVerificationTests(unittest.TestCase):
 
             env = {"RECOVERY_ARCHIVE_URI": "s3://fixture-archive/pool", "RECOVERY_ARCHIVE_ENDPOINT": "https://fixture.invalid",
                    "RECOVERY_AGE_IDENTITY": "private-key-fixture", "AWS_ACCESS_KEY_ID": "fixture", "AWS_SECRET_ACCESS_KEY": "fixture",
-                   "RECOVERY_ARCHIVE_NAME": "pool-backup.tar.gz.age"}
+                   "RECOVERY_ARCHIVE_NAME": "pool-backup.tar.gz.age", "PATH": "/bin", "TMPDIR": directory,
+                   "CLOUDFLARE_API_TOKEN": "fixture", "AWS_SESSION_TOKEN": "fixture", "AWS_REGION": "auto",
+                   "AWS_CA_BUNDLE": "fixture", "https_proxy": "fixture"}
             with patch.object(audit.subprocess, "run", side_effect=execute):
                 result = audit.run_audit(env)
             self.assertEqual(result["status"], "PASS")
