@@ -34,7 +34,9 @@ staging, supplies the identity file, requires captured KV families and a Git
 bundle, verifies the encrypted snapshot locally, uploads ciphertext to a unique
 prefix, publishes the receipt last, then downloads and verifies that exact R2
 copy. Store additionally sets `RECOVERY_REQUIRE_R2=true` to require its complete
-object inventory. Provider command output stays private and temporary staging is
+object inventory. The verifier matches the checksummed `r2/download-keys.txt`
+to the checksummed files under `r2/objects/` and checks both manifest counts.
+An empty inventory and zero objects are valid. Provider command output stays private and temporary staging is
 removed on failure as well as success. Only sanitized verification JSON is
 retained by GitHub. No production restore, payment, email, pruning or deletion
 command is part of this path.

@@ -16,7 +16,7 @@ spec.loader.exec_module(capture)
 
 
 class CapturedDataTests(unittest.TestCase):
-    def make_archive(self, folder, product='store', incomplete=None):
+    def make_archive(self, folder, product='store', incomplete=None, inventory=None, objects=(), counts=(1, 1)):
         family = {'binding': 'STORE_STATE', 'prefix': 'orders:'} if product == 'store' else {'binding': 'PLEDGES', 'familyId': 'pledges'}
         captured = {**family, 'complete': True, 'keys': 1}
         if product == 'store':
@@ -24,12 +24,16 @@ class CapturedDataTests(unittest.TestCase):
         plan = [{**family, 'valuesFile': 'kv/values.json'}]
         manifest = {'version': 2, 'remote': True, 'includesKvValues': True, 'kvValueCapture': [captured],
                     'includesR2Objects': True, 'r2': {'completeInventory': True, 'objectsDownloaded': True,
-                        'objectsDownloadedCount': 1, 'totalDiscoveredObjects': 1}}
+                        'objectsDownloadedCount': counts[0], 'totalDiscoveredObjects': counts[1]}}
         if incomplete == 'metadata': manifest['includesKvValues'] = False
         if incomplete == 'family': manifest['kvValueCapture'] = []
         if incomplete == 'r2': manifest['r2']['completeInventory'] = False
         contents = {'manifest.json': json.dumps(manifest).encode(), 'kv/plan.json': json.dumps(plan).encode(),
                     'kv/values.json': b'{"fixture":"synthetic"}', 'git/source.bundle': b'git fixture'}
+        if inventory is not None:
+            contents['r2/download-keys.txt'] = ''.join(key + '\n' for key in inventory).encode()
+        for key in objects:
+            contents['r2/objects/' + key] = b'opaque object data'
         if incomplete == 'values': contents.pop('kv/values.json')
         if incomplete == 'git': contents.pop('git/source.bundle')
         contents['checksums.json'] = json.dumps({'artifacts': [
@@ -46,9 +50,29 @@ class CapturedDataTests(unittest.TestCase):
         for product in ('store', 'pool'):
             for missing in (None, 'metadata', 'family', 'values', 'git', 'r2'):
                 with self.subTest(product=product, missing=missing), tempfile.TemporaryDirectory() as folder:
-                    result = capture.audit.verify_contents(self.make_archive(folder, product, missing),
+                    result = capture.audit.verify_contents(self.make_archive(folder, product, missing,
+                        inventory=['item'], objects=['item']),
                         require_captured_data=True, require_r2=product == 'store')
                     self.assertEqual(result['ok'], missing is None or (product == 'pool' and missing == 'r2'))
+
+    def test_r2_evidence_matches_actual_checksummed_objects(self):
+        cases = [
+            (None, [], (1, 1), False),
+            ([], [], (0, 0), True),
+            (['missing'], [], (1, 1), False),
+            (['one'], ['other'], (1, 1), False),
+            (['one', 'one'], ['one'], (1, 1), False),
+            (['one'], ['one'], (True, 1), False),
+            (['one'], ['one'], (1, 1.0), False),
+            (['one'], ['one', 'extra'], (1, 1), False),
+            (['nested/manifest.json', 'a b'], ['a b', 'nested/manifest.json'], (2, 2), True),
+        ]
+        for inventory, objects, counts, expected in cases:
+            with self.subTest(inventory=inventory, objects=objects, counts=counts), tempfile.TemporaryDirectory() as folder:
+                archive = self.make_archive(folder, inventory=inventory, objects=objects, counts=counts)
+                result = capture.audit.verify_contents(archive, require_captured_data=True, require_r2=True)
+                self.assertEqual(result['ok'], expected)
+                self.assertNotIn('nested/manifest.json', json.dumps(result))
 
     def test_archive_inventory_paginates_without_silently_ignoring_later_snapshots(self):
         env = CaptureTests().env()
