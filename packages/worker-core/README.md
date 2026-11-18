@@ -57,6 +57,9 @@ characterized Pool, Store, and Podcast operations. It accepts injected API
 version, user agent, fetch, and redacted observation policy; it never returns
 the API key or request body to observers. Network failures and Stripe-directed
 or status-derived retryability are classified but never retried automatically.
+The observer's `success` field records the HTTP status. A successful response
+with an empty or unreadable body resolves to `{}` and has no observed object ID.
+Callers must validate the object and its status before acting on a payment.
 Invalid object IDs fail before a request, malformed webhook timestamps fail
 closed, observer failures cannot change payment behavior, and provider error
 messages are whitespace-normalized and bounded. Consumers retain keys,
