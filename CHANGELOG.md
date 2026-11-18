@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.51.0 - 2026-11-18
+
+- Desktop Core 0.3.0 adds an opt-in GitHub issue artifact writer for versioned
+  reviewed Markdown, with bounded reconciliation and durable uncertain-create
+  protection. Matching content avoids redundant artifact versions.
+- Serialized report groups may mirror consumer-selected diagnostics after saving
+  a confirmed issue receipt. Artifact failures leave report delivery intact;
+  existing consumers remain unchanged until independently adopted and deployed.
+
 ## 0.50.0 - 2026-11-17
 
 - Add `@dustwave/admin-shell` 0.15.0 block editor with shared model, toolbar,

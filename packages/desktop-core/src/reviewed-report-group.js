@@ -12,7 +12,7 @@ export function reviewedRelayFailure(error, code) {
 // One Durable Object per product fingerprint. A serial promise queue also
 // covers external GitHub awaits, where storage input gates alone do not.
 export class ReviewedReportGroup {
-  constructor(ctx, env, adapter, { submit, updateAggregateState, owner }) {
+  constructor(ctx, env, adapter, { submit, updateAggregateState, owner, writeIssueArtifact }) {
     this.ctx = ctx;
     this.env = env;
     this.tail = Promise.resolve();
@@ -20,6 +20,7 @@ export class ReviewedReportGroup {
     this.updateAggregateState = updateAggregateState;
     this.owner = owner;
     this.adapter = adapter;
+    this.writeIssueArtifact = writeIssueArtifact;
   }
 
   fetch(request) {
@@ -80,6 +81,27 @@ export class ReviewedReportGroup {
       const keys = Object.keys(saved.receipts);
       for (const key of keys.slice(0, Math.max(0, keys.length - 1000))) delete saved.receipts[key];
       await this.ctx.storage.put('group', saved);
+      // Persist the confirmed issue receipt first. Preview artifacts are only a
+      // supplemental mirror; their failure must not turn delivery into failure.
+      // Keep this await in the per-fingerprint queue so versions cannot regress.
+      if (this.writeIssueArtifact && this.adapter.issueArtifact) {
+        try {
+          const artifact = await this.adapter.issueArtifact(report, fingerprint, structuredClone(saved.state));
+          if (artifact) {
+            const key = `artifact:${result.issueNumber}:${fingerprint}`;
+            await this.writeIssueArtifact(this.env, {
+              owner: this.owner, repository: this.adapter.repository,
+              issueNumber: result.issueNumber, key: fingerprint,
+              name: artifact.name, body: artifact.body
+            }, {
+              get: () => this.ctx.storage.get(key),
+              put: value => this.ctx.storage.put(key, value)
+            });
+          }
+        } catch (error) {
+          console.error(reviewedRelayFailure(error, 'issue-artifact-failed'));
+        }
+      }
       return Response.json({ ok: true, reportId: report.id, ...result });
     } catch (error) {
       // Operator diagnostics contain no report, provider text, URL, or credentials.
