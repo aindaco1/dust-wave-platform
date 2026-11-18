@@ -77,8 +77,10 @@ test('toolbar accessibility, localization and event rebinding are shared across 
   f.editor.activate(card);
   assert.equal(chrome.getAttribute('aria-hidden'), 'false');
   assert.equal(chrome.querySelector('button').hasAttribute('tabindex'), false);
-  f.editor.bind();
+  const previous = f.editor.bind();
   f.editor.bind(); // only one set of handlers survives rebinding
+  previous();
+  previous();
   f.root.querySelector('[data-content-action="insert-block"]').click();
   assert.equal(f.blocks().length, 2);
   f.editor.destroy();
