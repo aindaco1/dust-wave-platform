@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.53.0 - 2026-11-19
+
+- Admin Shell 0.17.0 adds an optional Stripe reset review link and a guided, single-bucket R2 credential handoff.
+
 ## 0.52.0 - 2026-11-19
 
 - Admin Shell 0.16.0 adds guided Stripe and private R2 setup cards. Consumers supply the account status, form routes, CSRF token, and authorization checks.

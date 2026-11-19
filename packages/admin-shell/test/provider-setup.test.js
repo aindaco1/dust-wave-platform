@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { parseHTML } from "linkedom";
-import { renderR2Card, renderStripeCard } from "@dustwave/admin-shell/provider-setup";
+import { renderR2Card, renderStripeCard, renderR2TokenForm } from "@dustwave/admin-shell/provider-setup";
 
 function card(html) {
   return parseHTML("<html><body>" + html + "</body></html>").document.body;
@@ -71,4 +71,32 @@ test("only literal root-relative form routes can receive a submission", () => {
     assert.throws(() => renderR2Card({ ...state, action }), /path/);
     assert.throws(() => renderStripeCard({ ...state, checkAction: action }), /path/);
   }
+});
+
+test("optional guided connections use local review routes and keep credentials out of the first step", () => {
+  const r2 = card(renderR2Card({ ...state, guideAction: "/setup/r2/location" }));
+  const guided = r2.querySelector('form[action="/setup/r2/location"]');
+  assert.ok(guided.querySelector('input[name=bucketUrl][type=url][required]'));
+  assert.equal(guided.querySelector('[type=password]'), null);
+  assert.ok(r2.querySelector('details form[action="/setup/start"]'));
+  const stripe = card(renderStripeCard({ ...state, resetHref: "/setup/stripe/reset", ready: true }));
+  assert.equal(stripe.querySelector('a[href="/setup/stripe/reset"]').textContent, "Reset Stripe connection");
+  assert.throws(() => renderStripeCard({ ...state, resetHref: "//bad.invalid" }), /path/);
+  assert.throws(() => renderR2Card({ ...state, guideAction: "https://bad.invalid" }), /path/);
+});
+
+test("R2 token and saved-key handoffs each submit only the chosen bucket after confirmation", () => {
+  const location = { accountId: "a".repeat(32), jurisdiction: "eu", bucket: "screenings" };
+  const view = card(renderR2TokenForm({ ...location, ...state }));
+  const forms = [...view.querySelectorAll("form")];
+  assert.equal(forms.length, 2);
+  for (const element of forms) {
+    assert.equal(element.getAttribute("action"), state.action);
+    assert.equal(element.querySelector('[name=csrf]').value, state.csrfToken);
+    assert.equal(element.querySelector('[name=bucketUrl]').value, "https://dash.cloudflare.com/" + location.accountId + "/r2/eu/buckets/screenings");
+    assert.ok(element.querySelector('[name=privateConfirmed][required]'));
+  }
+  assert.ok(forms[0].querySelector('[name=tokenValue][type=password]'));
+  assert.ok(forms[1].closest("details"));
+  for (const bucket of [undefined, "x/y", '<img>']) assert.throws(() => renderR2TokenForm({ ...state, ...location, bucket }), /location/);
 });
