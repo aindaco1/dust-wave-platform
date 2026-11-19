@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.52.0 - 2026-11-19
+
+- Admin Shell 0.16.0 adds guided Stripe and private R2 setup cards. Consumers supply the account status, form routes, CSRF token, and authorization checks.
+
 ## 0.51.1 - 2026-11-18
 
 - Worker Core 0.16.1, Tax Core 0.4.1 and Shipping Core 0.2.1 apply each GitHub,
