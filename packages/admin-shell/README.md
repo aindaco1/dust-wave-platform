@@ -215,7 +215,7 @@ boolean contract. Invalid movement and attempts to delete the last block return
 
 ## Guided provider setup (0.16.0)
 
-Import the two HTML renderers from `@dustwave/admin-shell/provider-setup`.
+Import the HTML renderers from `@dustwave/admin-shell/provider-setup`.
 They work without JavaScript and accept plain text for status, title, description,
 and the primary button label. The consumer supplies authenticated, root-relative
 POST routes and can include its CSRF token in the hidden `csrf` field. Omit an
@@ -274,3 +274,5 @@ submission error messages. Add `form-action 'self'; base-uri 'none'` to the
 page’s Content Security Policy when its other forms permit it. Style
 `.provider-card`, `.provider-card--stripe`, `.provider-card--r2`,
 `.provider-status`, `.provider-guide`, and `.provider-form` in the app.
+
+A consumer may pass `resetHref` to the Stripe card to link to its reset confirmation screen. The consumer verifies the active connection and owns the reset operation. With `guideAction`, the R2 card opens Cloudflare and asks for the bucket dashboard URL. The consumer validates it and can use `renderR2TokenForm({ action, csrfToken, accountId, jurisdiction, bucket })` to collect a bucket-scoped R2 token or an existing S3 key pair. Routes are root-relative. Provider verification and credential storage belong to the consumer.

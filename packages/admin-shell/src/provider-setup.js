@@ -5,14 +5,18 @@ const JURISDICTIONS = new Map([
   ["default", "Default"], ["eu", "European Union"], ["us", "United States"], ["fedramp", "FedRAMP"]
 ]);
 
-function form(action, csrfToken, contents) {
+function localRoute(action) {
   if (typeof action !== "string" || !action.startsWith("/") || action.includes("//") ||
       !/^[a-zA-Z0-9_~./-]+$/.test(action) ||
       action.split("/").some(part => part === "." || part === "..")) {
     throw new TypeError("Form action must be a root-relative path.");
   }
+  return escape(action);
+}
+
+function form(action, csrfToken, contents) {
   const csrf = csrfToken ? `<input type="hidden" name="csrf" value="${escape(csrfToken)}">` : "";
-  return `<form class="provider-form" method="post" action="${escape(action)}">${csrf}${contents}</form>`;
+  return `<form class="provider-form" method="post" action="${localRoute(action)}">${csrf}${contents}</form>`;
 }
 
 function card(provider, title, status, description, body) {
@@ -34,7 +38,7 @@ function modeButton(mode, label) {
 }
 
 export function renderStripeCard({
-  status, description, title = "Stripe", action, checkAction, buttonLabel, csrfToken,
+  status, description, title = "Stripe", action, checkAction, resetHref, buttonLabel, csrfToken,
   existingOAuth = false, resume = false, ready = false
 }) {
   let body = "";
@@ -57,6 +61,7 @@ export function renderStripeCard({
     }
   }
   if (checkAction) body += form(checkAction, csrfToken, '<button type="submit">Check Stripe status</button>');
+  if (resetHref) body += `<p><a href="${localRoute(resetHref)}">Reset Stripe connection</a></p>`;
   body += `<details class="provider-guide"><summary>About Stripe setup</summary>
     <p>Enter any identity and bank details directly on Stripe. Return here to check whether Stripe still needs information.</p>
     <p>${officialLink("https://docs.stripe.com/connect/hosted-onboarding", "Stripe’s onboarding guide")}</p>
@@ -83,6 +88,17 @@ function r2Guide() {
   </div>`;
 }
 
+function keyFields() {
+  return `<label>Access Key ID <input name="accessKeyId" required autocomplete="off" spellcheck="false"></label>
+    <label>Secret Access Key <input type="password" name="secretAccessKey" required autocomplete="off" spellcheck="false"></label>`;
+}
+
+function confirmBucket(buttonLabel) {
+  return `<label><input type="checkbox" name="privateConfirmed" value="yes" required>
+    I checked that the bucket is private and this key grants Object Read only access to this bucket alone.</label>
+    <button type="submit">${escape(buttonLabel)}</button>`;
+}
+
 function r2Fields({ accountId, bucket, jurisdiction = "default" }, buttonLabel) {
   if (!JURISDICTIONS.has(jurisdiction)) throw new TypeError("Unsupported R2 jurisdiction.");
   const options = [...JURISDICTIONS].map(([value, label]) =>
@@ -95,21 +111,42 @@ function r2Fields({ accountId, bucket, jurisdiction = "default" }, buttonLabel) 
       <label>Jurisdiction <select name="jurisdiction">${options}</select></label>
       <small>Keep Default unless the bucket was created in a specific jurisdiction. This setting is separate from its location hint.</small>
     </details>
-    <label>Access Key ID <input name="accessKeyId" required autocomplete="off" spellcheck="false"></label>
-    <label>Secret Access Key <input type="password" name="secretAccessKey" required autocomplete="off" spellcheck="false"></label>
-    <label><input type="checkbox" name="privateConfirmed" value="yes" required>
-      I checked that the bucket is private and this key grants Object Read only access to this bucket alone.</label>
-    <button type="submit">${escape(buttonLabel)}</button>`;
+    ${keyFields()}${confirmBucket(buttonLabel)}`;
 }
 
 export function renderR2Card({
-  status, description, title = "Cloudflare R2", action, buttonLabel, csrfToken, values = {}, connected = false
+  status, description, title = "Cloudflare R2", action, guideAction, buttonLabel, csrfToken, values = {}, connected = false
 }) {
-  let body = r2Guide();
+  let body = guideAction ? "" : r2Guide();
+  let connection = "";
+  if (guideAction) {
+    connection = `<p>${officialLink(R2_DASHBOARD, "Open Cloudflare R2")}. Sign in or create an account. Activate R2 if prompted, then open an existing private bucket or choose <strong>Create bucket</strong>.</p>` +
+      form(guideAction, csrfToken, `<label>Bucket dashboard URL
+        <input type="url" name="bucketUrl" required maxlength="2048" autocomplete="off" spellcheck="false">
+        <small>Open the bucket and copy the address from your browser.</small></label>
+        <button type="submit">Continue with this bucket</button>`);
+  }
   if (action) {
     const fields = r2Fields(values, buttonLabel || (connected ? "Save replacement key" : "Connect private bucket"));
-    const connection = form(action, csrfToken, fields);
-    body += connected ? `<details class="provider-connection"><summary>Replace R2 credentials</summary>${connection}</details>` : connection;
+    const manual = form(action, csrfToken, fields);
+    connection += guideAction ? `<details><summary>Enter connection details manually</summary>${r2Guide()}${manual}</details>` : manual;
   }
+  if (connection) body += connected ? `<details class="provider-connection"><summary>Replace R2 credentials</summary>${connection}</details>` : connection;
   return card("r2", title, status, description, body);
+}
+
+export function renderR2TokenForm({ action, csrfToken, accountId, jurisdiction = "default", bucket }) {
+  if (typeof accountId !== "string" || typeof bucket !== "string" || !/^[a-f0-9]{32}$/.test(accountId) || !/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(bucket) || !JURISDICTIONS.has(jurisdiction)) {
+    throw new TypeError("A valid R2 bucket location is required.");
+  }
+  const url = `https://dash.cloudflare.com/${accountId}/r2/${jurisdiction}/buckets/${bucket}`;
+  const selected = `<input type="hidden" name="bucketUrl" value="${escape(url)}">`;
+  return `<p>Give this app read access to <strong>${escape(bucket)}</strong>. In the bucket settings, keep the public development URL disabled and leave custom domains disconnected.</p>
+    <ol><li>In ${officialLink("https://dash.cloudflare.com/" + accountId + "/r2/overview", "your R2 dashboard")}, open <strong>Manage API tokens</strong> and create an R2 token.</li>
+      <li>Choose <strong>Object Read only</strong> and <strong>Apply to specific buckets only</strong>. Select <strong>${escape(bucket)}</strong> alone.</li>
+      <li>Create the token and copy its <strong>Token value</strong>.</li></ol>` +
+    form(action, csrfToken, `${selected}
+      <label>R2 token value<input type="password" name="tokenValue" required maxlength="256" spellcheck="false" autocomplete="off"></label>
+      ${confirmBucket("Connect private bucket")}`) +
+    `<details><summary>Use an existing access key pair</summary>${form(action, csrfToken, selected + keyFields() + confirmBucket("Connect with access keys"))}</details>`;
 }
