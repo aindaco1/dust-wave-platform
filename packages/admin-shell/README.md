@@ -212,3 +212,65 @@ email editors can restrict their palette. Decorative-image coercion and alt
 clearing are explicit model policies; gallery images keep the existing strict
 boolean contract. Invalid movement and attempts to delete the last block return
 `false`. Each consumer can roll back its gitlink and adapter together.
+
+## Guided provider setup (0.16.0)
+
+Import the two HTML renderers from `@dustwave/admin-shell/provider-setup`.
+They work without JavaScript and accept plain text for status, title, description,
+and the primary button label. The consumer supplies authenticated, root-relative
+POST routes and can include its CSRF token in the hidden `csrf` field. Omit an
+action to show the guide without accepting submissions.
+
+```js
+import { renderR2Card, renderStripeCard } from "@dustwave/admin-shell/provider-setup";
+
+const stripe = renderStripeCard({
+  status: account.statusLabel,
+  description: account.nextStep,
+  action: routes.startStripe,
+  checkAction: routes.refreshStripe,
+  csrfToken,
+  existingOAuth: policy.canConnectExistingAccount,
+  resume: account.onboardingStarted,
+  ready: account.ready
+});
+const r2 = renderR2Card({
+  status: storage.statusLabel,
+  action: routes.connectStorage,
+  csrfToken,
+  values: { accountId: storage.accountId, bucket: storage.bucket, jurisdiction: storage.jurisdiction },
+  connected: storage.connected
+});
+```
+
+**Stripe.** The start form submits `mode=new` or `mode=reuse`. Enable
+`existingOAuth` only for an integration eligible to connect an existing Stripe
+account. Its second button then submits `mode=existing`. With `resume`, the
+only start mode is `resume`. With `ready`, only an enabled status-check action
+is shown. The separate check form posts no mode. The consumer authenticates
+each request, issues fresh hosted links or starts OAuth, reconciles provider
+events, and assesses readiness for its required payment and payout capabilities.
+Show test-mode and outstanding requirements in the status and description.
+Determine the status from Stripe’s account data after a return.
+[Hosted onboarding](https://docs.stripe.com/connect/hosted-onboarding) and
+[reusing business details](https://docs.stripe.com/connect/networked-onboarding).
+
+**Cloudflare R2.** The connection form submits `accountId`, `bucket`,
+`jurisdiction` (`default`, `eu`, `us`, or `fedramp`), `accessKeyId`,
+`secretAccessKey`, and an explicit `privateConfirmed=yes`. Credentials are
+entered fresh. The optional `connected` flag collapses the replacement form.
+The operator attests to the bucket and key settings. An authenticated read
+proves the key can read the object. The operator or a management API with
+independent permissions must establish the bucket’s public settings and the
+scope of that key. The consumer validates payloads and CSRF, protects secrets
+at rest and in logs, and records the result of its connection test.
+[Token permissions and jurisdictions](https://developers.cloudflare.com/r2/api/tokens/)
+and [public bucket settings](https://developers.cloudflare.com/r2/buckets/public-buckets/).
+
+A missing status, invalid rendered action, or unknown displayed jurisdiction
+throws a `TypeError`. Actions accept literal root-relative route paths. The
+consumer owns the surrounding document, styling, links to product support, and
+submission error messages. Add `form-action 'self'; base-uri 'none'` to the
+page’s Content Security Policy when its other forms permit it. Style
+`.provider-card`, `.provider-card--stripe`, `.provider-card--r2`,
+`.provider-status`, `.provider-guide`, and `.provider-form` in the app.

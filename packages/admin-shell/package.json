@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.15.1",
+  "version": "0.16.0",
   "type": "module",
   "exports": {
     "./api-client": {
@@ -45,7 +45,11 @@
     "./draft-recovery": "./src/draft-recovery.js",
     "./draft-recovery-browser": "./src/draft-recovery-browser.js",
     "./block-editor": "./src/block-editor.js",
-    "./block-editor-browser": "./src/block-editor-browser.js"
+    "./block-editor-browser": "./src/block-editor-browser.js",
+    "./provider-setup": {
+      "types": "./src/provider-setup.d.ts",
+      "default": "./src/provider-setup.js"
+    }
   },
   "engines": {
     "node": ">=20.9"

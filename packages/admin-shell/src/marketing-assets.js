@@ -1,3 +1,5 @@
+import { escapeAttribute } from "./html-attribute.js";
+
 const MARKETING_URL_MAX_LENGTH = 2048;
 const MARKETING_VALUE_MAX_LENGTH = 160;
 const MARKETING_SHARE_CARD_IMAGE_MAX_LENGTH = 4_000_024;
@@ -318,12 +320,4 @@ function boundedInteger(value, field, minimum, maximum) {
     );
   }
   return number;
-}
-
-function escapeAttribute(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
 }
