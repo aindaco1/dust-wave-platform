@@ -9,6 +9,42 @@ function card(html) {
 
 const state = { status: "Setup needed", action: "/setup/start", csrfToken: "test-csrf" };
 
+test("R2 requests upload permission and storage consent only when the consumer opts in", () => {
+  const location = { accountId: "a".repeat(32), bucket: "private-uploads" };
+  const guided = { ...state, guideAction: "/setup/location" };
+  const permission = { storageAccess: "uploads", uploadConsent: 'I authorize Example to store an encrypted credential for film & thumbnail uploads. <example>' };
+  const screens = [
+    options => card(renderR2Card({ ...state, ...options })),
+    options => card(renderR2Card({ ...guided, ...options })),
+    options => card(renderR2TokenForm({ ...state, ...location, ...options }))
+  ];
+  for (const screen of screens) {
+    const legacy = screen({});
+    assert.equal(screen({storageAccess:"read-only"}).innerHTML, legacy.innerHTML);
+    assert.equal(legacy.querySelector('[name="storageAccess"], [name="uploadConsent"]'), null);
+    assert.match(legacy.textContent, /Object Read only/);
+    assert.throws(() => screen({ storageAccess: "admin" }), /storageAccess/);
+    assert.throws(() => screen({ storageAccess: "uploads", uploadConsent: " " }), /consent/i);
+    const uploads = screen(permission);
+    assert.match(uploads.textContent, /Object Read & Write/);
+    assert.match(uploads.textContent, /specific buckets only/i);
+    assert.doesNotMatch(uploads.textContent, /Object Read only/);
+    for (const form of uploads.querySelectorAll("form")) {
+      assert.equal(form.querySelector('input[type="hidden"][name="storageAccess"]').value, "uploads");
+      if (form.querySelector('input[type="url"]')) {
+        assert.equal(form.querySelector('input[name="uploadConsent"]'), null);
+        continue;
+      }
+      const consent = form.querySelector('input[type="checkbox"][name="uploadConsent"][required]');
+      assert.equal(consent.getAttribute("value"), "yes");
+      assert.equal(consent.hasAttribute("checked"), false);
+      assert.equal(consent.closest("label").textContent.trim(), permission.uploadConsent);
+      assert.equal(form.querySelector("example"), null);
+      assert.ok(form.querySelector('input[type="checkbox"][name="privateConfirmed"][required]'));
+    }
+  }
+});
+
 test("Stripe exposes precisely the actions enabled by the consumer", () => {
   const modes = options => [...card(renderStripeCard(options)).querySelectorAll('button[name="mode"]')].map(button => button.value || button.getAttribute("value"));
   assert.deepEqual(modes(state), ["new", "reuse"]);
