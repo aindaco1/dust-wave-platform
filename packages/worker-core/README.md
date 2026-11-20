@@ -172,3 +172,7 @@ body, source IDs, schema, retries, deduplication and reconciliation.
 This uses the existing bounded response reader and Web Platform abort signals.
 `provider-fetch`'s existing headers-only timeout cannot bound response streaming,
 so it is not used as a replacement for the full-response deadline here.
+
+## Optional platform tips
+
+`calculatePlatformTip(subtotalCents, percent)` from `@dustwave/worker-core/platform-tip` returns the tip in cents, rounding a half cent up. It accepts a nonnegative safe integer subtotal and an integer percentage from 0 to 100. Invalid inputs throw a `RangeError`. Consumers choose the default, maximum and destination and verify the charged amount against their order.
