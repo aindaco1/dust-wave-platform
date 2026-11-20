@@ -35,6 +35,7 @@
         else storage?.setItem(key, preference);
       } catch { /* The choice still applies to this page. */ }
     });
+    document.documentElement.dataset.appearanceReady = '';
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, { once: true });
   else bind();

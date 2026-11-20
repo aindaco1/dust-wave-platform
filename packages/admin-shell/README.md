@@ -19,7 +19,7 @@ Serve `@dustwave/admin-shell/appearance-browser` as a classic script in the head
 <script src="/appearance.js" data-appearance-key="my-product.appearance"></script>
 ```
 
-Supply a labeled native `select[data-appearance-select]` with values `system`, `light` and `dark`. The script sets `html[data-appearance]` to the choice. Consumers can hide the selector until that attribute exists. System follows the stylesheet’s original media query and clears the saved override. Changes follow the user across same-origin tabs sharing the key. If browser storage is unavailable, the selection works for the current page. With scripting disabled the stylesheet follows the device setting.
+Supply a labeled native `select[data-appearance-select]` with values `system`, `light` and `dark`. The script sets `html[data-appearance]` to the choice. Hide the selector until `html[data-appearance-ready]` is present so it appears with its saved value and an active change handler. System follows the stylesheet’s original media query and clears the saved override. Changes follow the user across same-origin tabs sharing the key. If browser storage is unavailable, the selection works for the current page. With scripting disabled the stylesheet follows the device setting.
 
 ## Tabs and Turnstile
 

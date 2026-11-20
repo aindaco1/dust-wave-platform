@@ -30,8 +30,10 @@ test('restores before parsing the control, scopes changes, and clears an overrid
     removeItem: key => values.delete(key) };
   const { document, window, sheet, select, choose } = openPage(() => storage);
   assert.equal(sheet.media, 'all');
+  assert.equal(document.documentElement.dataset.appearanceReady, undefined);
   document.dispatchEvent(new Event('DOMContentLoaded'));
   assert.equal(select.value, 'dark');
+  assert.equal(document.documentElement.dataset.appearanceReady, '');
   choose('light');
   assert.equal(sheet.media, 'not all');
   assert.equal(values.get('workspace-theme'), 'light');
