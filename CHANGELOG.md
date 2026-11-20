@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.55.0 - 2026-11-19
+
+- Admin Shell 0.19.0 adds optional single-bucket R2 upload setup. Each consumer supplies the credential-storage consent label. Read-only setup remains the default.
+
 ## 0.54.0 - 2026-11-19
 
 - Admin Shell 0.18.0 adds a browser appearance selector for system, light and dark modes. Each consumer supplies its own stylesheet, control and preference key.
