@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.56.0 - 2026-11-19
+
+- Worker Core 0.17.0 adds a cent-rounded, whole-percentage tip calculation. Each consumer chooses its defaults, cap and payment destination.
+
 ## 0.55.0 - 2026-11-19
 
 - Admin Shell 0.19.0 adds optional single-bucket R2 upload setup. Each consumer supplies the credential-storage consent label. Read-only setup remains the default.

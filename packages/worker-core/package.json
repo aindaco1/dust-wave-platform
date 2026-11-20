@@ -1,8 +1,12 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.16.1",
+  "version": "0.17.0",
   "type": "module",
   "exports": {
+    "./platform-tip": {
+      "types": "./src/platform-tip.d.ts",
+      "default": "./src/platform-tip.js"
+    },
     "./crypto": {
       "types": "./src/crypto.d.ts",
       "default": "./src/crypto.js"
