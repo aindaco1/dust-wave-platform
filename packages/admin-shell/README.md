@@ -9,6 +9,18 @@ Pool and Store retain their domain-specific URL and dashboard adapters.
 The package also exposes a [passwordless session coordinator](src/passwordless-session.js)
 and [confirmation-dialog controls](src/confirmation-dialog.js) for consumer UI adapters.
 
+## Appearance
+
+Serve `@dustwave/admin-shell/appearance-browser` as a classic script in the head, after the base stylesheet and the dark overrides. Use a storage key unique to the product or workspace.
+
+```html
+<link rel="stylesheet" href="/base.css">
+<link rel="stylesheet" href="/dark.css" media="(prefers-color-scheme: dark)" data-appearance-dark>
+<script src="/appearance.js" data-appearance-key="my-product.appearance"></script>
+```
+
+Supply a labeled native `select[data-appearance-select]` with values `system`, `light` and `dark`. The script sets `html[data-appearance]` to the choice. Hide the selector until `html[data-appearance-ready]` is present so it appears with its saved value and an active change handler. System follows the stylesheet’s original media query and clears the saved override. Changes follow the user across same-origin tabs sharing the key. If browser storage is unavailable, the selection works for the current page. With scripting disabled the stylesheet follows the device setting.
+
 ## Tabs and Turnstile
 
 The shared responsive-tab control mirrors the accessible tab controller into

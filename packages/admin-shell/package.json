@@ -1,8 +1,9 @@
 {
   "name": "@dustwave/admin-shell",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "type": "module",
   "exports": {
+    "./appearance-browser": "./src/appearance-browser.js",
     "./api-client": {
       "types": "./src/api-client.d.ts",
       "default": "./src/api-client.js"
