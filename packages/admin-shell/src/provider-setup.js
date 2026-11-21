@@ -39,18 +39,18 @@ function modeButton(mode, label) {
 
 export function renderStripeCard({
   status, description, title = "Stripe", action, checkAction, resetHref, buttonLabel, csrfToken,
-  existingOAuth = false, resume = false, ready = false
+  existingOAuth = false, resume = false, ready = false, showGuide = true
 }) {
   let body = "";
   if (!ready) {
     if (resume) {
-      body += "<p>Continue on Stripe to review any remaining account details.</p>";
+      if (showGuide) body += "<p>Continue on Stripe to review any remaining account details.</p>";
       if (action) body += form(action, csrfToken, modeButton("resume", buttonLabel || "Continue Stripe setup"));
     } else {
       const existing = existingOAuth
         ? "Sign in to Stripe and choose the eligible account you want to connect."
         : "Sign in on Stripe. For a new connected account, Stripe may offer to reuse business details you have already verified.";
-      body += `<div class="provider-guide">
+      if (showGuide) body += `<div class="provider-guide">
         <p><strong>New to Stripe?</strong> Create an account on Stripe and follow its prompts for business details, identity verification, and payouts.</p>
         <p><strong>Already use Stripe?</strong> ${existing}</p>
       </div>`;
@@ -62,7 +62,7 @@ export function renderStripeCard({
   }
   if (checkAction) body += form(checkAction, csrfToken, '<button type="submit">Check Stripe status</button>');
   if (resetHref) body += `<p><a href="${localRoute(resetHref)}">Reset Stripe connection</a></p>`;
-  body += `<details class="provider-guide"><summary>About Stripe setup</summary>
+  if (showGuide) body += `<details class="provider-guide"><summary>About Stripe setup</summary>
     <p>Enter any identity and bank details directly on Stripe. Return here to check whether Stripe still needs information.</p>
     <p>${officialLink("https://docs.stripe.com/connect/hosted-onboarding", "Stripe’s onboarding guide")}</p>
   </details>`;
@@ -126,11 +126,12 @@ function r2Fields({ accountId, bucket, jurisdiction = "default" }, buttonLabel, 
 }
 
 export function renderR2Card({
-  status, description, title = "Cloudflare R2", action, guideAction, buttonLabel, csrfToken, values = {}, connected = false,
+  status, description, title = "Cloudflare R2", action, guideAction, buttonLabel, csrfToken, values = {}, connected = false, showGuide = true,
   storageAccess, uploadConsent
 }) {
   const access = r2Access(storageAccess, uploadConsent);
-  let body = guideAction ? "" : r2Guide(access);
+  const guide = showGuide ? r2Guide(access) : "";
+  let body = guideAction ? "" : guide;
   let connection = "";
   if (guideAction) {
     connection = `<p>${officialLink(R2_DASHBOARD, "Open Cloudflare R2")}. Sign in or create an account. Activate R2 if prompted, then open an existing private bucket or choose <strong>Create bucket</strong>.</p>` +
@@ -142,13 +143,13 @@ export function renderR2Card({
   if (action) {
     const fields = r2Fields(values, buttonLabel || (connected ? "Save replacement key" : "Connect private bucket"), access);
     const manual = form(action, csrfToken, fields);
-    connection += guideAction ? `<details><summary>Enter connection details manually</summary>${r2Guide(access)}${manual}</details>` : manual;
+    connection += guideAction ? `<details><summary>Enter connection details manually</summary>${guide}${manual}</details>` : manual;
   }
   if (connection) body += connected ? `<details class="provider-connection"><summary>Replace R2 credentials</summary>${connection}</details>` : connection;
   return card("r2", title, status, description, body);
 }
 
-export function renderR2TokenForm({ action, csrfToken, accountId, jurisdiction = "default", bucket, storageAccess, uploadConsent }) {
+export function renderR2TokenForm({ action, csrfToken, buttonLabel, accountId, jurisdiction = "default", bucket, storageAccess, uploadConsent }) {
   if (typeof accountId !== "string" || typeof bucket !== "string" || !/^[a-f0-9]{32}$/.test(accountId) || !/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(bucket) || !JURISDICTIONS.has(jurisdiction)) {
     throw new TypeError("A valid R2 bucket location is required.");
   }
@@ -161,6 +162,6 @@ export function renderR2TokenForm({ action, csrfToken, accountId, jurisdiction =
       <li>Create the token and copy its <strong>Token value</strong>.</li></ol>` +
     form(action, csrfToken, `${selected}
       <label>R2 token value<input type="password" name="tokenValue" required maxlength="256" spellcheck="false" autocomplete="off"></label>
-      ${confirmBucket("Connect private bucket", access)}`) +
-    `<details><summary>Use an existing access key pair</summary>${form(action, csrfToken, selected + keyFields() + confirmBucket("Connect with access keys", access))}</details>`;
+      ${confirmBucket(buttonLabel || "Connect private bucket", access)}`) +
+    `<details><summary>Use an existing access key pair</summary>${form(action, csrfToken, selected + keyFields() + confirmBucket(buttonLabel || "Connect with access keys", access))}</details>`;
 }
