@@ -134,7 +134,7 @@ export function renderR2Card({
   let body = guideAction ? "" : guide;
   let connection = "";
   if (guideAction) {
-    connection = `<p>${officialLink(R2_DASHBOARD, "Open Cloudflare R2")}. Sign in or create an account. Activate R2 if prompted, then open an existing private bucket or choose <strong>Create bucket</strong>.</p>` +
+    connection = `<p>${officialLink(R2_DASHBOARD, "Open Cloudflare R2")}. Sign in to your Cloudflare account or create one. Activate R2 if prompted. Open your private bucket, or choose <strong>Create bucket</strong> to make one.</p>` +
       form(guideAction, csrfToken, `${access.marker}<label>Bucket dashboard URL
         <input type="url" name="bucketUrl" required maxlength="2048" autocomplete="off" spellcheck="false">
         <small>Open the bucket and copy the address from your browser.</small></label>
@@ -155,10 +155,11 @@ export function renderR2TokenForm({ action, csrfToken, buttonLabel, accountId, j
   }
   const access = r2Access(storageAccess, uploadConsent);
   const url = `https://dash.cloudflare.com/${accountId}/r2/${jurisdiction}/buckets/${bucket}`;
+  const createToken = `https://dash.cloudflare.com/${accountId}/r2/api-tokens/create`;
   const selected = `${access.marker}<input type="hidden" name="bucketUrl" value="${escape(url)}">`;
   return `<p>Give this app ${access.uploads ? "read and write" : "read"} access to <strong>${escape(bucket)}</strong>. In the bucket settings, keep the public development URL disabled and leave custom domains disconnected.</p>
-    <ol><li>In ${officialLink("https://dash.cloudflare.com/" + accountId + "/r2/overview", "your R2 dashboard")}, open <strong>Manage API tokens</strong> and create an R2 token.</li>
-      <li>Choose <strong>${access.permission}</strong> and <strong>Apply to specific buckets only</strong>. Select <strong>${escape(bucket)}</strong> alone.</li>
+    <ol><li>${officialLink(createToken + "?type=account", "Create an account token")} if you manage the Cloudflare account. Otherwise, ${officialLink(createToken + "?type=user", "Create a user token")} with your own access.</li>
+      <li>Choose <strong>${access.permission}</strong>. Change the bucket scope to <strong>Apply to specific buckets only</strong> and select only <strong>${escape(bucket)}</strong>.</li>
       <li>Create the token and copy its <strong>Token value</strong>.</li></ol>` +
     form(action, csrfToken, `${selected}
       <label>R2 token value<input type="password" name="tokenValue" required maxlength="256" spellcheck="false" autocomplete="off"></label>
