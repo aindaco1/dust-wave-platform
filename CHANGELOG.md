@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.57.0 - 2026-11-20
+
+- Admin Shell 0.20.0 lets consumers place provider guides on a separate help page and label a credential replacement action.
+
 ## 0.56.0 - 2026-11-19
 
 - Worker Core 0.17.0 adds a cent-rounded, whole-percentage tip calculation. Each consumer chooses its defaults, cap and payment destination.

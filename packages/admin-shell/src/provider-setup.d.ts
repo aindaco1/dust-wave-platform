@@ -2,6 +2,7 @@ interface CardOptions {
   status: string;
   description?: string;
   title?: string;
+  showGuide?: boolean;
   action?: string;
   buttonLabel?: string;
   csrfToken?: string;
@@ -30,6 +31,7 @@ export function renderR2Card(options: CardOptions & R2AccessOptions & {
 }): string;
 
 export function renderR2TokenForm(options: R2AccessOptions & {
+  buttonLabel?: string;
   action: string;
   csrfToken?: string;
   accountId: string;

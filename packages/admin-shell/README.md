@@ -233,6 +233,8 @@ and the primary button label. The consumer supplies authenticated, root-relative
 POST routes and can include its CSRF token in the hidden `csrf` field. Omit an
 action to show the guide without accepting submissions.
 
+Set `showGuide: false` on either provider card when the consumer links to its own help. Form fields, permission confirmations and account actions keep their normal behavior. Pass `buttonLabel` to `renderR2TokenForm` to label a same-bucket credential replacement.
+
 ```js
 import { renderR2Card, renderStripeCard } from "@dustwave/admin-shell/provider-setup";
 
