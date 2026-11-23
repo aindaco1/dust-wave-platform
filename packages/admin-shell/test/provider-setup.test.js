@@ -136,3 +136,21 @@ test("R2 token and saved-key handoffs each submit only the chosen bucket after c
   assert.ok(forms[1].closest("details"));
   for (const bucket of [undefined, "x/y", '<img>']) assert.throws(() => renderR2TokenForm({ ...state, ...location, bucket }), /location/);
 });
+
+test("consumers can move provider guidance to a separate page without changing form actions or consent", () => {
+  const stripe = { ...state, checkAction: "/setup/check", resetHref: "/setup/reset" };
+  for (const options of [stripe, { ...stripe, resume: true }, { ...stripe, ready: true }]) {
+    const full = card(renderStripeCard(options)), compact = card(renderStripeCard({ ...options, showGuide: false }));
+    assert.ok(full.querySelector(".provider-guide"));
+    assert.equal(compact.querySelector(".provider-guide"), null);
+    assert.deepEqual([...compact.querySelectorAll("form,button,a")].map(el => el.outerHTML),
+      [...full.querySelectorAll("form,button,a")].filter(el => !el.closest(".provider-guide")).map(el => el.outerHTML));
+  }
+  assert.equal(card(renderR2Card({ status: "Connected", showGuide: false })).querySelector("details, form"), null);
+  const guided = card(renderR2Card({ ...state, guideAction: "/setup/location", showGuide: false }));
+  assert.ok(guided.querySelector('[name=bucketUrl]'));
+  assert.ok(guided.querySelector('[name=privateConfirmed][required]'));
+  assert.equal(guided.querySelector(".provider-guide"), null);
+  const rotation = card(renderR2TokenForm({ ...state, accountId: "a".repeat(32), bucket: "my-films", buttonLabel: "Save new key" }));
+  assert.deepEqual([...rotation.querySelectorAll("button")].map(button => button.textContent), ["Save new key", "Save new key"]);
+});
