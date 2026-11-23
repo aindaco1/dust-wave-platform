@@ -124,6 +124,15 @@ test("optional guided connections use local review routes and keep credentials o
 test("R2 token and saved-key handoffs each submit only the chosen bucket after confirmation", () => {
   const location = { accountId: "a".repeat(32), jurisdiction: "eu", bucket: "screenings" };
   const view = card(renderR2TokenForm({ ...location, ...state }));
+  const links = [...view.querySelectorAll('ol a')];
+  assert.deepEqual(links.map(link => link.textContent), ["Create an account token", "Create a user token"]);
+  assert.deepEqual(links.map(link => link.getAttribute("href")), ["account", "user"].map(type =>
+    `https://dash.cloudflare.com/${location.accountId}/r2/api-tokens/create?type=${type}`));
+  for (const link of links) {
+    assert.equal(link.getAttribute("target"), "_blank");
+    assert.equal(link.getAttribute("rel"), "noopener noreferrer");
+  }
+  assert.match(view.querySelector("ol").textContent, /Apply to specific buckets only.*screenings/);
   const forms = [...view.querySelectorAll("form")];
   assert.equal(forms.length, 2);
   for (const element of forms) {
