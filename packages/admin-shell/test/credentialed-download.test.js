@@ -173,3 +173,24 @@ test("triggers a download with an injected browser boundary and revokes its URL"
   assert.equal(link.download, "fallback.csv");
   assert.deepEqual(events, ["create", "append", "click", "remove", "revoke"]);
 });
+
+test('download setup failures release the URL and preserve the triggering error', () => {
+  for (const step of ['create', 'append', 'click']) {
+    const failure = new Error(step);
+    let revoked = 0;
+    let attached = false;
+    const link = {
+      click() { if (step === 'click') throw failure; },
+      remove() { attached = false; }
+    };
+    assert.throws(() => triggerBlobDownload({ blob: new Blob(['fixture']) }, 'fixture.txt', {
+      documentRef: {
+        createElement() { if (step === 'create') throw failure; return link; },
+        body: { append() { attached = true; if (step === 'append') throw failure; } }
+      },
+      urlApi: { createObjectURL: () => 'blob:fixture', revokeObjectURL() { revoked++; } }
+    }), error => error === failure);
+    assert.equal(attached, false);
+    assert.equal(revoked, 1);
+  }
+});

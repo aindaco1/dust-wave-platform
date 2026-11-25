@@ -294,3 +294,5 @@ A consumer may pass `resetHref` to the Stripe card to link to its reset confirma
 **Upload access (0.19.0).** Both R2 renderers default to read-only setup. To request upload access, pass `storageAccess: "uploads"` and a nonempty `uploadConsent` label to both renderers. The label is plain text. Name the app that will store the encrypted credential and the uploads the user authorizes. The guide instructs the user to select **Object Read & Write** for a single private bucket.
 
 Every upload-mode form submits `storageAccess=uploads`, including the bucket URL step. Credential forms require two unchecked boxes, `privateConfirmed=yes` and `uploadConsent=yes`. The consumer validates its allowed access mode and both confirmations before saving the encrypted credential. The bucket URL step does not authorize credential storage. A legacy form with no `storageAccess` field requests read-only access. An unknown mode or a missing upload consent label in uploads mode throws a `TypeError`.
+
+If creating or clicking a Blob download link fails, the download helper attempts to remove the anchor and revoke its object URL immediately, then propagates the original error.

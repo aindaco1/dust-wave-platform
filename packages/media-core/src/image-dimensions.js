@@ -53,3 +53,11 @@ function validDimensions(width, height) {
     && width > 0
     && height > 0;
 }
+
+// Advisory preflight only. A valid IHDR does not validate the image payload.
+export async function readPngDimensions(file) {
+  if (file?.type !== 'image/png' || file.size < 33) return null;
+  const bytes = new Uint8Array(await file.slice(0, 33).arrayBuffer());
+  if (bytes.length !== 33 || ![0, 0, 0, 13, 73, 72, 68, 82].every((value, i) => bytes[8 + i] === value)) return null;
+  return pngDimensions(bytes);
+}

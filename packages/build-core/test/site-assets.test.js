@@ -203,3 +203,10 @@ test("rejects a generated root that resolves outside the built site", async (con
   );
   assert.match(await readFile(path.join(outsideDir, "private.js"), "utf8"), /\n/);
 });
+
+test('JavaScript minification preserves literal whitespace and automatic semicolon insertion', async () => {
+  const source = 'function scene() { return\n"unused"; }\nglobalThis.result = ["Scene  1", scene()];';
+  const code = await minifyAssetSource(source, 'assets/test.js');
+  const { runInNewContext } = await import('node:vm');
+  assert.deepEqual(Array.from(runInNewContext(code + '\nresult')), ['Scene  1', undefined]);
+});

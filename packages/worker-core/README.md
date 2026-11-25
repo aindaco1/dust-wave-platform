@@ -176,3 +176,5 @@ so it is not used as a replacement for the full-response deadline here.
 ## Optional platform tips
 
 `calculatePlatformTip(subtotalCents, percent)` from `@dustwave/worker-core/platform-tip` returns the tip in cents, rounding a half cent up. It accepts a nonnegative safe integer subtotal and an integer percentage from 0 to 100. Invalid inputs throw a `RangeError`. Consumers choose the default, maximum and destination and verify the charged amount against their order.
+
+The optional `calendar-date` entry accepts Gregorian YYYY-MM-DD strings from years 0001 through 9999. `addCalendarMonths` clamps to the target month's last day. `calendarDifference(start, end)` counts whole clamped years, then months and remaining days. Reversed intervals, invalid dates and out-of-range shifts throw. Arithmetic uses civil dates independently of timezones or scheduling policy.

@@ -44,3 +44,5 @@ a changed pixel, frame duration, dimension, or actual aspect ratio.
 See the [public exports](package.json), [source contracts](src/), and
 [behavior tests](test/). Follow the shared
 [consumer adoption guide](../../docs/consumer-adoption.md) when updating a pin.
+
+`readPngDimensions(file)` reads a 33-byte prefix from PNG Blobs and returns dimensions only for a PNG signature and a leading IHDR chunk of the expected length. Unsupported, truncated or unrecognized headers return null. I/O errors propagate. Use this for early size rejection. Files that pass still require the consumer's normal decode and validation.

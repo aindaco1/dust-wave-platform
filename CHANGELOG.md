@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.58.0 - 2026-11-25
+
+- Document Core adds bounded CSV rows and ordered, local PDF page assembly.
+- Media Core adds a bounded PNG header probe for pre-decode size checks.
+- Worker Core adds date-only month arithmetic. Admin Shell cleans up failed Blob downloads.
+
 ## 0.57.1 - 2026-11-20
 
 - Admin Shell 0.20.1 opens Cloudflare’s account or user R2 token form directly for the selected bucket’s account.
