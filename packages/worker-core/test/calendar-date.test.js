@@ -12,9 +12,10 @@ test("date-only month shifts clamp and retain four-digit years", () => {
   }
 });
 
-test("differences count clamped whole years and months followed by remaining civil days", () => {
+test("differences count clamped whole months and remaining civil days", () => {
   for (const [start, end, expected] of [
     ["2024-02-29", "2025-02-28", [1, 0, 0]],
+    ["2020-02-29", "2024-02-28", [3, 11, 30]],
     ["2026-01-31", "2026-03-01", [0, 1, 1]],
     ["2026-03-07", "2026-03-09", [0, 0, 2]],
     ["2026-03-09", "2026-03-09", [0, 0, 0]]

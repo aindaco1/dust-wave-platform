@@ -33,11 +33,8 @@ export function calendarDifference(start, end) {
   const first = parseDate(start);
   const last = parseDate(end);
   if (last < first) throw new RangeError("End date precedes start date");
-  let years = last.getUTCFullYear() - first.getUTCFullYear();
-  if (shift(first, years * 12) > last) years--;
-  const anniversary = shift(first, years * 12);
-  let months = (last.getUTCFullYear() - anniversary.getUTCFullYear()) * 12 + last.getUTCMonth() - anniversary.getUTCMonth();
-  if (shift(anniversary, months) > last) months--;
-  const days = (last.getTime() - shift(anniversary, months).getTime()) / 86_400_000;
-  return { years, months, days };
+  let wholeMonths = (last.getUTCFullYear() - first.getUTCFullYear()) * 12 + last.getUTCMonth() - first.getUTCMonth();
+  if (shift(first, wholeMonths) > last) wholeMonths--;
+  const days = (last.getTime() - shift(first, wholeMonths).getTime()) / 86_400_000;
+  return { years: Math.floor(wholeMonths / 12), months: wholeMonths % 12, days };
 }
