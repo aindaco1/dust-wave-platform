@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.64.0 - 2026-11-25
+
+- Worker Core 0.21.0 classifies local event minutes as unique, repeated or missing without selecting a repeated start.
+
 ## 0.63.0 - 2026-11-25
 
 - Test Core 0.6.0 checks for an active canonical sitemap directive in robots.txt.
