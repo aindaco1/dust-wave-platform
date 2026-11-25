@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.63.0 - 2026-11-25
+
+- Test Core 0.6.0 checks for an active canonical sitemap directive in robots.txt.
+
 ## 0.62.0 - 2026-11-25
 
 - Worker Core 0.20.0 adds RFC 5545 TEXT escaping and UTF-8 content-line folding.

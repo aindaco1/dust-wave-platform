@@ -1,5 +1,5 @@
 {
   "worker-core": "0.20.0",
   "admin-shell": "0.20.2",
-  "test-core": "0.5.0"
+  "test-core": "0.6.0"
 }
