@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  base64Encode,
+  base64urlEncode,
   getCookie,
   hmacSha256,
   normalizeEmail,
@@ -41,4 +43,15 @@ test('reads an encoded cookie without product-specific policy', () => {
   });
   assert.equal(getCookie(request, 'podcast_session'), 'token.value');
   assert.equal(getCookie(request, 'missing'), '');
+});
+
+test('encodes precisely the selected bytes in standard and URL-safe Base64', () => {
+  const view = Uint8Array.of(7, 251, 255, 8).subarray(1, 3);
+  const fallback = view.subarray();
+  Object.defineProperty(fallback, 'toBase64', { value: undefined });
+  for (const bytes of [view, fallback, Uint8Array.of(251, 255).buffer]) {
+    assert.equal(base64Encode(bytes), '+/8=');
+    assert.equal(base64urlEncode(bytes), '-_8');
+  }
+  assert.equal(base64Encode(new Uint8Array()), '');
 });

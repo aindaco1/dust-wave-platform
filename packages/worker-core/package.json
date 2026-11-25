@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.17.0",
+  "version": "0.21.0",
   "type": "module",
   "exports": {
     "./platform-tip": {
@@ -65,6 +65,18 @@
     "./notion": {
       "types": "./src/notion.d.ts",
       "default": "./src/notion.js"
+    },
+    "./calendar-date": {
+      "types": "./src/calendar-date.d.ts",
+      "default": "./src/calendar-date.js"
+    },
+    "./color-contrast": {
+      "types": "./src/color-contrast.d.ts",
+      "default": "./src/color-contrast.js"
+    },
+    "./icalendar": {
+      "types": "./src/icalendar.d.ts",
+      "default": "./src/icalendar.js"
     }
   },
   "engines": {

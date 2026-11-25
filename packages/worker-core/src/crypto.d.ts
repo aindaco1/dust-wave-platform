@@ -1,3 +1,4 @@
+export function base64Encode(value: Uint8Array | ArrayBuffer): string;
 export function base64urlEncode(value: Uint8Array | ArrayBuffer): string;
 export function randomToken(byteLength?: number): string;
 export function sha256Hex(value: unknown): Promise<string>;

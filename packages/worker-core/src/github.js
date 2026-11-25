@@ -1,3 +1,4 @@
+import { base64Encode } from './crypto.js';
 import { fetchProviderResponse } from './provider-response.js';
 
 const DEFAULT_API_BASE = 'https://api.github.com';
@@ -444,10 +445,7 @@ function encodePath(path) {
 }
 
 function encodeUtf8Base64(value) {
-  const bytes = new TextEncoder().encode(String(value ?? ''));
-  let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary);
+  return base64Encode(new TextEncoder().encode(String(value ?? '')));
 }
 
 function decodeUtf8Base64(value) {

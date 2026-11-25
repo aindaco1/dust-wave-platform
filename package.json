@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/platform-workspace",
-  "version": "0.57.1",
+  "version": "0.64.0",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -21,6 +21,7 @@
   "license": "MIT",
   "devDependencies": {
     "linkedom": "0.18.12",
-    "typescript": "7.0.2"
+    "typescript": "7.0.2",
+    "pdf-lib": "1.17.1"
   }
 }

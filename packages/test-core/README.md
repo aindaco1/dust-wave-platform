@@ -90,3 +90,11 @@ See the [public exports](package.json), [source contracts](src/), and
 animation frames) and `applyTextScale` (routed same-origin CSS under an injected
 path prefix). It accepts a Playwright-compatible page without importing Playwright.
 Consumers own viewport sizes, markup, routes, screenshots and assertions.
+
+## Localized page audits
+
+`./hreflang` reads alternate-language declarations from a parsed XML sitemap. Pass the expected languages for the canonical URL to `auditHreflang` with the HTML document, route, page language and site origin. It returns an array of diagnostics. Pages with neither expected nor rendered alternates pass. Sites choose their pages and supply parsed documents.
+
+## Canonical sitemap directive
+
+`hasCanonicalSitemap(robotsText, siteBase)` from `./robots` tests for the site's exact `Sitemap: <origin>/sitemap.xml` line. Leading and trailing whitespace on the line are allowed. Missing, commented and suffixed directives return false. This checks the Dust Wave publishing convention. Callers choose their origin and diagnostics.

@@ -1,0 +1,24 @@
+{
+  "name": "@dustwave/document-core",
+  "version": "0.2.0",
+  "type": "module",
+  "exports": {
+    "./csv": {
+      "types": "./src/csv.d.ts",
+      "default": "./src/csv.js"
+    },
+    "./pdf-pages": {
+      "types": "./src/pdf-pages.d.ts",
+      "default": "./src/pdf-pages.js"
+    }
+  },
+  "peerDependencies": {
+    "pdf-lib": "1.17.1"
+  },
+  "peerDependenciesMeta": {
+    "pdf-lib": {
+      "optional": true
+    }
+  },
+  "license": "MIT"
+}

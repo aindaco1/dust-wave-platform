@@ -176,3 +176,15 @@ so it is not used as a replacement for the full-response deadline here.
 ## Optional platform tips
 
 `calculatePlatformTip(subtotalCents, percent)` from `@dustwave/worker-core/platform-tip` returns the tip in cents, rounding a half cent up. It accepts a nonnegative safe integer subtotal and an integer percentage from 0 to 100. Invalid inputs throw a `RangeError`. Consumers choose the default, maximum and destination and verify the charged amount against their order.
+
+The optional `calendar-date` entry accepts Gregorian YYYY-MM-DD strings from years 0001 through 9999. `addCalendarMonths` clamps to the target month's last day. `calendarDifference(start, end)` counts whole clamped months from the start date, splits those into years and months, and returns the remaining civil days. Reversed intervals, invalid dates and out-of-range shifts throw. Arithmetic uses civil dates independently of timezones or scheduling policy.
+
+The `color-contrast` entry provides `firstReadableTextColor(background, foregrounds)`. It accepts opaque three- or six-digit hex colors and returns the first foreground with at least 4.5:1 contrast. An invalid background or a palette with no qualifying foreground yields null. The caller chooses the palette and fallback.
+
+The `crypto` entry provides standard padded `base64Encode(bytes)` and unpadded `base64urlEncode(bytes)`. Both accept an ArrayBuffer or a Uint8Array view and use native encoding when available.
+
+## iCalendar
+
+`./icalendar` exports `escapeIcsText(value)` for TEXT properties and `foldIcsLine(line)` for a single complete property line. Escaping treats LF, CRLF and bare CR as text newlines. Folding counts UTF-8 octets, including the continuation space, and preserves code points. Pass an unfolded line without a terminator. The caller joins lines with CRLF and chooses the event fields, timestamps and method.
+
+`classifyLocalTime(date, time, timeZone)` from `./date-time` resolves a YYYY-MM-DD and a 24-hour HH:mm in a supported Platform zone. A unique result carries its UTC ISO string. A repeated local minute returns both UTC ISO strings as `earlier` and `later`. Invalid fields, unknown zones and times that do not round-trip through the existing zone conversion return `missing`. Consumers own date ranges, error messages and scheduling policy.

@@ -139,15 +139,23 @@ export function triggerBlobDownload(result, fallbackFilename, {
     || safeDownloadFilename(fallbackFilename)
     || "download";
   const objectUrl = urlApi.createObjectURL(result.blob);
-  const link = documentRef.createElement("a");
-  link.href = objectUrl;
-  link.download = filename;
-  documentRef.body.append(link);
-  link.click();
-  link.remove();
   const revoke = () => urlApi.revokeObjectURL(objectUrl);
-  if (typeof schedule === "function") schedule(revoke, 0);
-  else revoke();
+  let link;
+  try {
+    link = documentRef.createElement("a");
+    link.href = objectUrl;
+    link.download = filename;
+    documentRef.body.append(link);
+    link.click();
+    link.remove();
+    if (typeof schedule === "function") schedule(revoke, 0);
+    else revoke();
+  } catch (error) {
+    // Cleanup failures must not mask the error that prevented the download.
+    try { link?.remove(); } catch {}
+    try { revoke(); } catch {}
+    throw error;
+  }
   return filename;
 }
 

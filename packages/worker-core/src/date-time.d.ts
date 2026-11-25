@@ -27,6 +27,10 @@ export function dateAtTimeInTimeZone(
   minute?: number,
   second?: number
 ): Date;
+export function classifyLocalTime(date: string, time: string, timeZone: string):
+  | { kind: 'unique'; instant: string }
+  | { kind: 'missing' }
+  | { kind: 'repeated'; earlier: string; later: string };
 export function platformDateStart(dateString: unknown, envOrTimeZone?: TimeZoneEnvironmentOrValue): Date;
 export function platformDateEnd(dateString: unknown, envOrTimeZone?: TimeZoneEnvironmentOrValue): Date;
 export function isPlatformDatePast(

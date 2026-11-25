@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.64.0 - 2026-11-25
+
+- Worker Core 0.21.0 classifies local event minutes as unique, repeated or missing without selecting a repeated start.
+
+## 0.63.0 - 2026-11-25
+
+- Test Core 0.6.0 checks for an active canonical sitemap directive in robots.txt.
+
+## 0.62.0 - 2026-11-25
+
+- Worker Core 0.20.0 adds RFC 5545 TEXT escaping and UTF-8 content-line folding.
+
+## 0.61.0 - 2026-11-25
+
+- Test Core 0.5.0 checks generated HTML against consumer sitemap language declarations and preserves canonical URL diagnostics.
+
+## 0.60.2 - 2026-11-25
+
+- Release Core 0.7.2 bounds synchronous file hashing to a 256 KiB read buffer, including backup manifest creation and verification.
+
+## 0.60.1 - 2026-11-25
+
+- Media Core 0.7.1 also accepts Uint8Array image prefixes from another browser window.
+
+## 0.60.0 - 2026-11-25
+
+- Worker Core 0.19.0 selects readable text from a caller-owned palette and encodes standard or URL-safe Base64 with a native fast path.
+- Media Core 0.7.0 recognizes JPEG, PNG and WebP signatures in a byte view.
+
+## 0.59.0 - 2026-11-25
+
+- Document Core 0.2.0 lets bounded importers skip an unterminated final row when no field survived their limits.
+
+## 0.58.0 - 2026-11-25
+
+- Document Core adds bounded CSV rows and ordered, local PDF page assembly.
+- Media Core adds a bounded PNG header probe for pre-decode size checks.
+- Worker Core adds date-only month arithmetic. Admin Shell cleans up failed Blob downloads.
+
 ## 0.57.1 - 2026-11-20
 
 - Admin Shell 0.20.1 opens Cloudflare’s account or user R2 token form directly for the selected bucket’s account.

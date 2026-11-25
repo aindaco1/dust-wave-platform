@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 
-import { imageDimensions } from '../src/image-dimensions.js';
+import { detectImageType, imageDimensions, readPngDimensions } from '../src/image-dimensions.js';
 
 test('reads a PNG header without decoding image pixels', () => {
   assert.deepEqual(
@@ -51,3 +52,29 @@ function jpegHeader(marker, width, height) {
     0x01, 0x11, 0x00
   ]);
 }
+
+test('preflights a PNG without reading its pixel data or decoding another format', async () => {
+  const header = new Uint8Array(33);
+  header.set(pngHeader(8000, 6000));
+  header.set([0, 0, 0, 13, 73, 72, 68, 82], 8);
+  const file = { type: 'image/png', size: 1_000_000, slice(start, end) {
+    assert.deepEqual([start, end], [0, 33]);
+    return new Blob([header]);
+  } };
+  assert.deepEqual(await readPngDimensions(file), { width: 8000, height: 6000 });
+  header[12] = 0;
+  assert.equal(await readPngDimensions(file), null);
+  assert.equal(await readPngDimensions({ type: 'image/webp' }), null);
+});
+
+test('recognizes image prefixes within the byte view', () => {
+  assert.equal(detectImageType(Uint8Array.of(7, 255, 216, 255, 8).subarray(1, 4)), 'image/jpeg');
+  assert.equal(detectImageType(pngHeader(2, 3)), 'image/png');
+  assert.equal(detectImageType(runInNewContext('Uint8Array.of(255, 216, 255)')), 'image/jpeg');
+  assert.equal(detectImageType(Uint16Array.of(255, 216, 255)), null);
+  const webp = new TextEncoder().encode('RIFF1234WEBP');
+  assert.equal(detectImageType(webp), 'image/webp');
+  for (const input of [undefined, webp.subarray(0, 11), webp.subarray(4), new Uint8Array(12)]) {
+    assert.equal(detectImageType(input), null);
+  }
+});
