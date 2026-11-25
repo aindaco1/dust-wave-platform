@@ -1,10 +1,22 @@
 const encoder = new TextEncoder();
 
-export function base64urlEncode(value) {
+function encodeBase64(value, urlSafe) {
   const bytes = value instanceof Uint8Array ? value : new Uint8Array(value);
+  if (typeof bytes.toBase64 === 'function') {
+    return urlSafe ? bytes.toBase64({ alphabet: 'base64url', omitPadding: true }) : bytes.toBase64();
+  }
   let binary = '';
   for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const encoded = btoa(binary);
+  return urlSafe ? encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') : encoded;
+}
+
+export function base64Encode(value) {
+  return encodeBase64(value, false);
+}
+
+export function base64urlEncode(value) {
+  return encodeBase64(value, true);
 }
 
 export function randomToken(byteLength = 32) {

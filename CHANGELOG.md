@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.60.0 - 2026-11-25
+
+- Worker Core 0.19.0 selects readable text from a caller-owned palette and encodes standard or URL-safe Base64 with a native fast path.
+- Media Core 0.7.0 recognizes JPEG, PNG and WebP signatures in a byte view.
+
 ## 0.59.0 - 2026-11-25
 
 - Document Core 0.2.0 lets bounded importers skip an unterminated final row when no field survived their limits.

@@ -1,3 +1,6 @@
+/** Advisory prefix detection on the supplied view. Other or incomplete signatures return null. */
+export function detectImageType(bytes: Uint8Array): 'image/jpeg' | 'image/png' | 'image/webp' | null;
+
 export type ImageDimensions = {
   width: number;
   height: number;

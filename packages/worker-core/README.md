@@ -178,3 +178,7 @@ so it is not used as a replacement for the full-response deadline here.
 `calculatePlatformTip(subtotalCents, percent)` from `@dustwave/worker-core/platform-tip` returns the tip in cents, rounding a half cent up. It accepts a nonnegative safe integer subtotal and an integer percentage from 0 to 100. Invalid inputs throw a `RangeError`. Consumers choose the default, maximum and destination and verify the charged amount against their order.
 
 The optional `calendar-date` entry accepts Gregorian YYYY-MM-DD strings from years 0001 through 9999. `addCalendarMonths` clamps to the target month's last day. `calendarDifference(start, end)` counts whole clamped months from the start date, splits those into years and months, and returns the remaining civil days. Reversed intervals, invalid dates and out-of-range shifts throw. Arithmetic uses civil dates independently of timezones or scheduling policy.
+
+The `color-contrast` entry provides `firstReadableTextColor(background, foregrounds)`. It accepts opaque three- or six-digit hex colors and returns the first foreground with at least 4.5:1 contrast. An invalid background or a palette with no qualifying foreground yields null. The caller chooses the palette and fallback.
+
+The `crypto` entry provides standard padded `base64Encode(bytes)` and unpadded `base64urlEncode(bytes)`. Both accept an ArrayBuffer or a Uint8Array view and use native encoding when available.

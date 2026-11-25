@@ -24,7 +24,7 @@ repository contribution rules.
 | `@dustwave/document-core` | [Bounded CSV rows and local PDF page selection](packages/document-core/README.md) | `0.2.0`|
 | `@dustwave/digest-core` | [Responsive digest HTML presentation and escaping](packages/digest-core/README.md) | `0.1.0`|
 | `@dustwave/inventory-core` | [Inventory snapshots, counts, and expiring reservations](packages/inventory-core/README.md) | `0.1.0`|
-| `@dustwave/worker-core` | [Worker HTTP, security, providers, sessions, logging, and outbox mechanics](packages/worker-core/README.md) | `0.18.0`|
+| `@dustwave/worker-core` | [Worker HTTP, security, providers, sessions, logging, and outbox mechanics](packages/worker-core/README.md) | `0.19.0`|
 | `@dustwave/shipping-core` | [Shipping profiles, quotes, USPS transport, and country data](packages/shipping-core/README.md) | `0.2.1`|
 | `@dustwave/admin-shell` | [Unstyled admin clients, setup cards, editors, and share assets](packages/admin-shell/README.md) | `0.20.2`|
 | `@dustwave/tax-core` | [Destination normalization, manual calculation, and provider transport](packages/tax-core/README.md) | `0.4.1`|
@@ -35,7 +35,7 @@ repository contribution rules.
 | `@dustwave/build-core` | [Allowlisted generated CSS/JavaScript minification](packages/build-core/README.md) | `0.2.0`|
 | `@dustwave/desktop-core` | [Reviewed report transport, serialized relay, issue artifacts and Tauri progress](packages/desktop-core/README.md) | `0.3.1`|
 | `@dustwave/release-core` | [Release normalization, integrity, provider, and accessibility evidence](packages/release-core/README.md) | `0.7.1`|
-| `@dustwave/media-core` | [Site-media paths/catalogs and audio processor contracts](packages/media-core/README.md) | `0.6.0`|
+| `@dustwave/media-core` | [Site-media paths/catalogs and audio processor contracts](packages/media-core/README.md) | `0.7.0`|
 | `@dustwave/product-video-core` | [Local declarative capture and alpha-video rendering](packages/product-video-core/README.md) | `0.1.0`|
 | `@dustwave/timed-text` | [Transcription, alignment, confidence, editorial, presentation, and chapters](packages/timed-text/README.md) | `0.11.2`|
 
