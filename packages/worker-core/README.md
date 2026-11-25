@@ -182,3 +182,7 @@ The optional `calendar-date` entry accepts Gregorian YYYY-MM-DD strings from yea
 The `color-contrast` entry provides `firstReadableTextColor(background, foregrounds)`. It accepts opaque three- or six-digit hex colors and returns the first foreground with at least 4.5:1 contrast. An invalid background or a palette with no qualifying foreground yields null. The caller chooses the palette and fallback.
 
 The `crypto` entry provides standard padded `base64Encode(bytes)` and unpadded `base64urlEncode(bytes)`. Both accept an ArrayBuffer or a Uint8Array view and use native encoding when available.
+
+## iCalendar
+
+`./icalendar` exports `escapeIcsText(value)` for TEXT properties and `foldIcsLine(line)` for a single complete property line. Escaping treats LF, CRLF and bare CR as text newlines. Folding counts UTF-8 octets, including the continuation space, and preserves code points. Pass an unfolded line without a terminator. The caller joins lines with CRLF and chooses the event fields, timestamps and method.

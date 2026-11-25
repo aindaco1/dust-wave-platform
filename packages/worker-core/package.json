@@ -1,6 +1,6 @@
 {
   "name": "@dustwave/worker-core",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "type": "module",
   "exports": {
     "./platform-tip": {
@@ -73,6 +73,10 @@
     "./color-contrast": {
       "types": "./src/color-contrast.d.ts",
       "default": "./src/color-contrast.js"
+    },
+    "./icalendar": {
+      "types": "./src/icalendar.d.ts",
+      "default": "./src/icalendar.js"
     }
   },
   "engines": {

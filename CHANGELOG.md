@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.62.0 - 2026-11-25
+
+- Worker Core 0.20.0 adds RFC 5545 TEXT escaping and UTF-8 content-line folding.
+
 ## 0.61.0 - 2026-11-25
 
 - Test Core 0.5.0 checks generated HTML against consumer sitemap language declarations and preserves canonical URL diagnostics.
