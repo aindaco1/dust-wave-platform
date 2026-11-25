@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.61.0 - 2026-11-25
+
+- Test Core 0.5.0 checks generated HTML against consumer sitemap language declarations and preserves canonical URL diagnostics.
+
 ## 0.60.2 - 2026-11-25
 
 - Release Core 0.7.2 bounds synchronous file hashing to a 256 KiB read buffer, including backup manifest creation and verification.
