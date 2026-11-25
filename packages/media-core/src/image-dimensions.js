@@ -16,7 +16,8 @@ function matchesAt(bytes, signature, offset = 0) {
 
 // Match only the file signature. Callers own length limits and decoder checks.
 export function detectImageType(bytes) {
-  if (!(bytes instanceof Uint8Array)) return null;
+  // Editors may receive a byte view created in another window.
+  if (!ArrayBuffer.isView(bytes) || Object.prototype.toString.call(bytes) !== '[object Uint8Array]') return null;
   if (matchesAt(bytes, JPEG)) return 'image/jpeg';
   if (matchesAt(bytes, PNG)) return 'image/png';
   if (matchesAt(bytes, RIFF) && matchesAt(bytes, WEBP, 8)) return 'image/webp';

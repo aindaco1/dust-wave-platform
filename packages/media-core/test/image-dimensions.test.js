@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 
 import { detectImageType, imageDimensions, readPngDimensions } from '../src/image-dimensions.js';
 
@@ -69,6 +70,8 @@ test('preflights a PNG without reading its pixel data or decoding another format
 test('recognizes image prefixes within the byte view', () => {
   assert.equal(detectImageType(Uint8Array.of(7, 255, 216, 255, 8).subarray(1, 4)), 'image/jpeg');
   assert.equal(detectImageType(pngHeader(2, 3)), 'image/png');
+  assert.equal(detectImageType(runInNewContext('Uint8Array.of(255, 216, 255)')), 'image/jpeg');
+  assert.equal(detectImageType(Uint16Array.of(255, 216, 255)), null);
   const webp = new TextEncoder().encode('RIFF1234WEBP');
   assert.equal(detectImageType(webp), 'image/webp');
   for (const input of [undefined, webp.subarray(0, 11), webp.subarray(4), new Uint8Array(12)]) {

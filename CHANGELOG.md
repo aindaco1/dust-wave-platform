@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.60.1 - 2026-11-25
+
+- Media Core 0.7.1 also accepts Uint8Array image prefixes from another browser window.
+
 ## 0.60.0 - 2026-11-25
 
 - Worker Core 0.19.0 selects readable text from a caller-owned palette and encodes standard or URL-safe Base64 with a native fast path.
