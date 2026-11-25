@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -7,6 +8,7 @@ import test from 'node:test';
 import {
   buildChecksumManifest,
   enforcePrivatePermissions,
+  sha256File,
   verifyChecksumManifest
 } from '../src/file-integrity.js';
 
@@ -63,4 +65,31 @@ test('rejects symlinks from complete manifests and applies private permissions',
   enforcePrivatePermissions(root);
   assert.equal(fs.statSync(root).mode & 0o777, 0o700);
   assert.equal(fs.statSync(path.join(root, 'manifest.json')).mode & 0o777, 0o600);
+});
+
+test('hashes empty files and binary files across read boundaries', (context) => {
+  const root = fixtureDirectory();
+  context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, 'binary');
+  const block = 256 * 1024;
+  for (const length of [0, 1, block - 1, block, block + 1, 2 * block + 3]) {
+    const bytes = Buffer.alloc(length);
+    for (let i = 0; i < length; i++) bytes[i] = (i * 31 + (i >>> 18)) % 256;
+    fs.writeFileSync(file, bytes);
+    assert.equal(sha256File(file), createHash('sha256').update(bytes).digest('hex'));
+  }
+  assert.throws(() => sha256File(path.join(root, 'absent')), { code: 'ENOENT' });
+});
+
+test('retains caller ownership and the current offset of an open descriptor', (context) => {
+  const root = fixtureDirectory();
+  context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const fd = fs.openSync(path.join(root, 'nested/artifact.txt'), 'r');
+  try {
+    fs.readSync(fd, Buffer.alloc(1), 0, 1, null);
+    assert.equal(sha256File(fd), createHash('sha256').update('rtifact\n').digest('hex'));
+    assert.equal(fs.readSync(fd, Buffer.alloc(1), 0, 1, null), 0);
+  } finally {
+    fs.closeSync(fd);
+  }
 });

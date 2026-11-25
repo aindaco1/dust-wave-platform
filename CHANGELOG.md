@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.60.2 - 2026-11-25
+
+- Release Core 0.7.2 bounds synchronous file hashing to a 256 KiB read buffer, including backup manifest creation and verification.
+
 ## 0.60.1 - 2026-11-25
 
 - Media Core 0.7.1 also accepts Uint8Array image prefixes from another browser window.

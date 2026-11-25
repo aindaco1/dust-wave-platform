@@ -101,3 +101,5 @@ These checks are observations, not race-free capabilities. Consumers retain
 root/discovery policy, acknowledgement text, encryption/decryption, device
 separation, copy/delete execution and immediate revalidation before mutation.
 No shared helper uploads, copies, removes, decrypts or restores a snapshot.
+
+`sha256File(path)` reads synchronously in chunks of up to 256 KiB and returns the lowercase hex digest. Open and read errors propagate. Manifest fields, sorting and verification use the same checksum format.

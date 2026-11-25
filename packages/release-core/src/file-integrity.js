@@ -4,8 +4,20 @@ import path from 'node:path';
 
 export function sha256File(filePath) {
   const hash = crypto.createHash('sha256');
-  hash.update(fs.readFileSync(filePath));
-  return hash.digest('hex');
+  const ownsFile = typeof filePath !== 'number';
+  const fd = ownsFile ? fs.openSync(filePath, 'r') : filePath;
+  try {
+    // Some readable files report a size of zero before the first read.
+    const size = fs.fstatSync(fd).size || 8192;
+    const buffer = Buffer.allocUnsafe(Math.min(size, 256 * 1024));
+    let count;
+    while ((count = fs.readSync(fd, buffer, 0, buffer.length, null)) > 0) {
+      hash.update(buffer.subarray(0, count));
+    }
+    return hash.digest('hex');
+  } finally {
+    if (ownsFile) fs.closeSync(fd);
+  }
 }
 
 export function listFilesRecursive(root, options = {}) {
