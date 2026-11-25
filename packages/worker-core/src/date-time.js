@@ -120,8 +120,11 @@ export function classifyLocalTime(date, time, timeZone) {
   const dayMs = 86_400_000;
   const overlap = getTimeZoneOffsetMs(new Date(ms - dayMs), timeZone) -
     getTimeZoneOffsetMs(new Date(ms + dayMs), timeZone);
-  if (overlap > 0 && (matches(new Date(ms - overlap)) || matches(new Date(ms + overlap)))) {
-    return { kind: 'repeated' };
+  if (overlap > 0) {
+    const earlier = new Date(ms - overlap);
+    const later = new Date(ms + overlap);
+    if (matches(earlier)) return { kind: 'repeated', earlier: earlier.toISOString(), later: candidate.toISOString() };
+    if (matches(later)) return { kind: 'repeated', earlier: candidate.toISOString(), later: later.toISOString() };
   }
   return { kind: 'unique', instant: candidate.toISOString() };
 }

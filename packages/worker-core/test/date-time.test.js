@@ -75,8 +75,12 @@ test('classifies Denver event times without moving missing times or choosing a r
   assert.deepEqual(resolve('2026-03-08', '01:59'), { kind: 'unique', instant: '2026-03-08T08:59:00.000Z' });
   assert.deepEqual(resolve('2026-03-08', '02:30'), { kind: 'missing' });
   assert.deepEqual(resolve('2026-03-08', '03:00'), { kind: 'unique', instant: '2026-03-08T09:00:00.000Z' });
-  assert.deepEqual(resolve('2026-11-01', '01:00'), { kind: 'repeated' });
-  assert.deepEqual(resolve('2026-11-01', '01:59'), { kind: 'repeated' });
+  assert.deepEqual(resolve('2026-11-01', '01:00'), {
+    kind: 'repeated', earlier: '2026-11-01T07:00:00.000Z', later: '2026-11-01T08:00:00.000Z'
+  });
+  assert.deepEqual(resolve('2026-11-01', '01:59'), {
+    kind: 'repeated', earlier: '2026-11-01T07:59:00.000Z', later: '2026-11-01T08:59:00.000Z'
+  });
   assert.deepEqual(resolve('2026-11-01', '02:00'), { kind: 'unique', instant: '2026-11-01T09:00:00.000Z' });
   for (const [date, time] of [['2026-02-29', '12:00'], ['2026-09-21', '24:00'], ['2026-09-21', '7:05'], ['x', '12:00']]) {
     assert.deepEqual(resolve(date, time), { kind: 'missing' });
@@ -85,8 +89,12 @@ test('classifies Denver event times without moving missing times or choosing a r
 });
 
 test('handles positive offsets, half-hour transitions, and skipped dates', () => {
-  assert.deepEqual(classifyLocalTime('2026-10-25', '02:30', 'Europe/Paris'), { kind: 'repeated' });
-  assert.deepEqual(classifyLocalTime('2026-04-05', '01:45', 'Australia/Lord_Howe'), { kind: 'repeated' });
+  assert.deepEqual(classifyLocalTime('2026-10-25', '02:30', 'Europe/Paris'), {
+    kind: 'repeated', earlier: '2026-10-25T00:30:00.000Z', later: '2026-10-25T01:30:00.000Z'
+  });
+  assert.deepEqual(classifyLocalTime('2026-04-05', '01:45', 'Australia/Lord_Howe'), {
+    kind: 'repeated', earlier: '2026-04-04T14:45:00.000Z', later: '2026-04-04T15:15:00.000Z'
+  });
   assert.deepEqual(classifyLocalTime('2026-10-04', '02:15', 'Australia/Lord_Howe'), { kind: 'missing' });
   assert.deepEqual(classifyLocalTime('2026-10-04', '02:30', 'Australia/Lord_Howe'), { kind: 'unique', instant: '2026-10-03T15:30:00.000Z' });
   assert.deepEqual(classifyLocalTime('2011-12-30', '12:00', 'Pacific/Apia'), { kind: 'missing' });
