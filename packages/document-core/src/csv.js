@@ -1,7 +1,7 @@
 // Limits count UTF-16 code units, matching String.length and slice.
 export function readCsvRows(text, {
   maxChars = 1_048_576, maxRows = 10_000, maxColumns = 256, maxCellChars = 65_536,
-  includeRow = () => true, incomplete = "drop"
+  includeRow = () => true, incomplete = "drop", skipUnretainedFinalRow = false
 } = {}) {
   if (typeof text !== "string" || typeof includeRow !== "function") throw new TypeError("Expected CSV text and a row predicate");
   if (!["keep", "drop"].includes(incomplete)) throw new TypeError("Unknown incomplete row policy");
@@ -55,7 +55,8 @@ export function readCsvRows(text, {
     else issues.add("cell");
   }
   if (quoted) issues.add("incomplete");
-  if (end === text.length && (!quoted || incomplete === "keep") && end > rowStart) {
+  const hasFinalRow = skipUnretainedFinalRow ? row.length > 0 || field.length > 0 : end > rowStart;
+  if (end === text.length && (!quoted || incomplete === "keep") && hasFinalRow) {
     finishRow(true);
   }
   return { rows, issues: [...issues] };

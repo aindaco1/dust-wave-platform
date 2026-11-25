@@ -4,7 +4,7 @@ Import only the entry your application uses. Both operate in memory in browsers 
 
 ## CSV rows
 
-`readCsvRows(text, options)` returns string rows and an ordered list of distinct issues. The defaults allow 1,048,576 input characters, 10,000 included rows, 256 columns and 65,536 characters per field. Characters are UTF-16 code units. The reader preserves quoted line breaks and doubled quotes. It retains empty terminated rows by default. An optional predicate runs before the row limit and receives an end-of-input flag. An unfinished quoted row is dropped unless the caller selects `incomplete: "keep"`. A row cut off by the input limit is always dropped. The caller owns BOM handling, header mapping and policy for partial results.
+`readCsvRows(text, options)` returns string rows and an ordered list of distinct issues. The defaults allow 1,048,576 input characters, 10,000 included rows, 256 columns and 65,536 characters per field. Characters are UTF-16 code units. The reader preserves quoted line breaks and doubled quotes. It retains empty terminated rows by default. An optional predicate runs before the row limit and receives an end-of-input flag. An unfinished quoted row is dropped unless the caller selects `incomplete: "keep"`. A row cut off by the input limit is always dropped. Set `skipUnretainedFinalRow` to finalize the last row only when a column or a nonempty field survived the limits. Terminated rows still use the normal policy. The caller owns BOM handling, header mapping and policy for partial results.
 
 ## PDF pages
 

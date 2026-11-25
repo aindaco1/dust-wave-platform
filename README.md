@@ -21,7 +21,7 @@ repository contribution rules.
 
 | Package | Purpose and reference | Version |
 |---|---|---|
-| `@dustwave/document-core` | [Bounded CSV rows and local PDF page selection](packages/document-core/README.md) | `0.1.0`|
+| `@dustwave/document-core` | [Bounded CSV rows and local PDF page selection](packages/document-core/README.md) | `0.2.0`|
 | `@dustwave/digest-core` | [Responsive digest HTML presentation and escaping](packages/digest-core/README.md) | `0.1.0`|
 | `@dustwave/inventory-core` | [Inventory snapshots, counts, and expiring reservations](packages/inventory-core/README.md) | `0.1.0`|
 | `@dustwave/worker-core` | [Worker HTTP, security, providers, sessions, logging, and outbox mechanics](packages/worker-core/README.md) | `0.18.0`|

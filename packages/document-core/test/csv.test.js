@@ -26,3 +26,10 @@ test("zero limits are valid consumer policy", () => {
   assert.deepEqual(readCsvRows("x", { maxRows: 0 }), { rows: [], issues: ["rows"] });
   assert.deepEqual(readCsvRows("x", { maxCellChars: 0, maxColumns: 0 }), { rows: [[]], issues: ["cell", "columns"] });
 });
+
+test("can skip a final row with no retained fields without skipping terminated rows", () => {
+  const options = { skipUnretainedFinalRow: true, maxColumns: 0, maxCellChars: 0 };
+  assert.deepEqual(readCsvRows('""', options), { rows: [], issues: [] });
+  assert.deepEqual(readCsvRows("x", options), { rows: [], issues: ["cell"] });
+  assert.deepEqual(readCsvRows('""\n', options), { rows: [[]], issues: ["columns"] });
+});

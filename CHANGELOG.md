@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.59.0 - 2026-11-25
+
+- Document Core 0.2.0 lets bounded importers skip an unterminated final row when no field survived their limits.
+
 ## 0.58.0 - 2026-11-25
 
 - Document Core adds bounded CSV rows and ordered, local PDF page assembly.
