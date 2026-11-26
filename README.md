@@ -23,6 +23,7 @@ repository contribution rules.
 |---|---|---|
 | `@dustwave/document-core` | [Bounded CSV rows and local PDF page selection](packages/document-core/README.md) | `0.2.0`|
 | `@dustwave/digest-core` | [Responsive digest HTML presentation and escaping](packages/digest-core/README.md) | `0.1.0`|
+| `@dustwave/coupon-core` | [Coupon codes and cent-rounded discounts](packages/coupon-core/README.md) | `0.1.0`|
 | `@dustwave/inventory-core` | [Inventory snapshots, counts, and expiring reservations](packages/inventory-core/README.md) | `0.1.0`|
 | `@dustwave/worker-core` | [Worker HTTP, security, providers, sessions, logging, and outbox mechanics](packages/worker-core/README.md) | `0.21.0`|
 | `@dustwave/shipping-core` | [Shipping profiles, quotes, USPS transport, and country data](packages/shipping-core/README.md) | `0.2.1`|
