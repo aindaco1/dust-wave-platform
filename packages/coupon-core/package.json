@@ -1,0 +1,7 @@
+{
+  "name": "@dustwave/coupon-core",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": "./src/index.js",
+  "license": "MIT"
+}
